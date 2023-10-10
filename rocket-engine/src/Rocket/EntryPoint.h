@@ -5,6 +5,7 @@
 
 	int main(int argc, char** argv)
 	{
+		Rocket::Log::init();
 		auto app = Rocket::createApplication();
 		app->run();
 		delete app;

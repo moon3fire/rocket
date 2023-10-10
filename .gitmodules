@@ -1,0 +1,3 @@
+[submodule "rocket-engine/vendors/spdlog"]
+	path = rocket-engine/vendors/spdlog
+	url = https://github.com/gabime/spdlog

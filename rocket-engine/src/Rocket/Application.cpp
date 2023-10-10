@@ -1,5 +1,8 @@
 #include "Application.h"
 
+#include "Rocket/Events/ApplicationEvent.h"
+#include "Rocket/Log.h"
+
 namespace Rocket {
 
 	Application::Application() {}
@@ -7,7 +10,8 @@ namespace Rocket {
 	Application::~Application() {}
 
 	void Application::run() {
-		while (true);
+		WindowResizeEvent event(1280, 720);
+		RCKT_INFO(event);
 	}
 
 } // namespace Rocket
