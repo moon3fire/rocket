@@ -10,6 +10,12 @@ workspace "rocket-engine"
 
 outputdir = "%{cfg.buildcfg}-%{cfg.system}-%{cfg.architecture}"
 
+-- Include directories relative to root folder (solution directory)
+IncludeDir = {}
+IncludeDir["GLFW"] = "rocket-engine/vendors/GLFW/include"
+
+include "rocket-engine/vendors/GLFW"
+
 project "rocket-engine"
 	location "rocket-engine"
 	kind "SharedLib"
@@ -17,6 +23,9 @@ project "rocket-engine"
 
 	targetdir ("bin/" .. outputdir .. "/%{prj.name}")
 	objdir ("bin-int/" .. outputdir .. "/%{prj.name}")
+
+	pchheader "rcktpch.h"
+	pchsource "rocket-engine/src/rcktpch.cpp"
 
 	files 
 	{
@@ -26,25 +35,35 @@ project "rocket-engine"
 
 	includedirs
 	{
+		"%{prj.name}/src",
 		"%{prj.name}/vendors/spdlog/include",
-		"%{prj.name}/src"
+		"%{IncludeDir.GLFW}"
+	}
+
+	links 
+	{
+		"GLFW",
+		"opengl32.lib"
 	}
 
 	filter "system:windows"
 		cppdialect "C++20"
 		staticruntime "On"
 		systemversion "latest"
+		buildoptions "/MD"
 
 		defines 
 		{
 			 "RCKT_PLATFORM_WINDOWS",
-			 "RCKT_BUILD_DLL"
+			 "RCKT_BUILD_DLL",
+			 "RCKT_ENABLE_ASSERTS"
 		}
 
 		postbuildcommands
 		{
-			("{COPY} %{cfg.buildtarget.relpath} ../bin/" .. outputdir .. "/Sandbox")
+    		("{COPY} %{cfg.buildtarget.relpath} ../bin/" .. outputdir .. "/Sandbox")
 		}
+
 
 	filter "configurations:Debug"
 		defines "RCKT_DEBUG"

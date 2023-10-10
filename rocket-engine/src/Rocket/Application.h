@@ -2,6 +2,7 @@
 
 #include "Core.h"
 #include "Events/Event.h"
+#include "Window.h"
 
 namespace Rocket {
 
@@ -13,9 +14,13 @@ namespace Rocket {
 		void run();
 
 
-		//to be defined in client
+
+	private:
+		std::unique_ptr<Window> m_window;
+		bool m_running;
 	};
 
+	//to be defined in client
 	Application* createApplication();
 
 } // namespace Rocket

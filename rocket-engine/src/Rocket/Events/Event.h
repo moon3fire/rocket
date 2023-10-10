@@ -2,10 +2,6 @@
 
 #include <Rocket/Core.h>
 
-//std
-#include <string>
-#include <functional>
-
 namespace Rocket {
 
 	//events are currently blocking type!

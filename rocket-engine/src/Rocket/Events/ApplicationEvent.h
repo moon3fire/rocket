@@ -2,10 +2,6 @@
 
 #include "Event.h"
 
-
-//std
-#include <sstream>
-
 namespace Rocket {
 
 	class ROCKET_API WindowResizeEvent : public Event {

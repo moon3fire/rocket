@@ -1,3 +1,6 @@
 [submodule "rocket-engine/vendors/spdlog"]
 	path = rocket-engine/vendors/spdlog
 	url = https://github.com/gabime/spdlog
+[submodule "rocket-engine/vendors/GLFW"]
+	path = rocket-engine/vendors/GLFW
+	url = https://github.com/TheCherno/GLFW

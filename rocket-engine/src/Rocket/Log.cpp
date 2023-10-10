@@ -1,3 +1,4 @@
+#include "rcktpch.h"
 #include "Log.h"
 
 namespace Rocket {
