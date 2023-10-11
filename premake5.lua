@@ -71,7 +71,7 @@ project "rocket-engine"
 
 		postbuildcommands
 		{
-    		("{COPY} %{cfg.buildtarget.relpath} ../bin/" .. outputdir .. "/Sandbox")
+    		("{COPY} %{cfg.buildtarget.relpath} \"../bin/" .. outputdir .. "/Sandbox/\"")
 		}
 
 
