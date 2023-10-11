@@ -31,7 +31,7 @@ namespace Rocket {
 
 	class ROCKET_API Event {
 		
-		friend class EventDispatcher;
+		//friend class EventDispatcher;
 	
 	public:
 		virtual EventType getEventType() const = 0;
@@ -43,7 +43,6 @@ namespace Rocket {
 			return getCategoryFlags() & category;
 		}
 		
-	protected:
 		bool m_handled = false;
 	};
 

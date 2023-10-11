@@ -26,6 +26,8 @@ namespace Rocket {
 	};
 
 	class ROCKET_API WindowCloseEvent : public Event {
+	
+	public:
 		WindowCloseEvent() {}
 		
 		EVENT_CLASS_TYPE(WindowClose)

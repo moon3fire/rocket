@@ -3,6 +3,7 @@
 // For use by sandbox apps
 
 #include "Rocket/Application.h"
+#include "Rocket/Layer.h"
 #include "Rocket/Log.h"
 
 /*______________________________________________________________________________

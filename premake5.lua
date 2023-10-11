@@ -13,8 +13,10 @@ outputdir = "%{cfg.buildcfg}-%{cfg.system}-%{cfg.architecture}"
 -- Include directories relative to root folder (solution directory)
 IncludeDir = {}
 IncludeDir["GLFW"] = "rocket-engine/vendors/GLFW/include"
+IncludeDir["Glad"] = "rocket-engine/vendors/Glad/include"
 
 include "rocket-engine/vendors/GLFW"
+include "rocket-engine/vendors/Glad"
 
 project "rocket-engine"
 	location "rocket-engine"
@@ -37,12 +39,14 @@ project "rocket-engine"
 	{
 		"%{prj.name}/src",
 		"%{prj.name}/vendors/spdlog/include",
-		"%{IncludeDir.GLFW}"
+		"%{IncludeDir.GLFW}",
+		"%{IncludeDir.Glad}"
 	}
 
 	links 
 	{
 		"GLFW",
+		"Glad",
 		"opengl32.lib"
 	}
 
@@ -50,12 +54,12 @@ project "rocket-engine"
 		cppdialect "C++20"
 		staticruntime "On"
 		systemversion "latest"
-		buildoptions "/MD"
 
 		defines 
 		{
 			 "RCKT_PLATFORM_WINDOWS",
 			 "RCKT_BUILD_DLL",
+			 "GLFW_INCLUDE_NONE",
 			 "RCKT_ENABLE_ASSERTS"
 		}
 
@@ -67,16 +71,19 @@ project "rocket-engine"
 
 	filter "configurations:Debug"
 		defines "RCKT_DEBUG"
+		buildoptions "/MDd"
 		symbols "On"
 
 	
 	filter "configurations:Release"
 		defines "RCKT_RELEASE"
+		buildoptions "/MD"
 		optimize "On"
 
 	
 	filter "configurations:Dist"
 		defines "RCKT_DIST"
+		buildoptions "/MD"
 		optimize "On"
 
 project "Sandbox"
@@ -116,14 +123,17 @@ project "Sandbox"
 
 	filter "configurations:Debug"
 		defines "RCKT_DEBUG"
+		buildoptions "/MDd"
 		symbols "On"
 
 	
 	filter "configurations:Release"
 		defines "RCKT_RELEASE"
+		buildoptions "/MD"
 		optimize "On"
 
 	
 	filter "configurations:Dist"
 		defines "RCKT_DIST"
+		buildoptions "/MD"
 		optimize "On"

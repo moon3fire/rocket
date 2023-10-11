@@ -2,7 +2,6 @@
 .vs/
 bin/
 bin-int/
-rocket-engine/vendors/*
 
 # Files
 *.user
