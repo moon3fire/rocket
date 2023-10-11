@@ -48,4 +48,18 @@ namespace Rocket {
 		EVENT_CLASS_TYPE(KeyReleased)
 	};
 
+	class ROCKET_API KeyTypedEvent : public KeyEvent {
+
+	public:
+		KeyTypedEvent(unsigned int keycode) :KeyEvent(keycode) {}
+
+		std::string toString() const override {
+			std::stringstream ss;
+			ss << "KeyTypedEvent: " << m_keyCode;
+			return ss.str();
+		}
+
+		EVENT_CLASS_TYPE(KeyTyped)
+	};
+
 } // namespace Rocket

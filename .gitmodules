@@ -4,3 +4,6 @@
 [submodule "rocket-engine/vendors/GLFW"]
 	path = rocket-engine/vendors/GLFW
 	url = https://github.com/TheCherno/GLFW
+[submodule "rocket-engine/vendors/imgui"]
+	path = rocket-engine/vendors/imgui
+	url = https://github.com/TheCherno/imgui

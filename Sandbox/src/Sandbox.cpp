@@ -20,6 +20,7 @@ class Sandbox : public Rocket::Application {
 public:
 	Sandbox() {
 		pushLayer(new ExampleLayer());
+		pushOverlay(new Rocket::ImGuiLayer());
 	}
 
 	~Sandbox() {
