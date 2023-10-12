@@ -7,6 +7,10 @@
 #include "Rocket/Log.h"
 #include "Rocket/ImGui/ImGuiLayer.h"
 
+#include "Rocket/Input.h"
+#include "Rocket/MouseButtonCodes.h"
+#include "Rocket/KeyCodes.h"
+
 /*______________________________________________________________________________
 __________________________________ENTRY POINT___________________________________*/
 #include "Rocket/EntryPoint.h"

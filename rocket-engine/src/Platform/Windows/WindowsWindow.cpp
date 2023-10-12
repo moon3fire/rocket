@@ -156,8 +156,6 @@ namespace Rocket {
 		return m_data.VSync;
 	}
 
-	
-
 	void WindowsWindow::shutdown() {
 		glfwDestroyWindow(m_window);
 	}

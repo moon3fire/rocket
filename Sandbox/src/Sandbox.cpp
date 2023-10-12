@@ -12,7 +12,10 @@ public:
 	}
 
 	void onEvent(Rocket::Event& event) override {
-		RCKT_TRACE("{0}", event);
+		//RCKT_TRACE("{0}", event);
+		if (Rocket::Input::isKeyPressed(RCKT_KEY_0)) {
+			RCKT_INFO("0 key is being pressed");
+		}
 	}
 };
 
@@ -20,7 +23,6 @@ class Sandbox : public Rocket::Application {
 public:
 	Sandbox() {
 		pushLayer(new ExampleLayer());
-		pushOverlay(new Rocket::ImGuiLayer());
 	}
 
 	~Sandbox() {

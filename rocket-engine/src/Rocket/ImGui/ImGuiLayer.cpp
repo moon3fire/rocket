@@ -2,7 +2,10 @@
 #include "ImGuiLayer.h"
 
 #include "imgui.h"
-#include "Platform/OpenGL/ImGuiOpenGLRenderer.h"
+
+#define IMGUI_IMPL_API
+#include "examples/imgui_impl_glfw.h"
+#include "examples/imgui_impl_opengl3.h"
 
 #include "Rocket/Application.h"
 
@@ -21,144 +24,72 @@ namespace Rocket {
 	}
 
 	void ImGuiLayer::onAttach() {
-		ImGui::CreateContext();
-		ImGui::StyleColorsDark();
+	    //Setup ImGui context
+        IMGUI_CHECKVERSION();
+        ImGui::CreateContext();
+        ImGuiIO& io = ImGui::GetIO(); (void)io;
+        io.ConfigFlags |= ImGuiConfigFlags_NavEnableKeyboard;
+        //same can be done with gamepad
+        io.ConfigFlags |= ImGuiConfigFlags_DockingEnable;
+        io.ConfigFlags |= ImGuiConfigFlags_ViewportsEnable;
+        //can be done with viewport no taskbar icons
+        //can be done for viewports with no merge
 
-		ImGuiIO& io = ImGui::GetIO();
-		io.BackendFlags = ImGuiBackendFlags_HasMouseCursors;
-		io.BackendFlags = ImGuiBackendFlags_HasSetMousePos;
+        //style setup
+        ImGui::StyleColorsDark();
+        //can be classic
 
-        io.KeyMap[ImGuiKey_Tab] = GLFW_KEY_TAB;
-        io.KeyMap[ImGuiKey_LeftArrow] = GLFW_KEY_LEFT;
-        io.KeyMap[ImGuiKey_RightArrow] = GLFW_KEY_RIGHT;
-        io.KeyMap[ImGuiKey_UpArrow] = GLFW_KEY_UP;
-        io.KeyMap[ImGuiKey_DownArrow] = GLFW_KEY_DOWN;
-        io.KeyMap[ImGuiKey_PageUp] = GLFW_KEY_PAGE_UP;
-        io.KeyMap[ImGuiKey_PageDown] = GLFW_KEY_PAGE_DOWN;
-        io.KeyMap[ImGuiKey_Home] = GLFW_KEY_HOME;
-        io.KeyMap[ImGuiKey_End] = GLFW_KEY_END;
-        io.KeyMap[ImGuiKey_Insert] = GLFW_KEY_INSERT;
-        io.KeyMap[ImGuiKey_Delete] = GLFW_KEY_DELETE;
-        io.KeyMap[ImGuiKey_Backspace] = GLFW_KEY_BACKSPACE;
-        io.KeyMap[ImGuiKey_Space] = GLFW_KEY_SPACE;
-        io.KeyMap[ImGuiKey_Enter] = GLFW_KEY_ENTER;
-        io.KeyMap[ImGuiKey_Escape] = GLFW_KEY_ESCAPE;
-        io.KeyMap[ImGuiKey_A] = GLFW_KEY_A;
-        io.KeyMap[ImGuiKey_C] = GLFW_KEY_C;
-        io.KeyMap[ImGuiKey_V] = GLFW_KEY_V;
-        io.KeyMap[ImGuiKey_X] = GLFW_KEY_X;
-        io.KeyMap[ImGuiKey_Y] = GLFW_KEY_Y;
-        io.KeyMap[ImGuiKey_Z] = GLFW_KEY_Z;
+        //if viewports enabled tweak window rounding
+        ImGuiStyle& style = ImGui::GetStyle();
+        if (io.ConfigFlags & ImGuiConfigFlags_ViewportsEnable) {
+            style.WindowRounding = 0.0f;
+            style.Colors[ImGuiCol_WindowBg].w = 1.0f;
+        }
 
+        Application& app = Application::get();
+        GLFWwindow* window = static_cast<GLFWwindow*>(app.getWindow().getNativeWindow());
+
+        //setup platform, renderer bindings
+        ImGui_ImplGlfw_InitForOpenGL(window, true);
         ImGui_ImplOpenGL3_Init("#version 410");
     }
 
 	void ImGuiLayer::onDetach() {
-
+        ImGui_ImplOpenGL3_Shutdown();
+        ImGui_ImplGlfw_Shutdown();
+        ImGui::DestroyContext();
 	}
 
-	void ImGuiLayer::onUpdate() {
+    void ImGuiLayer::onImGuiRender() {
+        static bool show = true;
+        ImGui::ShowDemoWindow(&show);
+    }
+
+
+    void ImGuiLayer::begin() {
+        ImGui_ImplOpenGL3_NewFrame();
+        ImGui_ImplGlfw_NewFrame();
+        ImGui::NewFrame();
+    }
+
+    void ImGuiLayer::end() {
         ImGuiIO& io = ImGui::GetIO();
         Application& app = Application::get();
         io.DisplaySize = ImVec2(app.getWindow().getWidth(), app.getWindow().getHeight());
 
-        float time = (float)glfwGetTime();
-        io.DeltaTime = m_time > 0.0f ? (time - m_time) : (1.0f / 60.0f);
-        m_time = time;
-
-        ImGui_ImplOpenGL3_NewFrame();
-        ImGui::NewFrame();
-
-        static bool show = true;
-        ImGui::ShowDemoWindow(&show);
-
+        // rendering
         ImGui::Render();
         ImGui_ImplOpenGL3_RenderDrawData(ImGui::GetDrawData());
-	}
 
-	void ImGuiLayer::onEvent(Event& event) {
-        EventDispatcher dispatcher(event);
-
-        dispatcher.dispatch<MouseButtonPressedEvent>(RCKT_BIND_EVENT_FUNC(ImGuiLayer::onMouseButtonPressedEvent));
-        dispatcher.dispatch<MouseButtonReleasedEvent>(RCKT_BIND_EVENT_FUNC(ImGuiLayer::onMouseButtonReleasedEvent));
-        dispatcher.dispatch<MouseMovedEvent>(RCKT_BIND_EVENT_FUNC(ImGuiLayer::onMouseMovedEvent));
-        dispatcher.dispatch<MouseScrolledEvent>(RCKT_BIND_EVENT_FUNC(ImGuiLayer::onMouseScrolledEvent));
-        dispatcher.dispatch<KeyPressedEvent>(RCKT_BIND_EVENT_FUNC(ImGuiLayer::onKeyPressedEvent));
-        dispatcher.dispatch<KeyReleasedEvent>(RCKT_BIND_EVENT_FUNC(ImGuiLayer::onKeyReleasedEvent));
-        dispatcher.dispatch<KeyTypedEvent>(RCKT_BIND_EVENT_FUNC(ImGuiLayer::onKeyTypedEvent));
-        dispatcher.dispatch<WindowResizeEvent>(RCKT_BIND_EVENT_FUNC(ImGuiLayer::onWindowResizedEvent));
-
-	}
-
-    bool ImGuiLayer::onMouseButtonPressedEvent(MouseButtonPressedEvent& event) {
-        ImGuiIO& io = ImGui::GetIO();
-        io.MouseDown[event.getMouseButton()] = true;
-
-        return false;
-    }
-
-    bool ImGuiLayer::onMouseButtonReleasedEvent(MouseButtonReleasedEvent& event) {
-        ImGuiIO& io = ImGui::GetIO();
-        io.MouseDown[event.getMouseButton()] = false;
-
-        return false;
-    }
-
-    bool ImGuiLayer::onMouseMovedEvent(MouseMovedEvent& event) {
-        ImGuiIO& io = ImGui::GetIO();
-        io.MousePos = ImVec2(event.getX(), event.getY());
-
-        return false;
-    }
-
-    bool ImGuiLayer::onMouseScrolledEvent(MouseScrolledEvent& event) {
-        ImGuiIO& io = ImGui::GetIO();
-        io.MouseWheelH += event.getOffsetX();
-        io.MouseWheel += event.getOffsetY();
-
-        return false;
-    }
-
-    bool ImGuiLayer::onKeyPressedEvent(KeyPressedEvent& event) {
-        ImGuiIO& io = ImGui::GetIO();
-
-        io.KeyCtrl = io.KeysDown[GLFW_KEY_LEFT_CONTROL || GLFW_KEY_RIGHT_CONTROL];
-        io.KeyShift = io.KeysDown[GLFW_KEY_LEFT_SHIFT || GLFW_KEY_RIGHT_SHIFT];
-        io.KeyAlt = io.KeysDown[GLFW_KEY_LEFT_ALT || GLFW_KEY_RIGHT_ALT];
-        io.KeySuper = io.KeysDown[GLFW_KEY_LEFT_SUPER || GLFW_KEY_RIGHT_SUPER];
-
-        io.KeysDown[event.getKeyCode()] = true;
-
-        return false;
-    }
-
-    bool ImGuiLayer::onKeyReleasedEvent(KeyReleasedEvent& event) {
-        ImGuiIO& io = ImGui::GetIO();
-        io.KeysDown[event.getKeyCode()] = false;
-
-        return false;
-    }
-
-    bool ImGuiLayer::onKeyTypedEvent(KeyTypedEvent& event) {
-        ImGuiIO& io = ImGui::GetIO();
-        int keycode = event.getKeyCode();
-        if (keycode > 0 && keycode < 0x10000) {
-            io.AddInputCharacter((unsigned short)keycode);
+        if (io.ConfigFlags & ImGuiConfigFlags_ViewportsEnable) {
+            GLFWwindow* backup_current_context = glfwGetCurrentContext();
+            ImGui::UpdatePlatformWindows();
+            ImGui::RenderPlatformWindowsDefault();
+            glfwMakeContextCurrent(backup_current_context);
         }
-
-        return false;
     }
 
 
-    bool ImGuiLayer::onWindowResizedEvent(WindowResizeEvent& event) {
-        ImGuiIO& io = ImGui::GetIO();
-        io.DisplaySize = ImVec2(event.getWidth(), event.getHeight());
-        io.DisplayFramebufferScale = ImVec2(1.0f, 1.0f);
-        glViewport(0, 0, event.getWidth(), event.getHeight());
 
-        //RCKT_CORE_TRACE("IMGUI EVENT HAPPENING OMG: {0}", event);
-
-        return false;
-    }
 
 } // namespace Rocket

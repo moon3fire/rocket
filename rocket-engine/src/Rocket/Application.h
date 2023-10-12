@@ -7,6 +7,7 @@
 
 #include "Rocket/Events/ApplicationEvent.h"
 #include "Rocket/LayerStack.h"
+#include "Rocket/ImGui/ImGuiLayer.h"
 
 namespace Rocket {
 
@@ -28,6 +29,7 @@ namespace Rocket {
 		bool onWindowClose(WindowCloseEvent& event);
 
 		std::unique_ptr<Window> m_window;
+		ImGuiLayer* m_imguiLayer;
 		bool m_running;
 		LayerStack m_layerStack;
 

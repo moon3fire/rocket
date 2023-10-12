@@ -15,22 +15,14 @@ namespace Rocket {
 		ImGuiLayer();
 		~ImGuiLayer();
 
-		void onAttach() override;
-		void onDetach() override;
-		void onUpdate() override;
-		void onEvent(Event& event) override;
+		virtual void onAttach() override;
+		virtual void onDetach() override;
+		virtual void onImGuiRender() override;
+
+		void begin();
+		void end();
 
 	private:
-
-		bool onMouseButtonPressedEvent(MouseButtonPressedEvent& event);
-		bool onMouseButtonReleasedEvent(MouseButtonReleasedEvent& event);
-		bool onMouseMovedEvent(MouseMovedEvent& event);
-		bool onMouseScrolledEvent(MouseScrolledEvent& event);
-		bool onKeyPressedEvent(KeyPressedEvent& event);
-		bool onKeyReleasedEvent(KeyReleasedEvent& event);
-		bool onKeyTypedEvent(KeyTypedEvent& event);
-		bool onWindowResizedEvent(WindowResizeEvent& event);
-
 		//variables
 		float m_time = 0.0f;
 	};

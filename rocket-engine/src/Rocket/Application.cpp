@@ -5,6 +5,8 @@
 
 #include "glad/glad.h"
 
+#include "Input.h"
+
 namespace Rocket {
 
 #define BIND_EVENT_FUNC(x) std::bind(&x, this, std::placeholders::_1)
@@ -17,6 +19,9 @@ namespace Rocket {
 
 		m_window = std::unique_ptr<Window>(Window::create());
 		m_window->setEventCallback(BIND_EVENT_FUNC(Application::onEvent));
+
+		m_imguiLayer = new ImGuiLayer();
+		pushOverlay(m_imguiLayer);
 	}
 
 	Application::~Application() {}
@@ -51,9 +56,15 @@ namespace Rocket {
 			glClearColor(1, 0, 1, 1);
 			glClear(GL_COLOR_BUFFER_BIT);
 
+
 			for (Layer* layer : m_layerStack) {
 				layer->onUpdate();
 			}
+			m_imguiLayer->begin();
+			for (Layer* layer : m_layerStack) {
+				layer->onImGuiRender();
+			}
+			m_imguiLayer->end();
 
 			m_window->onUpdate();
 		}
