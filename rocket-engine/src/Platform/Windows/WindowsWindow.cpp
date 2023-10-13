@@ -1,11 +1,15 @@
 #include "rcktpch.h"
 #include "WindowsWindow.h"
 
+
+
 #include "Rocket/Events/ApplicationEvent.h"
 #include "Rocket/Events/KeyEvent.h"
 #include "Rocket/Events/MouseEvent.h"
 
-#include "glad/glad.h"
+#include "Rocket/Renderer/GraphicsContext.h"
+#include "Platform/OpenGL/OpenGLContext.h"
+
 
 namespace Rocket {
 
@@ -43,11 +47,8 @@ namespace Rocket {
 		}
 
 		m_window = glfwCreateWindow((int)props.width, (int)props.height, m_data.title.c_str(), nullptr, nullptr);
-		glfwMakeContextCurrent(m_window);
-		
-		//Glad init
-		int status = gladLoadGLLoader((GLADloadproc)glfwGetProcAddress);
-		RCKT_CORE_ASSERT(status, "Failed to Initialize Glad");
+		m_context = new OpenGLContext(m_window);
+		m_context->init();
 
 		glfwSetWindowUserPointer(m_window, &m_data);
 		setVSync(true);
@@ -138,7 +139,7 @@ namespace Rocket {
 
 	void WindowsWindow::onUpdate() {
 		glfwPollEvents();
-		glfwSwapBuffers(m_window);
+		m_context->swapBuffers();
 	}
 
 	void WindowsWindow::setVSync(bool enabled) {
