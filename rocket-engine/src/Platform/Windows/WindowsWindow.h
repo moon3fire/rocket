@@ -28,6 +28,7 @@ namespace Rocket {
 		virtual void shutdown();
 
 		GLFWwindow* m_window;
+		GraphicContext* m_context;
 
 		struct WindowData {
 			std::string title;
