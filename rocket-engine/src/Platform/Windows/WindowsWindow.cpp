@@ -7,7 +7,7 @@
 #include "Rocket/Events/KeyEvent.h"
 #include "Rocket/Events/MouseEvent.h"
 
-#include "Rocket/Renderer/GraphicContext.h"
+#include "Rocket/Renderer/GraphicsContext.h"
 #include "Platform/OpenGL/OpenGLContext.h"
 
 
@@ -48,7 +48,7 @@ namespace Rocket {
 
 		m_window = glfwCreateWindow((int)props.width, (int)props.height, m_data.title.c_str(), nullptr, nullptr);
 		m_context = new OpenGLContext(m_window);
-		m_context->Init();
+		m_context->init();
 
 		glfwSetWindowUserPointer(m_window, &m_data);
 		setVSync(true);
@@ -139,7 +139,7 @@ namespace Rocket {
 
 	void WindowsWindow::onUpdate() {
 		glfwPollEvents();
-		m_context->SwapBuffers();
+		m_context->swapBuffers();
 	}
 
 	void WindowsWindow::setVSync(bool enabled) {

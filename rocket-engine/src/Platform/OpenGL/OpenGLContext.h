@@ -1,19 +1,24 @@
 #pragma once
 
-#include "Rocket/Renderer/GraphicContext.h"
+#include "Rocket/Renderer/GraphicsContext.h"
 #include "GLFW/glfw3.h"
 
 class GLFWwindow;
 
 namespace Rocket {
-	class OpenGLContext: public GraphicContext
-	{
+	
+	class OpenGLContext: public GraphicsContext {
+
 	public:
+		
 		OpenGLContext(GLFWwindow* windowHandle);
 
-		virtual void Init() override;
-		virtual void SwapBuffers() override;
+		virtual void init() override;
+		virtual void swapBuffers() override;
+	
 	private:
+		
 		GLFWwindow* m_windowHandle;
 	};
+
 } // namespace Rocket

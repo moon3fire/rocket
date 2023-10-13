@@ -1,6 +1,7 @@
 #pragma once
 
 #include "Rocket/Window.h"
+#include "Platform/OpenGL/OpenGLContext.h"
 
 #include "GLFW/glfw3.h"
 
@@ -28,7 +29,7 @@ namespace Rocket {
 		virtual void shutdown();
 
 		GLFWwindow* m_window;
-		GraphicContext* m_context;
+		GraphicsContext* m_context;
 
 		struct WindowData {
 			std::string title;
