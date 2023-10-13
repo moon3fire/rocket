@@ -1,6 +1,5 @@
 workspace "rocket-engine"
 	architecture "x64"
-
 	configurations
 	{
 		"Debug",
@@ -24,15 +23,21 @@ include "rocket-engine/vendors/imgui"
 
 project "rocket-engine"
 	location "rocket-engine"
-	kind "SharedLib"
+	kind "StaticLib"
 	language "C++"
-	staticruntime "off"
+	cppdialect "C++20"
+	staticruntime "on"
 
 	targetdir ("bin/" .. outputdir .. "/%{prj.name}")
 	objdir ("bin-int/" .. outputdir .. "/%{prj.name}")
 
 	pchheader "rcktpch.h"
 	pchsource "rocket-engine/src/rcktpch.cpp"
+
+	defines
+	{
+		"_CRT_SECURE_NO_WARNINGS"
+	}
 
 	files 
 	{
@@ -69,34 +74,29 @@ project "rocket-engine"
 			 "RCKT_ENABLE_ASSERTS"
 		}
 
-		postbuildcommands
-		{
-    		("{COPY} %{cfg.buildtarget.relpath} \"../bin/" .. outputdir .. "/Sandbox/\"")
-		}
-
-
 	filter "configurations:Debug"
 		defines "RCKT_DEBUG"
 		runtime "Debug"
-		symbols "On"
+		symbols "on"
 
 	
 	filter "configurations:Release"
 		defines "RCKT_RELEASE"
 		runtime "Release"
-		optimize "On"
+		optimize "on"
 
 	
 	filter "configurations:Dist"
 		defines "RCKT_DIST"
 		runtime "Release"
-		optimize "On"
+		optimize "on"
 
 project "Sandbox"
 	location "Sandbox"
 	kind "ConsoleApp"
 	language "C++"
-	staticruntime "off"
+	cppdialect "C++20"
+	staticruntime "on"
 
 	targetdir ("bin/" .. outputdir .. "/%{prj.name}")
 	objdir ("bin-int/" .. outputdir .. "/%{prj.name}")
@@ -130,13 +130,13 @@ project "Sandbox"
 	filter "configurations:Debug"
 		defines "RCKT_DEBUG"
 		runtime "Debug"
-		symbols "On"
+		symbols "on"
 
 	
 	filter "configurations:Release"
 		defines "RCKT_RELEASE"
 		runtime "Release"
-		optimize "On"
+		optimize "on"
 
 	
 	filter "configurations:Dist"

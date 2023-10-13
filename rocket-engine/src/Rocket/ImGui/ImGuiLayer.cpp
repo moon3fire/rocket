@@ -3,7 +3,7 @@
 
 #include "imgui.h"
 
-#define IMGUI_IMPL_API
+//#define IMGUI_IMPL_API
 #include "examples/imgui_impl_glfw.h"
 #include "examples/imgui_impl_opengl3.h"
 
@@ -75,7 +75,7 @@ namespace Rocket {
     void ImGuiLayer::end() {
         ImGuiIO& io = ImGui::GetIO();
         Application& app = Application::get();
-        io.DisplaySize = ImVec2(app.getWindow().getWidth(), app.getWindow().getHeight());
+        io.DisplaySize = ImVec2((float)app.getWindow().getWidth(), (float)app.getWindow().getHeight());
 
         // rendering
         ImGui::Render();

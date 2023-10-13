@@ -1,6 +1,8 @@
 #include "rcktpch.h"
 #include <Rocket.h>
 
+#include "../vendors/imgui/imgui.h"
+
 class ExampleLayer : public Rocket::Layer {
 public:
 	ExampleLayer() :Layer("example") {
@@ -9,6 +11,13 @@ public:
 
 	void onUpdate() override {
 		//RCKT_INFO("ExampleLayer::Update");
+		
+	}
+
+	virtual void onImGuiRender() override {
+		ImGui::Begin("Test");
+		ImGui::Text("hello world");
+		ImGui::End();
 	}
 
 	void onEvent(Rocket::Event& event) override {
