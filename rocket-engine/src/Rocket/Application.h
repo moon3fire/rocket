@@ -9,6 +9,8 @@
 #include "Rocket/LayerStack.h"
 #include "Rocket/ImGui/ImGuiLayer.h"
 
+#include "Rocket/Renderer/Shader.h"
+
 namespace Rocket {
 
 	class ROCKET_API Application {
@@ -32,6 +34,10 @@ namespace Rocket {
 		ImGuiLayer* m_imguiLayer;
 		bool m_running;
 		LayerStack m_layerStack;
+
+		//temp
+		unsigned int m_VAO, m_vertexBuffer, m_indexBuffer;
+		std::unique_ptr<Shader> m_shader;
 
 		static Application* s_instance;
 	};
