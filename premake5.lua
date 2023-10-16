@@ -14,6 +14,7 @@ IncludeDir = {}
 IncludeDir["GLFW"] = "rocket-engine/vendors/GLFW/include"
 IncludeDir["Glad"] = "rocket-engine/vendors/Glad/include"
 IncludeDir["ImGui"] = "rocket-engine/vendors/imgui"
+IncludeDir["glm"] = "rocket-engine/vendors/glm"
 
 startproject "Sandbox"
 
@@ -51,7 +52,8 @@ project "rocket-engine"
 		"%{prj.name}/vendors/spdlog/include",
 		"%{IncludeDir.GLFW}",
 		"%{IncludeDir.Glad}",
-		"%{IncludeDir.ImGui}"
+		"%{IncludeDir.ImGui}",
+		"%{IncludeDir.glm}"
 	}
 
 	links 

@@ -3,9 +3,8 @@
 
 #include "Rocket/Log.h"
 
-#include "glad/glad.h"
-
 #include "Input.h"
+#include "Renderer/Renderer.h"
 
 namespace Rocket {
 
@@ -23,55 +22,122 @@ namespace Rocket {
 		m_imguiLayer = new ImGuiLayer();
 		pushOverlay(m_imguiLayer);
 
-		glGenVertexArrays(1, &m_VAO);
-		glBindVertexArray(m_VAO);
+		{
+			m_triangleVA.reset(VertexArray::create());
 
-		glGenBuffers(1, &m_vertexBuffer);
-		glBindBuffer(GL_ARRAY_BUFFER, m_vertexBuffer);
+			float triangleVertices[7 * 3] = {
+				-0.5f, -0.5f, 0.0f, 0.2f, 0.1f, 0.9f, 1.0f,
+				 0.5f, -0.5f, 0.0f, 1.0f, 1.0f, 1.0f, 1.0f,
+				 0.0f,  0.5f, 0.0f, 0.0f, 0.0f, 0.9f, 1.0f
+			};
 
-		float vertices[3 * 3] = {
-			-0.5f, -0.5f, 0.0f,
-			 0.5f, -0.5f, 0.0f,
-			 0.0f,  0.5f, 0.0f
-		};
+			std::shared_ptr<VertexBuffer> triangleVertexBuffer;
+			triangleVertexBuffer.reset(VertexBuffer::create(triangleVertices, sizeof(triangleVertices)));
+			/*
+			BufferLayout triangleLayout = {
+				{ ShaderDataType::Float3, "a_position" },
+				{ ShaderDataType::Float4, "a_color" }
+			};
+			*/
+			triangleVertexBuffer->setLayout(
+			{
+				{ ShaderDataType::Float3, "a_position" },
+				{ ShaderDataType::Float4, "a_color" } 
+			});
 
-		glBufferData(GL_ARRAY_BUFFER, sizeof(vertices), vertices, GL_STATIC_DRAW);
-		glEnableVertexAttribArray(0);
+			m_triangleVA->addVertexBuffer(triangleVertexBuffer);
+			uint32_t triangleIndices[3] = { 0, 1, 2 };
+			
+			std::shared_ptr<IndexBuffer> triangleIndexBuffer;
+			triangleIndexBuffer.reset(IndexBuffer::create(triangleIndices, sizeof(triangleIndexBuffer) / sizeof(uint32_t)));
 
-		glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 3 * sizeof(float), nullptr);
+			m_triangleVA->setIndexBuffer(triangleIndexBuffer);
+		}
 
-		glGenBuffers(1, &m_indexBuffer);
-		glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, m_indexBuffer);
+		{
+			m_squareVA.reset(VertexArray::create());
 
-		unsigned int indices[3] = { 0, 1, 2 };
-		glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(indices), indices, GL_STATIC_DRAW); \
+			float squareVertices[7 * 4] = {
+					-0.8f, -0.8f, 0.0f, 0.8f, 0.3f, 0.6f, 1.0f,
+					 0.8f, -0.8f, 0.0f, 0.4f, 0.9f, 0.1f, 1.0f,
+					 0.8f,  0.8f, 0.0f, 0.7f, 0.1f, 0.2f, 1.0f,
+					-0.8f,  0.8f, 0.0f, 0.3f, 0.4f, 0.5f, 1.0f
+			};
 
-		std::string vertexShaderSource = R"(
+			std::shared_ptr<VertexBuffer> squareVertexBuffer;
+			squareVertexBuffer.reset(VertexBuffer::create(squareVertices, sizeof(squareVertices)));
+
+			squareVertexBuffer->setLayout(
+			{
+				{ ShaderDataType::Float3, "a_position" },
+				{ ShaderDataType::Float4, "a_color" }
+			});
+
+			m_squareVA->addVertexBuffer(squareVertexBuffer);
+			uint32_t squareIndices[6] = { 0, 1, 2, 2, 3, 0 };
+
+			std::shared_ptr<IndexBuffer> squareIndexBuffer;
+			squareIndexBuffer.reset(IndexBuffer::create(squareIndices, sizeof(squareIndices) / sizeof(uint32_t)));
+
+			m_squareVA->setIndexBuffer(squareIndexBuffer);
+		}
+
+		
+		std::string triangleVertexShaderSource = R"(
 			#version 330 core
 			
-			layout (location = 0) in vec3 a_position;			
-			out vec3 frag_position;			
+			layout (location = 0) in vec3 a_position;
+			layout (location = 1) in vec4 a_color;
+			out vec4 frag_color;
 
 			void main()
 			{
-				frag_position = a_position;
+				frag_color = a_color;
 				gl_Position = vec4(a_position, 1.0);		
 			}
 		)";
 
-		std::string fragmentShaderSource = R"(
+		std::string triangleFragmentShaderSource = R"(
 			#version 330 core
-			
-			layout (location = 0) out vec4 color;			
-			in vec3 frag_position;			
 
+			in vec4 frag_color;			
+			layout (location = 0) out vec4 color;	
+		
 			void main()
 			{
-				color = vec4(frag_position * 0.5 + 0.5, 1.0);	
+				color = frag_color;
 			}
 		)";
 
-		m_shader.reset(new Shader(vertexShaderSource, fragmentShaderSource));
+		std::string squareVertexShaderSource = R"(
+			#version 330 core
+			
+			layout (location = 0) in vec3 a_position;
+			layout (location = 1) in vec4 a_color;
+			out vec4 frag_color;
+
+			void main()
+			{
+				frag_color = a_color;
+				gl_Position = vec4(a_position, 1.0);		
+			}
+		)";
+
+		std::string squareFragmentShaderSource = R"(
+			#version 330 core
+
+			in vec4 frag_color;			
+			layout (location = 0) out vec4 color;	
+		
+			void main()
+			{
+				color = frag_color;
+			}
+		)";
+
+		m_triangleShader.reset(new Shader(triangleVertexShaderSource, triangleFragmentShaderSource));
+		m_squareShader.reset(new Shader(squareVertexShaderSource, squareFragmentShaderSource));
+	
 	}
 
 	Application::~Application() {}
@@ -103,12 +169,20 @@ namespace Rocket {
 		m_running = true;
 
 		while (m_running) {
-			glClearColor(0.2, 0.2, 0.2, 1);
-			glClear(GL_COLOR_BUFFER_BIT);
+			
+			RenderCommand::setClearColor({ 0.2f, 0.2f, 0.2f, 1.0f });
+			RenderCommand::clear();
 
-			m_shader->bind();
-			glBindVertexArray(m_VAO);
-			glDrawElements(GL_TRIANGLES, 3, GL_UNSIGNED_INT, nullptr);
+			Renderer::beginScene();
+			{
+				m_squareShader->bind();
+				Renderer::sumbit(m_squareVA);
+
+				m_triangleShader->bind();
+				Renderer::sumbit(m_triangleVA);
+			}
+			Renderer::endScene();
+
 
 			for (Layer* layer : m_layerStack) {
 				layer->onUpdate();

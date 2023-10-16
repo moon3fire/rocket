@@ -9,6 +9,8 @@
 #include "Rocket/LayerStack.h"
 #include "Rocket/ImGui/ImGuiLayer.h"
 
+#include "Renderer/Buffer.h"
+#include "Renderer/VertexArray.h"
 #include "Rocket/Renderer/Shader.h"
 
 namespace Rocket {
@@ -36,8 +38,11 @@ namespace Rocket {
 		LayerStack m_layerStack;
 
 		//temp
-		unsigned int m_VAO, m_vertexBuffer, m_indexBuffer;
-		std::unique_ptr<Shader> m_shader;
+		std::shared_ptr<VertexArray> m_triangleVA;
+		std::shared_ptr<Shader> m_triangleShader;
+		
+		std::shared_ptr<Shader> m_squareShader;
+		std::shared_ptr<VertexArray> m_squareVA;
 
 		static Application* s_instance;
 	};
