@@ -13,6 +13,8 @@
 #include "Renderer/VertexArray.h"
 #include "Rocket/Renderer/Shader.h"
 
+#include "Rocket/Renderer/OrthographicCamera.h"
+
 namespace Rocket {
 
 	class ROCKET_API Application {
@@ -36,13 +38,6 @@ namespace Rocket {
 		ImGuiLayer* m_imguiLayer;
 		bool m_running;
 		LayerStack m_layerStack;
-
-		//temp
-		std::shared_ptr<VertexArray> m_triangleVA;
-		std::shared_ptr<Shader> m_triangleShader;
-		
-		std::shared_ptr<Shader> m_squareShader;
-		std::shared_ptr<VertexArray> m_squareVA;
 
 		static Application* s_instance;
 	};

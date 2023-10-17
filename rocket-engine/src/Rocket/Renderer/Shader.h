@@ -1,6 +1,7 @@
 #pragma once
 
-#include <iostream>
+#include "glm/glm.hpp"
+#include <glm/gtc/type_ptr.hpp>
 
 namespace Rocket {
 
@@ -12,6 +13,7 @@ namespace Rocket {
 		void bind() const;
 		void unbind() const;
 
+		void uploadUniformMat4(const std::string& name, const glm::mat4& matrix);
 	private:
 		uint32_t m_rendererID;
 	};

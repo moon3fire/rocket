@@ -112,6 +112,7 @@ project "Sandbox"
 	includedirs 
 	{
 		"rocket-engine/vendors/spdlog/include",
+		"rocket-engine/vendors/glm",
 		"rocket-engine/src"
 	}
 

@@ -120,4 +120,8 @@ namespace Rocket {
 	void Shader::unbind() const {
 		glUseProgram(0);
 	}
+	void Shader::uploadUniformMat4(const std::string& name, const glm::mat4& matrix) {
+		GLint location = glGetUniformLocation(m_rendererID, name.c_str());
+		glUniformMatrix4fv(location, 1, GL_FALSE, glm::value_ptr(matrix));
+	}
 }

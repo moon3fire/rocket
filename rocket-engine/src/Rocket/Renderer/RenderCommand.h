@@ -2,6 +2,8 @@
 
 #include "RendererAPI.h"
 
+#include <glm/glm.hpp>
+
 namespace Rocket {
 
 	class RenderCommand {

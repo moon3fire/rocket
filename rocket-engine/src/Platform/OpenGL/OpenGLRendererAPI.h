@@ -2,6 +2,8 @@
 
 #include "Rocket/Renderer/RendererAPI.h"
 
+#include <glm/glm.hpp>
+
 namespace Rocket {
 
 	class OpenGLRendererAPI : public RendererAPI {
