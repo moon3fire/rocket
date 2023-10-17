@@ -2,10 +2,11 @@
 #include <Rocket.h>
 
 #include "../vendors/imgui/imgui.h"
+#include <glm/gtc/matrix_transform.hpp>
 
 class ExampleLayer : public Rocket::Layer {
 public:
-	ExampleLayer() :Layer("example"), m_camera(-1.6f, 1.6f, -.9f, .9f) {
+	ExampleLayer() :Layer("example"), m_camera(-1.6f, 1.6f, -.9f, .9f), m_squarePosition(0.0f){
 		{
 			m_triangleVA.reset(Rocket::VertexArray::create());
 
@@ -42,10 +43,10 @@ public:
 			m_squareVA.reset(Rocket::VertexArray::create());
 
 			float squareVertices[7 * 4] = {
-					-0.8f, -0.8f, 0.0f, 0.8f, 0.3f, 0.6f, 1.0f,
-					 0.8f, -0.8f, 0.0f, 0.4f, 0.9f, 0.1f, 1.0f,
-					 0.8f,  0.8f, 0.0f, 0.7f, 0.1f, 0.2f, 1.0f,
-					-0.8f,  0.8f, 0.0f, 0.3f, 0.4f, 0.5f, 1.0f
+					-0.5f, -0.5f, 0.0f, 0.8f, 0.3f, 0.6f, 1.0f,
+					 0.5f, -0.5f, 0.0f, 0.4f, 0.9f, 0.1f, 1.0f,
+					 0.5f,  0.5f, 0.0f, 0.7f, 0.1f, 0.2f, 1.0f,
+					-0.5f,  0.5f, 0.0f, 0.3f, 0.4f, 0.5f, 1.0f
 			};
 
 			std::shared_ptr<Rocket::VertexBuffer> squareVertexBuffer;
@@ -74,13 +75,14 @@ public:
 			layout (location = 1) in vec4 a_color;
 
 			uniform mat4 u_viewProjection;
+			uniform mat4 u_modelMatrix;
 
 			out vec4 frag_color;
 
 			void main()
 			{
 				frag_color = a_color;
-				gl_Position = u_viewProjection * vec4(a_position, 1.0);		
+				gl_Position = u_viewProjection * u_modelMatrix * vec4(a_position, 1.0);		
 			}
 		)";
 
@@ -103,13 +105,14 @@ public:
 			layout (location = 1) in vec4 a_color;
 
 			uniform mat4 u_viewProjection;
+			uniform mat4 u_modelMatrix;
 
 			out vec4 frag_color;
 
 			void main()
 			{
 				frag_color = a_color;
-				gl_Position = u_viewProjection * vec4(a_position, 1.0);		
+				gl_Position = u_viewProjection * u_modelMatrix * vec4(a_position, 1.0);		
 			}
 		)";
 
@@ -133,16 +136,16 @@ public:
 	void onUpdate() override {
 
 		if (Rocket::Input::isKeyPressed(RCKT_KEY_LEFT)) {
-			m_camera.setPosition(glm::vec3(m_camera.getPosition().x + m_cameraSpeed, m_camera.getPosition().y, m_camera.getPosition().z));
-		}
-		if (Rocket::Input::isKeyPressed(RCKT_KEY_RIGHT)) {
 			m_camera.setPosition(glm::vec3(m_camera.getPosition().x - m_cameraSpeed, m_camera.getPosition().y, m_camera.getPosition().z));
 		}
+		if (Rocket::Input::isKeyPressed(RCKT_KEY_RIGHT)) {
+			m_camera.setPosition(glm::vec3(m_camera.getPosition().x + m_cameraSpeed, m_camera.getPosition().y, m_camera.getPosition().z));
+		}
 		if (Rocket::Input::isKeyPressed(RCKT_KEY_DOWN)) {
-			m_camera.setPosition(glm::vec3(m_camera.getPosition().x, m_camera.getPosition().y + m_cameraSpeed, m_camera.getPosition().z));
+			m_camera.setPosition(glm::vec3(m_camera.getPosition().x, m_camera.getPosition().y - m_cameraSpeed, m_camera.getPosition().z));
 		}
 		if (Rocket::Input::isKeyPressed(RCKT_KEY_UP)) {
-			m_camera.setPosition(glm::vec3(m_camera.getPosition().x, m_camera.getPosition().y - m_cameraSpeed, m_camera.getPosition().z));
+			m_camera.setPosition(glm::vec3(m_camera.getPosition().x, m_camera.getPosition().y + m_cameraSpeed, m_camera.getPosition().z));
 		}
 		if (Rocket::Input::isKeyPressed(RCKT_KEY_A)) {
 			m_rotation -= m_rotationSpeed;
@@ -150,6 +153,24 @@ public:
 		if (Rocket::Input::isKeyPressed(RCKT_KEY_D)) {
 			m_rotation += m_rotationSpeed;
 		}
+
+		//-------------------------------------------------------------------------------------------------------
+		//transform
+		
+		if (Rocket::Input::isKeyPressed(RCKT_KEY_J)) {
+			m_squarePosition.x -= m_squareMoveSpeed;
+		}
+		if (Rocket::Input::isKeyPressed(RCKT_KEY_L)) {
+			m_squarePosition.x += m_squareMoveSpeed;
+		}
+		if (Rocket::Input::isKeyPressed(RCKT_KEY_K)) {
+			m_squarePosition.y -= m_squareMoveSpeed;
+		}
+		if (Rocket::Input::isKeyPressed(RCKT_KEY_I)) {
+			m_squarePosition.y += m_squareMoveSpeed;
+		}
+
+		//-------------------------------------------------------------------------------------------------------
 
 
 		Rocket::RenderCommand::setClearColor({ 0.2f, 0.2f, 0.2f, 1.0f });
@@ -161,9 +182,22 @@ public:
 
 		Rocket::Renderer::beginScene(m_camera);
 		{
-			m_squareShader->bind();
-			m_squareShader->uploadUniformMat4("u_viewProjection", m_camera.getViewProjectionMatrix());
-			Rocket::Renderer::sumbit(m_squareVA, m_squareShader);
+			//m_squareShader->bind();
+			//m_squareShader->uploadUniformMat4("u_viewProjection", m_camera.getViewProjectionMatrix());
+			glm::mat4 scale = glm::scale(glm::mat4(1.0f), glm::vec3(0.1f));
+
+			for (int y = 0; y < 20; y++) {
+				for (int x = 0; x < 20; x++) {
+					glm::vec3 pos(x * 0.11f, y * 0.11f, 0.0f);
+					glm::mat4 transform = glm::translate(glm::mat4(1.0f), pos) * scale;
+					Rocket::Renderer::sumbit(m_squareVA, m_squareShader, transform);
+
+				}
+			}
+
+
+		
+			//Rocket::Renderer::sumbit(m_squareVA, m_squareShader, transform);
 
 			m_triangleShader->bind();
 			m_triangleShader->uploadUniformMat4("u_viewProjection", m_camera.getViewProjectionMatrix());
@@ -194,7 +228,9 @@ private:
 	float m_rotationSpeed = 0.003f;
 	float m_rotation = 0.0f;
 	float m_cameraSpeed = 0.0048f;
+	float m_squareMoveSpeed = 0.003;
 
+	glm::vec3 m_squarePosition;
 };
 
 class Sandbox : public Rocket::Application {
