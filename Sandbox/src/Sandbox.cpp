@@ -150,15 +150,23 @@ public:
 		
 			in vec2 v_textureCoord;
 
+			uniform sampler2D u_texture;
+
 			void main()
 			{
-				color = vec4(v_textureCoord, 0.0, 1.0);
+				color = texture(u_texture, v_textureCoord);
 			}
 		)";
 
 		m_triangleShader.reset(Rocket::Shader::create(triangleVertexShaderSource, triangleFragmentShaderSource));
 		m_squareShader.reset(Rocket::Shader::create(squareVertexShaderSource, squareFragmentShaderSource));
 		m_textureShader.reset(Rocket::Shader::create(textureVertexShaderSource, textureFragmentShaderSource));
+
+
+		m_texture = Rocket::Texture2D::create("assets/textures/wood.png");
+		std::dynamic_pointer_cast<Rocket::OpenGLShader>(m_textureShader)->bind();
+		std::dynamic_pointer_cast<Rocket::OpenGLShader>(m_textureShader)->uploadUniformInt("u_texture", 0);
+		
 		m_squareColor = glm::vec3(1.0f, 1.0f, 1.0f);
 	}
 
@@ -223,7 +231,7 @@ public:
 				}
 			}
 			
-
+			m_texture->bind(0);
 			std::dynamic_pointer_cast<Rocket::OpenGLShader>(m_textureShader)->bind();
 			std::dynamic_pointer_cast<Rocket::OpenGLShader>(m_textureShader)->uploadUniformMat4("u_viewProjection", m_camera.getViewProjectionMatrix());
 			Rocket::Renderer::sumbit(m_squareVA, m_textureShader, squareTransform);
@@ -265,6 +273,8 @@ private:
 	float m_rotation = 0.0f;
 	float m_cameraSpeed = 0.0088f;
 
+
+	Rocket::Ref<Rocket::Texture2D> m_texture;
 };
 
 class Sandbox : public Rocket::Application {
