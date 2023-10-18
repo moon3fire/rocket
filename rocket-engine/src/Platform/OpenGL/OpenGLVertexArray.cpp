@@ -36,7 +36,7 @@ namespace Rocket {
 		glBindVertexArray(0);
 	}
 
-	void OpenGLVertexArray::addVertexBuffer(const std::shared_ptr<VertexBuffer>& vertexBuffer) {
+	void OpenGLVertexArray::addVertexBuffer(const Ref<VertexBuffer>& vertexBuffer) {
 
 		RCKT_CORE_ASSERT(vertexBuffer->getLayout().getElements().size(), "Vertex buffer has no layout");
 		
@@ -65,7 +65,7 @@ namespace Rocket {
 		glDeleteVertexArrays(1, &m_rendererID);
 	}
 
-	void OpenGLVertexArray::setIndexBuffer(const std::shared_ptr<IndexBuffer>& indexBuffer) {
+	void OpenGLVertexArray::setIndexBuffer(const Ref<IndexBuffer>& indexBuffer) {
 		glBindVertexArray(m_rendererID);
 		indexBuffer->bind();
 		m_indexBuffer = indexBuffer;

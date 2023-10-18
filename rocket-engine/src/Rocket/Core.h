@@ -1,5 +1,7 @@
 #pragma once
 
+#include <memory>
+
 #ifdef RCKT_PLATFORM_WINDOWS
 	#if RCKT_DYNAMIC_LINK
 		#ifdef RCKT_BUILD_DLL
@@ -23,3 +25,13 @@
 #define BIT(x) (1 << x)
 
 #define RCKT_BIND_EVENT_FUNC(func) std::bind(&func, this, std::placeholders::_1) 
+
+namespace Rocket {
+
+	template<typename T>
+	using Scope = std::unique_ptr<T>;
+
+	template<typename T>
+	using Ref = std::shared_ptr<T>;
+
+} // namespace Rocket

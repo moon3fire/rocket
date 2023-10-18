@@ -1,6 +1,8 @@
 #include "rcktpch.h"
 #include "Renderer.h"
 
+#include "Platform/OpenGL/OpenGLShader.h"
+
 namespace Rocket {
 
 	Renderer::SceneData* Renderer::m_sceneData = new Renderer::SceneData;
@@ -13,9 +15,10 @@ namespace Rocket {
 
 	}
 
-	void Renderer::sumbit(const std::shared_ptr<VertexArray>& vertexArray, const std::shared_ptr<Shader>& shader) {
+	void Renderer::sumbit(const Ref<VertexArray>& vertexArray, const Ref<Shader>& shader, const glm::mat4& transform) {
 		vertexArray->bind();
-		shader->uploadUniformMat4("u_ViewProjection", m_sceneData->viewProjectionMatrix);
+		std::dynamic_pointer_cast<OpenGLShader>(shader)->uploadUniformMat4("u_ViewProjection", m_sceneData->viewProjectionMatrix);
+		std::dynamic_pointer_cast<OpenGLShader>(shader)->uploadUniformMat4("u_modelMatrix", transform);
 		RenderCommand::drawIndexed(vertexArray);
 	}
 
