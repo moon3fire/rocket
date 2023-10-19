@@ -2,6 +2,7 @@
 
 #include "Rocket/Core.h"
 #include "Rocket/Events/Event.h"
+#include "Rocket/Core/Timestep.h"
 
 namespace Rocket {
 
@@ -13,7 +14,7 @@ namespace Rocket {
 
 		virtual void onAttach() {}
 		virtual void onDetach() {}
-		virtual void onUpdate() {}
+		virtual void onUpdate(Timestep ts) {}
 		virtual void onImGuiRender() {}
 		virtual void onEvent(Event& event) {}
 

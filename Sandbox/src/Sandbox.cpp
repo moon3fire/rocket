@@ -130,25 +130,27 @@ public:
 
 	}
 
-	void onUpdate() override {
+	void onUpdate(Rocket::Timestep ts) override {
+
+		RCKT_TRACE("Delta time {0}s ({1} ms)", ts.GetSeconds(), ts.GetMiliseconds());
 
 		if (Rocket::Input::isKeyPressed(RCKT_KEY_LEFT)) {
-			m_camera.setPosition(glm::vec3(m_camera.getPosition().x + m_cameraSpeed, m_camera.getPosition().y, m_camera.getPosition().z));
+			m_camera.setPosition(glm::vec3(m_camera.getPosition().x + m_cameraSpeed * ts, m_camera.getPosition().y, m_camera.getPosition().z));
 		}
 		if (Rocket::Input::isKeyPressed(RCKT_KEY_RIGHT)) {
-			m_camera.setPosition(glm::vec3(m_camera.getPosition().x - m_cameraSpeed, m_camera.getPosition().y, m_camera.getPosition().z));
+			m_camera.setPosition(glm::vec3(m_camera.getPosition().x - m_cameraSpeed * ts, m_camera.getPosition().y, m_camera.getPosition().z));
 		}
 		if (Rocket::Input::isKeyPressed(RCKT_KEY_DOWN)) {
-			m_camera.setPosition(glm::vec3(m_camera.getPosition().x, m_camera.getPosition().y + m_cameraSpeed, m_camera.getPosition().z));
+			m_camera.setPosition(glm::vec3(m_camera.getPosition().x, m_camera.getPosition().y + m_cameraSpeed * ts, m_camera.getPosition().z));
 		}
 		if (Rocket::Input::isKeyPressed(RCKT_KEY_UP)) {
-			m_camera.setPosition(glm::vec3(m_camera.getPosition().x, m_camera.getPosition().y - m_cameraSpeed, m_camera.getPosition().z));
+			m_camera.setPosition(glm::vec3(m_camera.getPosition().x, m_camera.getPosition().y - m_cameraSpeed * ts, m_camera.getPosition().z));
 		}
 		if (Rocket::Input::isKeyPressed(RCKT_KEY_A)) {
-			m_rotation -= m_rotationSpeed;
+			m_rotation -= m_rotationSpeed * ts;
 		}
 		if (Rocket::Input::isKeyPressed(RCKT_KEY_D)) {
-			m_rotation += m_rotationSpeed;
+			m_rotation += m_rotationSpeed * ts;
 		}
 
 
@@ -191,9 +193,9 @@ private:
 
 	Rocket::OrthographicCamera2D m_camera;
 
-	float m_rotationSpeed = 0.003f;
+	float m_rotationSpeed = 10.0f;
 	float m_rotation = 0.0f;
-	float m_cameraSpeed = 0.0048f;
+	float m_cameraSpeed = 1.0f;
 
 };
 

@@ -5,6 +5,7 @@
 
 #include "Input.h"
 #include "Renderer/Renderer.h"
+#include <GLFW/glfw3.h>
 
 namespace Rocket {
 
@@ -53,8 +54,11 @@ namespace Rocket {
 
 		while (m_running) {
 
+			float time = (float)glfwGetTime(); //PLatrform dependent get_time()
+			Timestep timestep = time - m_LastFrameTime;
+			m_LastFrameTime = time;
 			for (Layer* layer : m_layerStack) {
-				layer->onUpdate();
+				layer->onUpdate(timestep);
 			}
 			m_imguiLayer->begin();
 			for (Layer* layer : m_layerStack) {

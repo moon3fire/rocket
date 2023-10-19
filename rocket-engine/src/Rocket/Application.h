@@ -9,6 +9,9 @@
 #include "Rocket/LayerStack.h"
 #include "Rocket/ImGui/ImGuiLayer.h"
 
+#include "Rocket/Core/Timestep.h"
+
+
 #include "Renderer/Buffer.h"
 #include "Renderer/VertexArray.h"
 #include "Rocket/Renderer/Shader.h"
@@ -34,11 +37,12 @@ namespace Rocket {
 	private:
 		bool onWindowClose(WindowCloseEvent& event);
 
+	private:
 		std::unique_ptr<Window> m_window;
 		ImGuiLayer* m_imguiLayer;
 		bool m_running;
 		LayerStack m_layerStack;
-
+		float m_LastFrameTime = 0.0f;
 		static Application* s_instance;
 	};
 
