@@ -7,6 +7,8 @@
 #include "Rocket/Log.h"
 #include "Rocket/ImGui/ImGuiLayer.h"
 
+#include "Rocket/Core/Timestep.h"
+
 #include "Rocket/Input.h"
 #include "Rocket/MouseButtonCodes.h"
 #include "Rocket/KeyCodes.h"

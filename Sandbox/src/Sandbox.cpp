@@ -82,7 +82,9 @@ public:
 		m_squareColor = glm::vec3(1.0f, 1.0f, 1.0f);
 	}
 
-	void onUpdate() override {
+	void onUpdate(Rocket::Timestep ts) override {
+
+		RCKT_TRACE("Delta time {0}s ({1} ms)", ts.GetSeconds(), ts.GetMiliseconds());
 
 		if (Rocket::Input::isKeyPressed(RCKT_KEY_LEFT)) {
 			m_camera.setPosition(glm::vec3(m_camera.getPosition().x - m_cameraSpeed, m_camera.getPosition().y, m_camera.getPosition().z));
@@ -119,8 +121,6 @@ public:
 		}
 
 		glm::mat4 squareTransform = glm::translate(glm::mat4(1.0f), m_squarePosition);
-
-
 
 		Rocket::RenderCommand::setClearColor({ 0.2f, 0.2f, 0.2f, 1.0f });
 		Rocket::RenderCommand::clear();
@@ -192,7 +192,6 @@ private:
 	float m_rotationSpeed = 0.003f;
 	float m_rotation = 0.0f;
 	float m_cameraSpeed = 0.0088f;
-
 
 	Rocket::Ref<Rocket::Texture2D> m_texture;
 };
