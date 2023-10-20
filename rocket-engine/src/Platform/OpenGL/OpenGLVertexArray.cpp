@@ -24,7 +24,7 @@ namespace Rocket {
 		return 0;
 	}
 
-	OpenGLVertexArray::OpenGLVertexArray() {
+	OpenGLVertexArray::OpenGLVertexArray() :m_rendererID(0) {
 		glCreateVertexArrays(1, &m_rendererID);
 	}
 
@@ -53,7 +53,7 @@ namespace Rocket {
 				ShaderDataTypeToOpenGLType(elem.type),
 				elem.normalized ? GL_TRUE : GL_FALSE,
 				layout.getStride(),
-				(void*)elem.offset);
+				(void*)(intptr_t)elem.offset);
 
 			index++;
 		}

@@ -68,104 +68,16 @@ public:
 			m_squareVA->setIndexBuffer(squareIndexBuffer);
 		}
 
-
-		std::string triangleVertexShaderSource = R"(
-			#version 330 core
-			
-			layout (location = 0) in vec3 a_position;
-			layout (location = 1) in vec4 a_color;
-
-			uniform mat4 u_viewProjection;
-			uniform mat4 u_modelMatrix;
-
-			out vec4 frag_color;
-
-			void main()
-			{
-				frag_color = a_color;
-				gl_Position = u_viewProjection * vec4(a_position, 1.0);		
-			}
-		)";
-
-		std::string triangleFragmentShaderSource = R"(
-			#version 330 core
-
-			in vec4 frag_color;			
-			layout (location = 0) out vec4 color;	
-		
-			void main()
-			{
-				color = frag_color;
-			}
-		)";
-
-		std::string squareVertexShaderSource = R"(
-			#version 330 core
-			
-			layout (location = 0) in vec3 a_position;
-
-			uniform mat4 u_viewProjection;
-			uniform mat4 u_modelMatrix;
-
-			void main()
-			{
-				gl_Position = u_viewProjection * u_modelMatrix * vec4(a_position, 1.0);		
-			}
-		)";
-
-		std::string squareFragmentShaderSource = R"(
-			#version 330 core
-
-			layout (location = 0) out vec4 color;
-			uniform vec3 u_squareColor;
-		
-			void main()
-			{
-				color = vec4(u_squareColor, 1.0);
-			}
-		)";
-
-		std::string textureVertexShaderSource = R"(
-			#version 330 core
-			
-			layout (location = 0) in vec3 a_position;
-			layout (location = 1) in vec2 a_textureCoord;
-
-			uniform mat4 u_viewProjection;
-			uniform mat4 u_modelMatrix;
-
-			out vec2 v_textureCoord;	
-	
-			void main()
-			{
-				v_textureCoord = a_textureCoord;
-				gl_Position = u_viewProjection * u_modelMatrix * vec4(a_position, 1.0);		
-			}
-		)";
-
-		std::string textureFragmentShaderSource = R"(
-			#version 330 core
-
-			layout (location = 0) out vec4 color;
-		
-			in vec2 v_textureCoord;
-
-			uniform sampler2D u_texture;
-
-			void main()
-			{
-				color = texture(u_texture, v_textureCoord);
-			}
-		)";
-
-		m_triangleShader.reset(Rocket::Shader::create(triangleVertexShaderSource, triangleFragmentShaderSource));
-		m_squareShader.reset(Rocket::Shader::create(squareVertexShaderSource, squareFragmentShaderSource));
-		m_textureShader.reset(Rocket::Shader::create(textureVertexShaderSource, textureFragmentShaderSource));
-
+		m_triangleShader = Rocket::Shader::create("assets/shaders/Triangle.glsl");
+		m_squareShader = Rocket::Shader::create("assets/shaders/Square.glsl");
+		auto textureShader = m_shaderLibrary.load("assets/shaders/Texture.glsl");
+		RCKT_INFO(textureShader.get()->getName());
+		RCKT_INFO(m_triangleShader.get()->getName());
+		RCKT_INFO(m_squareShader.get()->getName());
 
 		m_texture = Rocket::Texture2D::create("assets/textures/wood.png");
-		std::dynamic_pointer_cast<Rocket::OpenGLShader>(m_textureShader)->bind();
-		std::dynamic_pointer_cast<Rocket::OpenGLShader>(m_textureShader)->uploadUniformInt("u_texture", 0);
+		std::dynamic_pointer_cast<Rocket::OpenGLShader>(textureShader)->bind();
+		std::dynamic_pointer_cast<Rocket::OpenGLShader>(textureShader)->uploadUniformInt("u_texture", 0);
 		
 		m_squareColor = glm::vec3(1.0f, 1.0f, 1.0f);
 	}
@@ -191,6 +103,7 @@ public:
 			m_rotation -= m_rotationSpeed;
 		}
 
+
 		//_______________________________________________________________________________________________________________
 		if (Rocket::Input::isKeyPressed(RCKT_KEY_I)) {
 			m_squarePosition.y += m_squareMoveSpeed;
@@ -208,6 +121,7 @@ public:
 		glm::mat4 squareTransform = glm::translate(glm::mat4(1.0f), m_squarePosition);
 
 
+
 		Rocket::RenderCommand::setClearColor({ 0.2f, 0.2f, 0.2f, 1.0f });
 		Rocket::RenderCommand::clear();
 
@@ -216,6 +130,7 @@ public:
 		//rotationPerFrame += 0.01;
 
 		Rocket::Renderer::beginScene(m_camera);
+			m_texture->bind(0);
 
 			
 			glm::mat4 scale = glm::scale(glm::mat4(1.0), glm::vec3(0.1f));
@@ -227,15 +142,19 @@ public:
 					glm::vec3 pos(x * 0.11f, y * 0.11f, 0.0f);
 					glm::mat4 myTransform = glm::translate(glm::mat4(1.0), pos) * scale;
 					std::dynamic_pointer_cast<Rocket::OpenGLShader>(m_squareShader)->uploadUniformMat4("u_viewProjection", m_camera.getViewProjectionMatrix());
-					Rocket::Renderer::sumbit(m_squareVA, m_squareShader, myTransform);
+					
+					std::dynamic_pointer_cast<Rocket::OpenGLShader>(m_squareShader)->bind();
+					Rocket::Renderer::submit(m_squareVA, m_squareShader, myTransform);
+					
 				}
 			}
+
+			auto textureShader = m_shaderLibrary.get("Texture");
 			
-			m_texture->bind(0);
-			std::dynamic_pointer_cast<Rocket::OpenGLShader>(m_textureShader)->bind();
-			std::dynamic_pointer_cast<Rocket::OpenGLShader>(m_textureShader)->uploadUniformMat4("u_viewProjection", m_camera.getViewProjectionMatrix());
-			Rocket::Renderer::sumbit(m_squareVA, m_textureShader, squareTransform);
-			std::dynamic_pointer_cast<Rocket::OpenGLShader>(m_textureShader)->unbind();
+			std::dynamic_pointer_cast<Rocket::OpenGLShader>(textureShader)->bind();
+			std::dynamic_pointer_cast<Rocket::OpenGLShader>(textureShader)->uploadUniformMat4("u_viewProjection", m_camera.getViewProjectionMatrix());
+			Rocket::Renderer::submit(m_squareVA, textureShader, squareTransform);
+			std::dynamic_pointer_cast<Rocket::OpenGLShader>(textureShader)->unbind();
 
 			//m_triangleShader->bind();
 			//std::dynamic_pointer_cast<Rocket::OpenGLShader>(m_triangleShader)->uploadUniformMat4("u_viewProjection", m_camera.getViewProjectionMatrix());
@@ -255,12 +174,13 @@ public:
 	}
 
 private:
+	Rocket::ShaderLibrary m_shaderLibrary;
 
 	//temp
 	Rocket::Ref<Rocket::VertexArray> m_triangleVA;
 	Rocket::Ref<Rocket::Shader> m_triangleShader;
 
-	Rocket::Ref<Rocket::Shader> m_squareShader, m_textureShader;
+	Rocket::Ref<Rocket::Shader> m_squareShader;
 	Rocket::Ref<Rocket::VertexArray> m_squareVA;
 	glm::vec3 m_squareColor{};
 

@@ -117,6 +117,7 @@ project "Sandbox"
 	{
 		"rocket-engine/vendors/spdlog/include",
 		"rocket-engine/vendors/glm",
+		"rocket-engine/vendors/Glad/include",
 		"rocket-engine/src"
 	}
 

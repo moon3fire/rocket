@@ -9,10 +9,13 @@ namespace Rocket {
 	class Renderer {
 
 	public:
+
+		static void init();
+
 		static void beginScene(OrthographicCamera2D& camera); // TODO: scene parameters
 		static void endScene();
 
-		static void sumbit(const Ref<VertexArray>& vertexArray, const Ref<Shader>& shader, const glm::mat4& transform = glm::mat4(1));
+		static void submit(const Ref<VertexArray>& vertexArray, const Ref<Shader>& shader, const glm::mat4& transform = glm::mat4(1));
 
 		inline static RendererAPI::API getAPI() { return RendererAPI::getAPI(); }
 
