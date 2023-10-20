@@ -7,7 +7,7 @@ namespace Rocket {
 
 	//___________________________________________________________________ VertexBuffer ______________________________________________________________________________
 
-	OpenGLVertexBuffer::OpenGLVertexBuffer(float* vertices, uint32_t size) {
+	OpenGLVertexBuffer::OpenGLVertexBuffer(float* vertices, uint32_t size) :m_rendererID(0) {
 		glCreateBuffers(1, &m_rendererID);
 		glBindBuffer(GL_ARRAY_BUFFER, m_rendererID);
 		glBufferData(GL_ARRAY_BUFFER, size, vertices, GL_STATIC_DRAW);
@@ -27,7 +27,7 @@ namespace Rocket {
 
 	//___________________________________________________________________ IndexBuffer ______________________________________________________________________________
 
-	OpenGLIndexBuffer::OpenGLIndexBuffer(uint32_t* indices, uint32_t count) :m_count(count) {
+	OpenGLIndexBuffer::OpenGLIndexBuffer(uint32_t* indices, uint32_t count) :m_count(count), m_rendererID(0) {
 		glCreateBuffers(1, &m_rendererID);
 		glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, m_rendererID);
 		glBufferData(GL_ELEMENT_ARRAY_BUFFER, count * sizeof(uint32_t), indices, GL_STATIC_DRAW);

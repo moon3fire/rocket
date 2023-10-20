@@ -15,6 +15,7 @@ IncludeDir["GLFW"] = "rocket-engine/vendors/GLFW/include"
 IncludeDir["Glad"] = "rocket-engine/vendors/Glad/include"
 IncludeDir["ImGui"] = "rocket-engine/vendors/imgui"
 IncludeDir["glm"] = "rocket-engine/vendors/glm"
+IncludeDir["stb"] = "rocket-engine/vendors/stb_image"
 
 startproject "Sandbox"
 
@@ -43,7 +44,9 @@ project "rocket-engine"
 	files 
 	{
 		"%{prj.name}/src/**.h",
-		"%{prj.name}/src/**.cpp"
+		"%{prj.name}/src/**.cpp",
+		"%{prj.name}/vendors/stb_image/**.cpp",
+		"%{prj.name}/vendors/stb_image/**.h"
 	}
 
 	includedirs
@@ -53,7 +56,8 @@ project "rocket-engine"
 		"%{IncludeDir.GLFW}",
 		"%{IncludeDir.Glad}",
 		"%{IncludeDir.ImGui}",
-		"%{IncludeDir.glm}"
+		"%{IncludeDir.glm}",
+		"%{IncludeDir.stb}"
 	}
 
 	links 
@@ -113,6 +117,7 @@ project "Sandbox"
 	{
 		"rocket-engine/vendors/spdlog/include",
 		"rocket-engine/vendors/glm",
+		"rocket-engine/vendors/Glad/include",
 		"rocket-engine/src"
 	}
 

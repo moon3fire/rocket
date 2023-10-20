@@ -10,6 +10,10 @@ namespace Rocket {
 
 	public:
 
+		inline static void init() {
+			s_rendererAPI->init();
+		}
+
 		inline static void setClearColor(const glm::vec4& color) {
 			s_rendererAPI->setClearColor(color);
 		}
@@ -18,7 +22,7 @@ namespace Rocket {
 			s_rendererAPI->clear();
 		}
 
-		inline static void drawIndexed(const std::shared_ptr<VertexArray>& vertexArray) {
+		inline static void drawIndexed(const Ref<VertexArray>& vertexArray) {
 			s_rendererAPI->drawIndexed(vertexArray);
 		}
 

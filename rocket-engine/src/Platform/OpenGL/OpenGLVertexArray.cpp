@@ -24,7 +24,7 @@ namespace Rocket {
 		return 0;
 	}
 
-	OpenGLVertexArray::OpenGLVertexArray() {
+	OpenGLVertexArray::OpenGLVertexArray() :m_rendererID(0) {
 		glCreateVertexArrays(1, &m_rendererID);
 	}
 
@@ -36,7 +36,7 @@ namespace Rocket {
 		glBindVertexArray(0);
 	}
 
-	void OpenGLVertexArray::addVertexBuffer(const std::shared_ptr<VertexBuffer>& vertexBuffer) {
+	void OpenGLVertexArray::addVertexBuffer(const Ref<VertexBuffer>& vertexBuffer) {
 
 		RCKT_CORE_ASSERT(vertexBuffer->getLayout().getElements().size(), "Vertex buffer has no layout");
 		
@@ -53,7 +53,7 @@ namespace Rocket {
 				ShaderDataTypeToOpenGLType(elem.type),
 				elem.normalized ? GL_TRUE : GL_FALSE,
 				layout.getStride(),
-				(void*)elem.offset);
+				(void*)(intptr_t)elem.offset);
 
 			index++;
 		}
@@ -65,7 +65,7 @@ namespace Rocket {
 		glDeleteVertexArrays(1, &m_rendererID);
 	}
 
-	void OpenGLVertexArray::setIndexBuffer(const std::shared_ptr<IndexBuffer>& indexBuffer) {
+	void OpenGLVertexArray::setIndexBuffer(const Ref<IndexBuffer>& indexBuffer) {
 		glBindVertexArray(m_rendererID);
 		indexBuffer->bind();
 		m_indexBuffer = indexBuffer;

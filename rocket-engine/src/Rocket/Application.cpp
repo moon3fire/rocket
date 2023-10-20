@@ -20,6 +20,8 @@ namespace Rocket {
 		m_window = std::unique_ptr<Window>(Window::create());
 		m_window->setEventCallback(BIND_EVENT_FUNC(Application::onEvent));
 
+		Renderer::init();
+
 		m_imguiLayer = new ImGuiLayer();
 		pushOverlay(m_imguiLayer);
 	}

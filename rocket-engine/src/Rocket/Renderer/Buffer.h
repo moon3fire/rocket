@@ -48,7 +48,7 @@ namespace Rocket {
 
 	struct BufferElement {
 
-		BufferElement() {}
+		BufferElement() = default;
 		BufferElement(ShaderDataType type_, const std::string& name_, bool normalized_ = false)
 			:name(name_), type(type_),
 			size(ShaderDataTypeSize(type_)), offset(0), normalized(normalized_) {}
