@@ -1,6 +1,6 @@
 #pragma once
 
-#include "Rocket/Input.h"
+#include "Rocket/Core/Input.h"
 
 namespace Rocket {
 

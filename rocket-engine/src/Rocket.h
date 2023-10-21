@@ -2,16 +2,16 @@
 
 // For use by sandbox apps
 
-#include "Rocket/Application.h"
-#include "Rocket/Layer.h"
-#include "Rocket/Log.h"
+#include "Rocket/Core/Application.h"
+#include "Rocket/Core/Layer.h"
+#include "Rocket/Core/Log.h"
 #include "Rocket/ImGui/ImGuiLayer.h"
 
 #include "Rocket/Core/Timestep.h"
 
-#include "Rocket/Input.h"
-#include "Rocket/MouseButtonCodes.h"
-#include "Rocket/KeyCodes.h"
+#include "Rocket/Core/Input.h"
+#include "Rocket/Core/MouseButtonCodes.h"
+#include "Rocket/Core/KeyCodes.h"
 
 /*______________________________________________________________________________
 ___________________________________Renderer___________________________________*/
@@ -25,8 +25,9 @@ ___________________________________Renderer___________________________________*/
 #include "Rocket/Renderer/VertexArray.h"
 
 #include "Rocket/Renderer/OrthographicCamera.h"
+#include "Rocket/Renderer/OrthographicCameraController.h"
 
 /*______________________________________________________________________________
 __________________________________ENTRY POINT___________________________________*/
-#include "Rocket/EntryPoint.h"
+#include "Rocket/Core/EntryPoint.h"
 //______________________________________________________________________________

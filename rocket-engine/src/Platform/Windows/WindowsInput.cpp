@@ -2,7 +2,7 @@
 #include "WindowsInput.h"
 
 #include "GLFW/glfw3.h"
-#include "Rocket/Application.h"
+#include "Rocket/Core/Application.h"
 
 namespace Rocket {
 

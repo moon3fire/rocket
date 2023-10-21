@@ -3,8 +3,6 @@
 #include "Rocket/Renderer/GraphicsContext.h"
 #include "GLFW/glfw3.h"
 
-class GLFWwindow;
-
 namespace Rocket {
 	
 	class OpenGLContext: public GraphicsContext {

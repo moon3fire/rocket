@@ -1,10 +1,10 @@
 #include "rcktpch.h"
 #include "Application.h"
 
-#include "Rocket/Log.h"
+#include "Rocket/Core/Log.h"
 
 #include "Input.h"
-#include "Renderer/Renderer.h"
+#include "Rocket/Renderer/Renderer.h"
 #include <GLFW/glfw3.h>
 
 namespace Rocket {
@@ -31,12 +31,11 @@ namespace Rocket {
 	void Application::onEvent(Event& event) {
 		EventDispatcher dispatcher(event);
 		dispatcher.dispatch<WindowCloseEvent>(BIND_EVENT_FUNC(Application::onWindowClose));
-
-		//RCKT_CORE_TRACE("{0} ", event);
+		dispatcher.dispatch<WindowResizeEvent>(BIND_EVENT_FUNC(Application::onWindowResize));
 
 		for (auto it = m_layerStack.end(); it != m_layerStack.begin();) {
 			(*--it)->onEvent(event);
-			if (event.m_handled)
+			if (event.handled)
 				break;
 		}
 	}
@@ -59,15 +58,19 @@ namespace Rocket {
 			float time = (float)glfwGetTime(); //PLatrform dependent get_time()
 			Timestep timestep = time - m_LastFrameTime;
 			m_LastFrameTime = time;
-			for (Layer* layer : m_layerStack) {
-				layer->onUpdate(timestep);
+
+			if (!m_minimized) {
+				for (Layer* layer : m_layerStack) {
+					layer->onUpdate(timestep);
+				}
 			}
+
 			m_imguiLayer->begin();
 			for (Layer* layer : m_layerStack) {
 				layer->onImGuiRender();
 			}
 			m_imguiLayer->end();
-
+			
 			m_window->onUpdate();
 		}
 	}
@@ -76,5 +79,17 @@ namespace Rocket {
 		m_running = false;
 		return true;
 	}
+
+	bool Application::onWindowResize(WindowResizeEvent& event) {
+		if (event.getWidth() == 0 || event.getHeight() == 0) {
+			m_minimized = true;
+			return false;
+		}
+		else 
+			m_minimized = false;
+		Renderer::onWindowResize(event.getWidth(), event.getHeight());
+		return false;
+	}
+
 
 } // namespace Rocket

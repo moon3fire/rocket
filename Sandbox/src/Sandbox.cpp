@@ -7,7 +7,7 @@
 
 class ExampleLayer : public Rocket::Layer {
 public:
-	ExampleLayer() :Layer("example"), m_camera(-1.6f, 1.6f, -.9f, .9f) {
+	ExampleLayer() :Layer("example"), m_cameraController(1280.0f / 720.0f, true) {
 		{
 			m_triangleVA.reset(Rocket::VertexArray::create());
 
@@ -84,52 +84,15 @@ public:
 
 	void onUpdate(Rocket::Timestep ts) override {
 
-		RCKT_TRACE("Delta time {0}s ({1} ms)", ts.GetSeconds(), ts.GetMiliseconds());
+		//update
+		//RCKT_TRACE("Delta time {0}s ({1} ms)", ts.GetSeconds(), ts.GetMiliseconds());
+		m_cameraController.onUpdate(ts);
 
-		if (Rocket::Input::isKeyPressed(RCKT_KEY_LEFT)) {
-			m_camera.setPosition(glm::vec3(m_camera.getPosition().x - m_cameraSpeed, m_camera.getPosition().y, m_camera.getPosition().z));
-		}
-		if (Rocket::Input::isKeyPressed(RCKT_KEY_RIGHT)) {
-			m_camera.setPosition(glm::vec3(m_camera.getPosition().x + m_cameraSpeed, m_camera.getPosition().y, m_camera.getPosition().z));
-		}
-		if (Rocket::Input::isKeyPressed(RCKT_KEY_DOWN)) {
-			m_camera.setPosition(glm::vec3(m_camera.getPosition().x, m_camera.getPosition().y - m_cameraSpeed, m_camera.getPosition().z));
-		}
-		if (Rocket::Input::isKeyPressed(RCKT_KEY_UP)) {
-			m_camera.setPosition(glm::vec3(m_camera.getPosition().x, m_camera.getPosition().y + m_cameraSpeed, m_camera.getPosition().z));
-		}
-		if (Rocket::Input::isKeyPressed(RCKT_KEY_A)) {
-			m_rotation += m_rotationSpeed;
-		}
-		if (Rocket::Input::isKeyPressed(RCKT_KEY_D)) {
-			m_rotation -= m_rotationSpeed;
-		}
-
-
-		//_______________________________________________________________________________________________________________
-		if (Rocket::Input::isKeyPressed(RCKT_KEY_I)) {
-			m_squarePosition.y += m_squareMoveSpeed;
-		}
-		if (Rocket::Input::isKeyPressed(RCKT_KEY_J)) {
-			m_squarePosition.x -= m_squareMoveSpeed;
-		}
-		if (Rocket::Input::isKeyPressed(RCKT_KEY_K)) {
-			m_squarePosition.y -= m_squareMoveSpeed;
-		}
-		if (Rocket::Input::isKeyPressed(RCKT_KEY_L)) {
-			m_squarePosition.x += m_squareMoveSpeed;
-		}
-
-		glm::mat4 squareTransform = glm::translate(glm::mat4(1.0f), m_squarePosition);
-
+		//render
 		Rocket::RenderCommand::setClearColor({ 0.2f, 0.2f, 0.2f, 1.0f });
 		Rocket::RenderCommand::clear();
 
-		//m_camera.setPosition({ 0.0f, 0.0f, 0.0f });
-		m_camera.setRotation(m_rotation);
-		//rotationPerFrame += 0.01;
-
-		Rocket::Renderer::beginScene(m_camera);
+		Rocket::Renderer::beginScene(m_cameraController.getCamera());
 			m_texture->bind(0);
 
 			
@@ -141,7 +104,7 @@ public:
 				for (int x = 0; x < 20; x++) {
 					glm::vec3 pos(x * 0.11f, y * 0.11f, 0.0f);
 					glm::mat4 myTransform = glm::translate(glm::mat4(1.0), pos) * scale;
-					std::dynamic_pointer_cast<Rocket::OpenGLShader>(m_squareShader)->uploadUniformMat4("u_viewProjection", m_camera.getViewProjectionMatrix());
+					std::dynamic_pointer_cast<Rocket::OpenGLShader>(m_squareShader)->uploadUniformMat4("u_viewProjection", m_cameraController.getCamera().getViewProjectionMatrix());
 					
 					std::dynamic_pointer_cast<Rocket::OpenGLShader>(m_squareShader)->bind();
 					Rocket::Renderer::submit(m_squareVA, m_squareShader, myTransform);
@@ -152,8 +115,8 @@ public:
 			auto textureShader = m_shaderLibrary.get("Texture");
 			
 			std::dynamic_pointer_cast<Rocket::OpenGLShader>(textureShader)->bind();
-			std::dynamic_pointer_cast<Rocket::OpenGLShader>(textureShader)->uploadUniformMat4("u_viewProjection", m_camera.getViewProjectionMatrix());
-			Rocket::Renderer::submit(m_squareVA, textureShader, squareTransform);
+			Rocket::Renderer::submit(m_squareVA, textureShader, glm::mat4(glm::translate(glm::mat4(1.0f), glm::vec3(0.f, 0.f, 0.f))));
+			std::dynamic_pointer_cast<Rocket::OpenGLShader>(textureShader)->uploadUniformMat4("u_viewProjection", m_cameraController.getCamera().getViewProjectionMatrix());
 			std::dynamic_pointer_cast<Rocket::OpenGLShader>(textureShader)->unbind();
 
 			//m_triangleShader->bind();
@@ -165,12 +128,13 @@ public:
 
 	virtual void onImGuiRender() override {
 		ImGui::Begin("Square settings");
+		ImGui::Text("Application average %.3f ms/frame (%.1f FPS)", 1000.0f / ImGui::GetIO().Framerate, ImGui::GetIO().Framerate);
 		ImGui::ColorEdit3("Square color", glm::value_ptr(m_squareColor));
 		ImGui::End();
 	}
 
 	void onEvent(Rocket::Event& event) override {
-	
+		m_cameraController.onEvent(event);
 	}
 
 private:
@@ -184,14 +148,7 @@ private:
 	Rocket::Ref<Rocket::VertexArray> m_squareVA;
 	glm::vec3 m_squareColor{};
 
-	Rocket::OrthographicCamera2D m_camera;
-
-	glm::vec3 m_squarePosition{ 0 };
-	float m_squareMoveSpeed = 0.008f;
-
-	float m_rotationSpeed = 0.003f;
-	float m_rotation = 0.0f;
-	float m_cameraSpeed = 0.0088f;
+	Rocket::OrthographicCameraController m_cameraController;
 
 	Rocket::Ref<Rocket::Texture2D> m_texture;
 };

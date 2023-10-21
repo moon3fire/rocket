@@ -2,18 +2,18 @@
 
 #include "Core.h"
 
-#include "Events/Event.h"
+#include "Rocket/Events/Event.h"
 #include "Window.h"
 
 #include "Rocket/Events/ApplicationEvent.h"
-#include "Rocket/LayerStack.h"
+#include "Rocket/Core/LayerStack.h"
 #include "Rocket/ImGui/ImGuiLayer.h"
 
 #include "Rocket/Core/Timestep.h"
 
 
-#include "Renderer/Buffer.h"
-#include "Renderer/VertexArray.h"
+#include "Rocket/Renderer/Buffer.h"
+#include "Rocket/Renderer/VertexArray.h"
 #include "Rocket/Renderer/Shader.h"
 
 #include "Rocket/Renderer/OrthographicCamera.h"
@@ -36,11 +36,13 @@ namespace Rocket {
 		inline Window& getWindow() { return *m_window; }
 	private:
 		bool onWindowClose(WindowCloseEvent& event);
+		bool onWindowResize(WindowResizeEvent& event);
 
 	private:
 		std::unique_ptr<Window> m_window;
 		ImGuiLayer* m_imguiLayer;
-		bool m_running;
+		bool m_running = true;
+		bool m_minimized = false;
 		LayerStack m_layerStack;
 		float m_LastFrameTime = 0.0f;
 		static Application* s_instance;

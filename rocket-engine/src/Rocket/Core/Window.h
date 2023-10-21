@@ -2,7 +2,7 @@
 
 #include "rcktpch.h"
 
-#include "Rocket/Core.h"
+#include "Rocket/Core/Core.h"
 #include "Rocket/Events/Event.h"
 
 namespace Rocket {

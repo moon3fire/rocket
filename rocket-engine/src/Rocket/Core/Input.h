@@ -1,6 +1,6 @@
 #pragma once
 
-#include "Rocket/Core.h"
+#include "Rocket/Core/Core.h"
 
 namespace Rocket {
 

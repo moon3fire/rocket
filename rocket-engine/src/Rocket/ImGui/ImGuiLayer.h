@@ -1,7 +1,7 @@
 #pragma once
 
-#include "Rocket/Layer.h"
-#include "Rocket/Core.h"
+#include "Rocket/Core/Layer.h"
+#include "Rocket/Core/Core.h"
 
 #include "Rocket/Events/KeyEvent.h"
 #include "Rocket/Events/MouseEvent.h"
