@@ -29,7 +29,7 @@ namespace Rocket {
 		virtual void shutdown();
 
 		GLFWwindow* m_window;
-		GraphicsContext* m_context;
+		Scope<GraphicsContext> m_context;
 
 		struct WindowData {
 			std::string title;

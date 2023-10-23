@@ -17,6 +17,7 @@
 ___________________________________Renderer___________________________________*/
 
 #include "Rocket/Renderer/Renderer.h"
+#include "Rocket/Renderer/Renderer2D.h"
 #include "Rocket/Renderer/RenderCommand.h"
 
 #include "Rocket/Renderer/Buffer.h"
@@ -27,7 +28,6 @@ ___________________________________Renderer___________________________________*/
 #include "Rocket/Renderer/OrthographicCamera.h"
 #include "Rocket/Renderer/OrthographicCameraController.h"
 
-/*______________________________________________________________________________
-__________________________________ENTRY POINT___________________________________*/
-#include "Rocket/Core/EntryPoint.h"
-//______________________________________________________________________________
+//temp
+#include "Platform/OpenGL/OpenGLShader.h"
+#include "Rocket/../../vendors/imgui/imgui.h"

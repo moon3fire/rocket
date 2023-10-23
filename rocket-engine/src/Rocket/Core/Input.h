@@ -16,7 +16,7 @@ namespace Rocket {
 		virtual std::pair<float, float> getMousePositionsImpl() = 0;
 
 	private:
-		static Input* s_instance;
+		static Scope<Input> s_instance;
 
 	};
 

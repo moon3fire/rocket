@@ -5,6 +5,6 @@
 
 namespace Rocket {
 
-	RendererAPI* RenderCommand::s_rendererAPI = new OpenGLRendererAPI;
+	Scope<RendererAPI> RenderCommand::s_rendererAPI = createScope<OpenGLRendererAPI>();
 
 } // namespace Rocket

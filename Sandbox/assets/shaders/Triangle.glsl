@@ -12,7 +12,7 @@ out vec4 frag_color;
 void main()
 {
 	frag_color = a_color;
-	gl_Position = u_viewProjection * vec4(a_position, 1.0);		
+	gl_Position = u_viewProjection * u_modelMatrix * vec4(a_position, 1.0);		
 }
 
 #type fragment

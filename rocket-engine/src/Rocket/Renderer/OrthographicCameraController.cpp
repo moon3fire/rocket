@@ -15,25 +15,33 @@ namespace Rocket {
 	void OrthographicCameraController::onUpdate(Timestep ts) {
 		// TODO: move translations into functions to be dependent at zoom level
 		if (Input::isKeyPressed(RCKT_KEY_A)) {
-			m_cameraPosition.x -= m_cameraTranslationSpeed * ts;
+			m_cameraPosition.x -= cos(glm::radians(m_cameraRotation)) * m_cameraTranslationSpeed * ts;
+			m_cameraPosition.y -= sin(glm::radians(m_cameraRotation)) * m_cameraTranslationSpeed * ts;
 		}
-		if (Input::isKeyPressed(RCKT_KEY_D)) {
-			m_cameraPosition.x += m_cameraTranslationSpeed * ts;
+		else if (Input::isKeyPressed(RCKT_KEY_D)) {
+			m_cameraPosition.x += cos(glm::radians(m_cameraRotation)) * m_cameraTranslationSpeed * ts;
+			m_cameraPosition.y += sin(glm::radians(m_cameraRotation)) * m_cameraTranslationSpeed * ts;
 		}
 		if (Input::isKeyPressed(RCKT_KEY_S)) {
-			m_cameraPosition.y -= m_cameraTranslationSpeed * ts;
+			m_cameraPosition.x -= -sin(glm::radians(m_cameraRotation)) * m_cameraTranslationSpeed * ts;
+			m_cameraPosition.y -= cos(glm::radians(m_cameraRotation)) * m_cameraTranslationSpeed * ts;
 		}
-		if (Input::isKeyPressed(RCKT_KEY_W)) {
-			m_cameraPosition.y += m_cameraTranslationSpeed * ts;
+		else if (Input::isKeyPressed(RCKT_KEY_W)) {
+			m_cameraPosition.x += -sin(glm::radians(m_cameraRotation)) * m_cameraTranslationSpeed * ts;
+			m_cameraPosition.y += cos(glm::radians(m_cameraRotation)) * m_cameraTranslationSpeed * ts;
 		}
 
 		if (m_rotation) {
-			if (Input::isKeyPressed(RCKT_KEY_Q)) {
+			if (Input::isKeyPressed(RCKT_KEY_Q))
 				m_cameraRotation += m_cameraRotationSpeed * ts;
-			}
-			if (Input::isKeyPressed(RCKT_KEY_E)) {
+			if (Input::isKeyPressed(RCKT_KEY_E))
 				m_cameraRotation -= m_cameraRotationSpeed * ts;
-			}
+
+			if (m_cameraRotation > 180.0f)
+				m_cameraRotation -= 360.0f;
+			else if (m_cameraRotation <= -180.0f)
+				m_cameraRotation += 360.0f;
+
 			m_camera.setRotation(m_cameraRotation);
 		}
 
@@ -47,7 +55,7 @@ namespace Rocket {
 	}
 
 	bool OrthographicCameraController::onMouseScrolled(MouseScrolledEvent& event) {
-		m_zoomLevel -= event.getOffsetY() * 0.25f;
+		m_zoomLevel -= event.getOffsetY() * 0.45f;
 		m_zoomLevel = std::max(m_zoomLevel, 0.25f);
 		m_camera.setProjection(-m_aspectRatio * m_zoomLevel, m_aspectRatio * m_zoomLevel, -m_zoomLevel, m_zoomLevel);
 		return false;

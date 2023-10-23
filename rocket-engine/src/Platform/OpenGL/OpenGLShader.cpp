@@ -71,6 +71,7 @@ namespace Rocket {
 			RCKT_CORE_ASSERT(shaderTypeFromString(type), "Invalid shader type specifier");
 
 			size_t nextLinePos = source.find_first_not_of("\r\n", eol);
+			RCKT_CORE_ASSERT(nextLinePos != std::string::npos, "Syntax error!");
 			pos = source.find(typeToken, nextLinePos);
 			shaderSources[shaderTypeFromString(type)] = source.substr(nextLinePos, pos - (nextLinePos == std::string::npos ? source.size() - 1 : nextLinePos));
 		}
@@ -137,9 +138,23 @@ namespace Rocket {
 
 		for (auto id : glShaderIDs) {
 			glDetachShader(program, id);
+			glDeleteShader(id);
 		}
 
 		m_rendererID = program;
+	}
+
+	GLint OpenGLShader::getUniformLocation(const std::string& name) const {
+		if (m_uniformLocationCache.find(name) != m_uniformLocationCache.end())
+			return m_uniformLocationCache[name];
+
+		GLint location = glGetUniformLocation(m_rendererID, name.c_str());
+		if (location == -1) {
+			RCKT_CORE_WARN("Uniform '{0}' not found!", name);
+			return location;
+		}
+		m_uniformLocationCache[name] = location;
+		return location;
 	}
 
 	void OpenGLShader::bind() const {
@@ -150,38 +165,58 @@ namespace Rocket {
 		glUseProgram(0);
 	}
 
+	void OpenGLShader::setFloat2(const std::string& name, const glm::vec2& value) {
+		uploadUniformFloat2(name, value);
+	}
+
+	void OpenGLShader::setFloat3(const std::string& name, const glm::vec3& value) {
+		uploadUniformFloat3(name, value);
+	}
+
+	void OpenGLShader::setFloat4(const std::string& name, const glm::vec4& value) {
+		uploadUniformFloat4(name, value);
+	}
+
+	void OpenGLShader::setMat4(const std::string& name, const glm::mat4& value) {
+		uploadUniformMat4(name, value);
+	}
+
+	void OpenGLShader::setInt(const std::string& name, int value) {
+		uploadUniformInt(name, value);
+	}
+
 	void OpenGLShader::uploadUniformInt(const std::string& name, int value) {
-		GLint location = glGetUniformLocation(m_rendererID, name.c_str());
+		GLint location = getUniformLocation(name);
 		glUniform1i(location, value);
 	}
 
 	void OpenGLShader::uploadUniformFloat(const std::string& name, float value) {
-		GLint location = glGetUniformLocation(m_rendererID, name.c_str());
+		GLint location = getUniformLocation(name);
 		glUniform1f(location, value);
 	}
 
 	void OpenGLShader::uploadUniformFloat2(const std::string& name, const glm::vec2& value) {
-		GLint location = glGetUniformLocation(m_rendererID, name.c_str());
+		GLint location = getUniformLocation(name);
 		glUniform2f(location, value.x, value.y);
 	}
 
 	void OpenGLShader::uploadUniformFloat3(const std::string& name, const glm::vec3& value) {
-		GLint location = glGetUniformLocation(m_rendererID, name.c_str());
+		GLint location = getUniformLocation(name);
 		glUniform3f(location, value.x, value.y, value.z);
 	}
 
 	void OpenGLShader::uploadUniformFloat4(const std::string& name, const glm::vec4& value) {
-		GLint location = glGetUniformLocation(m_rendererID, name.c_str());
+		GLint location = getUniformLocation(name);
 		glUniform4f(location, value.x, value.y, value.z, value.w);
 	}
 
 	void OpenGLShader::uploadUniformMat3(const std::string& name, const glm::mat3& matrix) {
-		GLint location = glGetUniformLocation(m_rendererID, name.c_str());
+		GLint location = getUniformLocation(name);
 		glUniformMatrix3fv(location, 1, GL_FALSE, glm::value_ptr(matrix));
 	}
 
 	void OpenGLShader::uploadUniformMat4(const std::string& name, const glm::mat4& matrix) {
-		GLint location = glGetUniformLocation(m_rendererID, name.c_str());
+		GLint location = getUniformLocation(name);
 		glUniformMatrix4fv(location, 1, GL_FALSE, glm::value_ptr(matrix));
 	}
 

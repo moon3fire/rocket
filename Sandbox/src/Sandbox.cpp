@@ -1,24 +1,20 @@
 #include "rcktpch.h"
-#include <Rocket.h>
-
-#include "Platform/OpenGL/OpenGLShader.h"
-
-#include "../vendors/imgui/imgui.h"
+#include "Sandbox2D.h"
 
 class ExampleLayer : public Rocket::Layer {
 public:
 	ExampleLayer() :Layer("example"), m_cameraController(1280.0f / 720.0f, true) {
 		{
-			m_triangleVA.reset(Rocket::VertexArray::create());
+			m_triangleVA = Rocket::VertexArray::create();
 
 			float triangleVertices[7 * 3] = {
-				-0.5f, -0.5f, 0.0f, 0.2f, 0.1f, 0.9f, 1.0f,
-				 0.5f, -0.5f, 0.0f, 1.0f, 1.0f, 1.0f, 1.0f,
-				 0.0f,  0.5f, 0.0f, 0.0f, 0.0f, 0.9f, 1.0f
+				-0.5f, -0.5f, 0.0f, 1.0f, 0.0f, 0.0f, 1.0f,
+				 0.5f, -0.5f, 0.0f, 1.0f, 0.0f, 0.0f, 1.0f,
+				 0.0f,  0.5f, 0.0f, 1.0f, 0.0f, 0.0f, 1.0f
 			};
 
 			Rocket::Ref<Rocket::VertexBuffer> triangleVertexBuffer;
-			triangleVertexBuffer.reset(Rocket::VertexBuffer::create(triangleVertices, sizeof(triangleVertices)));
+			triangleVertexBuffer = Rocket::VertexBuffer::create(triangleVertices, sizeof(triangleVertices));
 			/*
 			BufferLayout triangleLayout = {
 				{ ShaderDataType::Float3, "a_position" },
@@ -35,13 +31,13 @@ public:
 			uint32_t triangleIndices[3] = { 0, 1, 2 };
 
 			Rocket::Ref<Rocket::IndexBuffer> triangleIndexBuffer;
-			triangleIndexBuffer.reset(Rocket::IndexBuffer::create(triangleIndices, sizeof(triangleIndexBuffer) / sizeof(uint32_t)));
+			triangleIndexBuffer = Rocket::IndexBuffer::create(triangleIndices, sizeof(triangleIndexBuffer) / sizeof(uint32_t));
 
 			m_triangleVA->setIndexBuffer(triangleIndexBuffer);
 		}
 
 		{
-			m_squareVA.reset(Rocket::VertexArray::create());
+			m_squareVA = Rocket::VertexArray::create();
 
 			float squareVertices[5 * 4] = {
 					-0.5f, -0.5f, 0.0f, 0.0f, 0.0f,
@@ -51,7 +47,7 @@ public:
 			};
 
 			Rocket::Ref<Rocket::VertexBuffer> squareVertexBuffer;
-			squareVertexBuffer.reset(Rocket::VertexBuffer::create(squareVertices, sizeof(squareVertices)));
+			squareVertexBuffer = Rocket::VertexBuffer::create(squareVertices, sizeof(squareVertices));
 
 			squareVertexBuffer->setLayout(
 				{
@@ -63,7 +59,7 @@ public:
 			uint32_t squareIndices[6] = { 0, 1, 2, 2, 3, 0 };
 
 			Rocket::Ref<Rocket::IndexBuffer> squareIndexBuffer;
-			squareIndexBuffer.reset(Rocket::IndexBuffer::create(squareIndices, sizeof(squareIndices) / sizeof(uint32_t)));
+			squareIndexBuffer = Rocket::IndexBuffer::create(squareIndices, sizeof(squareIndices) / sizeof(uint32_t));
 
 			m_squareVA->setIndexBuffer(squareIndexBuffer);
 		}
@@ -71,6 +67,7 @@ public:
 		m_triangleShader = Rocket::Shader::create("assets/shaders/Triangle.glsl");
 		m_squareShader = Rocket::Shader::create("assets/shaders/Square.glsl");
 		auto textureShader = m_shaderLibrary.load("assets/shaders/Texture.glsl");
+		auto triangleShader = m_shaderLibrary.load("assets/shaders/Triangle.glsl");
 		RCKT_INFO(textureShader.get()->getName());
 		RCKT_INFO(m_triangleShader.get()->getName());
 		RCKT_INFO(m_squareShader.get()->getName());
@@ -119,6 +116,14 @@ public:
 			std::dynamic_pointer_cast<Rocket::OpenGLShader>(textureShader)->uploadUniformMat4("u_viewProjection", m_cameraController.getCamera().getViewProjectionMatrix());
 			std::dynamic_pointer_cast<Rocket::OpenGLShader>(textureShader)->unbind();
 
+			/*
+			auto triangleShader = m_shaderLibrary.get("Triangle");
+			std::dynamic_pointer_cast<Rocket::OpenGLShader>(triangleShader)->bind();
+			Rocket::Renderer::submit(m_triangleVA, triangleShader, glm::mat4(glm::translate(glm::mat4(1.0f), glm::vec3(1.f, 1.f, 1.f))));
+			std::dynamic_pointer_cast<Rocket::OpenGLShader>(triangleShader)->uploadUniformMat4("u_viewProjection", m_cameraController.getCamera().getViewProjectionMatrix());
+			std::dynamic_pointer_cast<Rocket::OpenGLShader>(textureShader)->unbind();
+			*/
+
 			//m_triangleShader->bind();
 			//std::dynamic_pointer_cast<Rocket::OpenGLShader>(m_triangleShader)->uploadUniformMat4("u_viewProjection", m_camera.getViewProjectionMatrix());
 			//Rocket::Renderer::sumbit(m_triangleVA, m_triangleShader);
@@ -156,7 +161,7 @@ private:
 class Sandbox : public Rocket::Application {
 public:
 	Sandbox() {
-		pushLayer(new ExampleLayer());
+		pushLayer(new Sandbox2D());
 	}
 
 	~Sandbox() {

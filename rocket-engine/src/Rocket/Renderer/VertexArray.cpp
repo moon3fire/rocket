@@ -6,11 +6,11 @@
 
 namespace Rocket {
 
-	VertexArray* VertexArray::create() {
+	Ref<VertexArray> VertexArray::create() {
 		switch (Renderer::getAPI()) {
 
 		case RendererAPI::API::None:		RCKT_CORE_ASSERT(false, "RendererAPI not found: None");
-		case RendererAPI::API::OpenGL:		return new OpenGLVertexArray();
+		case RendererAPI::API::OpenGL:		return std::make_shared<OpenGLVertexArray>();
 		}
 
 		RCKT_CORE_ASSERT(false, "Unknown Renderer API");
