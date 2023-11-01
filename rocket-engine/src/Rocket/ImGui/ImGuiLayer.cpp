@@ -24,6 +24,8 @@ namespace Rocket {
 	}
 
 	void ImGuiLayer::onAttach() {
+        RCKT_PROFILE_FUNCTION();
+
 	    //Setup ImGui context
         IMGUI_CHECKVERSION();
         ImGui::CreateContext();
@@ -55,6 +57,8 @@ namespace Rocket {
     }
 
 	void ImGuiLayer::onDetach() {
+        RCKT_PROFILE_FUNCTION();
+
         ImGui_ImplOpenGL3_Shutdown();
         ImGui_ImplGlfw_Shutdown();
         ImGui::DestroyContext();
@@ -67,12 +71,16 @@ namespace Rocket {
 
 
     void ImGuiLayer::begin() {
+        RCKT_PROFILE_FUNCTION();
+
         ImGui_ImplOpenGL3_NewFrame();
         ImGui_ImplGlfw_NewFrame();
         ImGui::NewFrame();
     }
 
     void ImGuiLayer::end() {
+        RCKT_PROFILE_FUNCTION();
+
         ImGuiIO& io = ImGui::GetIO();
         Application& app = Application::get();
         io.DisplaySize = ImVec2((float)app.getWindow().getWidth(), (float)app.getWindow().getHeight());

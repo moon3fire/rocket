@@ -113,6 +113,11 @@ project "Sandbox"
 		"%{prj.name}/src/**.cpp"
 	}
 
+	defines 
+	{
+		"RCKT_PLATFORM_WINDOWS"
+	}
+
 	includedirs 
 	{
 		"rocket-engine/vendors/spdlog/include",
@@ -129,11 +134,6 @@ project "Sandbox"
 	filter "system:windows"
 		cppdialect "C++20"
 		systemversion "latest"
-
-		defines 
-		{
-			 "RCKT_PLATFORM_WINDOWS",
-		}
 
 	filter "configurations:Debug"
 		defines "RCKT_DEBUG"

@@ -9,6 +9,8 @@ namespace Rocket {
 	Scope<Renderer::SceneData> Renderer::m_sceneData =  createScope<Renderer::SceneData>();
 
 	void Renderer::init() {
+		RCKT_PROFILE_FUNCTION();
+
 		RenderCommand::init();
 		Renderer2D::init();
 	}

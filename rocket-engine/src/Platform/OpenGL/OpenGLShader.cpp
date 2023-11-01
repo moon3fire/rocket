@@ -16,6 +16,8 @@ namespace Rocket {
 	}
 
 	OpenGLShader::OpenGLShader(const std::string& filepath) :m_rendererID(0) {
+		RCKT_PROFILE_FUNCTION();
+
 		std::string shaderSource = readFile(filepath);
 		auto sources = preProcess(shaderSource);
 		compile(sources);
@@ -30,6 +32,8 @@ namespace Rocket {
 
 	OpenGLShader::OpenGLShader(const std::string& name, const std::string& vertexSource, const std::string& fragmentSource)
 		:m_rendererID(0), m_name(name) {
+		RCKT_PROFILE_FUNCTION();
+
 		std::unordered_map<GLenum, std::string> sources;
 		sources[GL_VERTEX_SHADER] = vertexSource;
 		sources[GL_FRAGMENT_SHADER] = fragmentSource;
@@ -37,10 +41,14 @@ namespace Rocket {
 	}
 
 	OpenGLShader::~OpenGLShader() {
+		RCKT_PROFILE_FUNCTION();
+
 		glDeleteProgram(m_rendererID);
 	}
 
 	std::string OpenGLShader::readFile(const std::string& filepath) {
+		RCKT_PROFILE_FUNCTION();
+
 		std::string result;
 		std::ifstream in(filepath, std::ios::in | std::ios::binary);
 		if (in) {
@@ -58,6 +66,8 @@ namespace Rocket {
 	}
 
 	std::unordered_map<GLenum, std::string> OpenGLShader::preProcess(const std::string& source) {
+		RCKT_PROFILE_FUNCTION();
+
 		std::unordered_map<GLenum, std::string> shaderSources;
 
 		const char* typeToken = "#type";
@@ -80,6 +90,8 @@ namespace Rocket {
 	}
 
 	void OpenGLShader::compile(const std::unordered_map<GLenum, std::string>& shaderSources) {
+		RCKT_PROFILE_FUNCTION();
+
 		RCKT_CORE_ASSERT(shaderSources.size() <= 2, "We only support 2 shaders for now!");
 		GLuint program = glCreateProgram();
 		std::array<GLenum, 2> glShaderIDs;
@@ -145,6 +157,8 @@ namespace Rocket {
 	}
 
 	GLint OpenGLShader::getUniformLocation(const std::string& name) const {
+		RCKT_PROFILE_FUNCTION();
+
 		if (m_uniformLocationCache.find(name) != m_uniformLocationCache.end())
 			return m_uniformLocationCache[name];
 
@@ -158,11 +172,19 @@ namespace Rocket {
 	}
 
 	void OpenGLShader::bind() const {
+		RCKT_PROFILE_FUNCTION();
+
 		glUseProgram(m_rendererID);
 	}
 
 	void OpenGLShader::unbind() const {
+		RCKT_PROFILE_FUNCTION();
+
 		glUseProgram(0);
+	}
+
+	void OpenGLShader::setFloat(const std::string& name, float value) {
+		uploadUniformFloat(name, value);
 	}
 
 	void OpenGLShader::setFloat2(const std::string& name, const glm::vec2& value) {
@@ -183,6 +205,15 @@ namespace Rocket {
 
 	void OpenGLShader::setInt(const std::string& name, int value) {
 		uploadUniformInt(name, value);
+	}
+
+	void OpenGLShader::setBool(const std::string& name, bool value) {
+		uploadUniformBool(name, value);
+	}
+
+	void OpenGLShader::uploadUniformBool(const std::string& name, bool value) {
+		GLint location = getUniformLocation(name);
+		glUniform1i(location, value);
 	}
 
 	void OpenGLShader::uploadUniformInt(const std::string& name, int value) {

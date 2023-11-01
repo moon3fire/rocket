@@ -18,10 +18,7 @@ private:
 	Rocket::OrthographicCameraController m_cameraController;
 
 	Rocket::Ref<Rocket::Texture2D> m_squareWoodTexture;
-	//temp
-	//Rocket::Ref<Rocket::VertexArray> m_squareVA;
-	//Rocket::Ref<Rocket::Shader> m_squareShader;
-
+	
 	glm::vec4 m_backgroundColor = { 1.0f, 1.0f, 1.0f, 1.0f };
 	glm::vec2 m_backgroundPosition = { 0.0f, 0.0f };
 	glm::vec2 m_backgroundScale = { 10.0f, 10.0f };

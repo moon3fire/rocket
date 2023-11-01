@@ -1,6 +1,7 @@
 #pragma once
 
 #include <Rocket/Core/Core.h>
+#include <string>
 
 namespace Rocket {
 

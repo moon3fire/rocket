@@ -162,6 +162,7 @@ class Sandbox : public Rocket::Application {
 public:
 	Sandbox() {
 		pushLayer(new Sandbox2D());
+		//pushLayer(new GameLayer());
 	}
 
 	~Sandbox() {

@@ -11,6 +11,7 @@ namespace Rocket {
 	public:
 
 		inline static void init() {
+			RCKT_PROFILE_FUNCTION();
 			s_rendererAPI->init();
 		}
 
@@ -26,8 +27,8 @@ namespace Rocket {
 			s_rendererAPI->clear();
 		}
 
-		inline static void drawIndexed(const Ref<VertexArray>& vertexArray) {
-			s_rendererAPI->drawIndexed(vertexArray);
+		inline static void drawIndexed(const Ref<VertexArray>& vertexArray, uint32_t indexCount = 0) {
+			s_rendererAPI->drawIndexed(vertexArray, indexCount);
 		}
 
 	private:

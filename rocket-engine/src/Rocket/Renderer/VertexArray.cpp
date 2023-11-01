@@ -7,6 +7,7 @@
 namespace Rocket {
 
 	Ref<VertexArray> VertexArray::create() {
+
 		switch (Renderer::getAPI()) {
 
 		case RendererAPI::API::None:		RCKT_CORE_ASSERT(false, "RendererAPI not found: None");

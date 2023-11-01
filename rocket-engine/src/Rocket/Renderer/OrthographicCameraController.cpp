@@ -13,6 +13,8 @@ namespace Rocket {
 	}
 
 	void OrthographicCameraController::onUpdate(Timestep ts) {
+		RCKT_PROFILE_FUNCTION();
+
 		// TODO: move translations into functions to be dependent at zoom level
 		if (Input::isKeyPressed(RCKT_KEY_A)) {
 			m_cameraPosition.x -= cos(glm::radians(m_cameraRotation)) * m_cameraTranslationSpeed * ts;
@@ -49,12 +51,16 @@ namespace Rocket {
 	}
 
 	void OrthographicCameraController::onEvent(Event& event) {
+		RCKT_PROFILE_FUNCTION();
+
 		EventDispatcher dispatcher(event);
 		dispatcher.dispatch<MouseScrolledEvent>(RCKT_BIND_EVENT_FUNC(OrthographicCameraController::onMouseScrolled));
 		dispatcher.dispatch<WindowResizeEvent>(RCKT_BIND_EVENT_FUNC(OrthographicCameraController::onWindowResized));
 	}
 
 	bool OrthographicCameraController::onMouseScrolled(MouseScrolledEvent& event) {
+		RCKT_PROFILE_FUNCTION();
+
 		m_zoomLevel -= event.getOffsetY() * 0.45f;
 		m_zoomLevel = std::max(m_zoomLevel, 0.25f);
 		m_camera.setProjection(-m_aspectRatio * m_zoomLevel, m_aspectRatio * m_zoomLevel, -m_zoomLevel, m_zoomLevel);
@@ -62,6 +68,8 @@ namespace Rocket {
 	}
 
 	bool OrthographicCameraController::onWindowResized(WindowResizeEvent& event) {
+		RCKT_PROFILE_FUNCTION();
+
 		m_aspectRatio = (float)event.getWidth() / (float)event.getHeight();
 		m_camera.setProjection(-m_aspectRatio * m_zoomLevel, m_aspectRatio * m_zoomLevel, -m_zoomLevel, m_zoomLevel);
 		return false;

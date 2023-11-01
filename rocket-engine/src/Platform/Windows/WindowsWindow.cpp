@@ -24,14 +24,19 @@ namespace Rocket {
 	}
 
 	WindowsWindow::WindowsWindow(const WindowProps& props) {
+		RCKT_PROFILE_FUNCTION();
+
 		init(props);
 	}
 
 	WindowsWindow::~WindowsWindow() {
+		RCKT_PROFILE_FUNCTION();
 		shutdown();
 	}
 
 	void WindowsWindow::init(const WindowProps& props) {
+		RCKT_PROFILE_FUNCTION();
+
 		m_data.title = props.title;
 		m_data.width = props.width;
 		m_data.height = props.height;
@@ -39,14 +44,20 @@ namespace Rocket {
 		RCKT_CORE_INFO("Creating Window {0} ({1}, {2})", props.title, props.width, props.height);
 
 		if (!s_GLFWInitialized) {
+			int success;
 			// TODO: glfwTerminate on system shutdown
-			int success = glfwInit();
+			{
+				RCKT_PROFILE_SCOPE("GLFWINIT");
+				success = glfwInit();
+			}
 			RCKT_CORE_ASSERT(success, "Could not initialize GLFW");
 			glfwSetErrorCallback(GLFWErrorCallback);
 			s_GLFWInitialized = true;
 		}
-
-		m_window = glfwCreateWindow((int)props.width, (int)props.height, m_data.title.c_str(), nullptr, nullptr);
+		{
+			RCKT_PROFILE_SCOPE("CreatingGLFWwindow!");
+			m_window = glfwCreateWindow((int)props.width, (int)props.height, m_data.title.c_str(), nullptr, nullptr);
+		}
 		m_context = createScope<OpenGLContext>(m_window);
 		m_context->init();
 
@@ -138,11 +149,15 @@ namespace Rocket {
 	}
 
 	void WindowsWindow::onUpdate() {
+		RCKT_PROFILE_FUNCTION();
+
 		glfwPollEvents();
 		m_context->swapBuffers();
 	}
 
 	void WindowsWindow::setVSync(bool enabled) {
+		RCKT_PROFILE_FUNCTION();
+
 		if (enabled) {
 			glfwSwapInterval(1);
 		}
@@ -158,6 +173,9 @@ namespace Rocket {
 	}
 
 	void WindowsWindow::shutdown() {
+
+		RCKT_PROFILE_FUNCTION();
+
 		glfwDestroyWindow(m_window);
 	}
 

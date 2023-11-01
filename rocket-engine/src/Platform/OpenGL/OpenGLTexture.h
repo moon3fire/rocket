@@ -2,6 +2,8 @@
 
 #include "Rocket/Renderer/Texture.h"
 
+#include <glad/glad.h>
+
 namespace Rocket {
 
 	class OpenGLTexture2D : public Texture2D {

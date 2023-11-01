@@ -9,6 +9,8 @@ namespace Rocket {
 	}
 
 	void OpenGLContext::init() {
+		RCKT_PROFILE_FUNCTION();
+
 		glfwMakeContextCurrent(m_windowHandle);
 		int status = gladLoadGLLoader((GLADloadproc)glfwGetProcAddress);
 		RCKT_CORE_ASSERT(status, "Failed to Initialize Glad");
@@ -30,6 +32,8 @@ namespace Rocket {
 	}
 
 	void OpenGLContext::swapBuffers() {
+		RCKT_PROFILE_FUNCTION();
+
 		glfwSwapBuffers(m_windowHandle);
 	}
 

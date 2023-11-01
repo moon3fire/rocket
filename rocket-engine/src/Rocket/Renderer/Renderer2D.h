@@ -13,6 +13,7 @@ namespace Rocket {
 
 		static void beginScene(const OrthographicCamera2D& camera);
 		static void endScene();
+		static void flush();
 
 		static void drawQuad2D(const glm::vec2& position = { 0.0f, 0.0f },
 							 const glm::vec2& size = { 1.0f, 1.0f },

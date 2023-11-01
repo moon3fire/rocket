@@ -14,6 +14,9 @@ namespace Rocket {
 	Application* Application::s_instance = nullptr;
 
 	Application::Application() :m_running(false) {
+
+		RCKT_PROFILE_FUNCTION();
+
 		RCKT_CORE_ASSERT(!s_instance, "Application already exist!");
 		s_instance = this;
 
@@ -29,6 +32,8 @@ namespace Rocket {
 	Application::~Application() {}
 
 	void Application::onEvent(Event& event) {
+		RCKT_PROFILE_FUNCTION();
+
 		EventDispatcher dispatcher(event);
 		dispatcher.dispatch<WindowCloseEvent>(BIND_EVENT_FUNC(Application::onWindowClose));
 		dispatcher.dispatch<WindowResizeEvent>(BIND_EVENT_FUNC(Application::onWindowResize));
@@ -41,35 +46,50 @@ namespace Rocket {
 	}
 
 	void Application::pushLayer(Layer* layer) {
+		RCKT_PROFILE_FUNCTION();
+
 		m_layerStack.pushLayer(layer);
 		layer->onAttach();
 	}
 
 	void Application::pushOverlay(Layer* overlay) {
+		RCKT_PROFILE_FUNCTION();
+
 		m_layerStack.pushOverlay(overlay);
 		overlay->onAttach();
 	}
 
 	void Application::run() {
+		RCKT_PROFILE_FUNCTION();
+
 		m_running = true;
 
 		while (m_running) {
 
-			float time = (float)glfwGetTime(); //PLatrform dependent get_time()
+			RCKT_PROFILE_SCOPE("Run loop");
+
+			float time = (float)glfwGetTime(); // pLatform dependent get_time()
 			Timestep timestep = time - m_LastFrameTime;
 			m_LastFrameTime = time;
 
 			if (!m_minimized) {
-				for (Layer* layer : m_layerStack) {
-					layer->onUpdate(timestep);
+				{
+					RCKT_PROFILE_SCOPE("LayerStack onUpdate:");
+					for (Layer* layer : m_layerStack) {
+						layer->onUpdate(timestep);
+					}
+				}
+				m_imguiLayer->begin();
+				{
+					RCKT_PROFILE_SCOPE("ImguiLayerStack onImguiRender:");
+					for (Layer* layer : m_layerStack) {
+						layer->onImGuiRender();
+					}
+					m_imguiLayer->end();
 				}
 			}
 
-			m_imguiLayer->begin();
-			for (Layer* layer : m_layerStack) {
-				layer->onImGuiRender();
-			}
-			m_imguiLayer->end();
+			
 			
 			m_window->onUpdate();
 		}
@@ -81,6 +101,8 @@ namespace Rocket {
 	}
 
 	bool Application::onWindowResize(WindowResizeEvent& event) {
+		RCKT_PROFILE_FUNCTION();
+
 		if (event.getWidth() == 0 || event.getHeight() == 0) {
 			m_minimized = true;
 			return false;

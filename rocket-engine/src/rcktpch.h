@@ -17,6 +17,8 @@
 
 #include "Rocket/Core/Log.h"
 
+#include "Rocket/Debug/Instrumentor.h"
+
 #ifdef RCKT_PLATFORM_WINDOWS
 	#include <Windows.h>
 #endif
