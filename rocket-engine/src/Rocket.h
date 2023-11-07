@@ -23,6 +23,7 @@ ___________________________________Renderer___________________________________*/
 #include "Rocket/Renderer/Buffer.h"
 #include "Rocket/Renderer/Shader.h"
 #include "Rocket/Renderer/Texture.h"
+#include "Rocket/Renderer/SubTexture2D.h"
 #include "Rocket/Renderer/VertexArray.h"
 
 #include "Rocket/Renderer/OrthographicCamera.h"

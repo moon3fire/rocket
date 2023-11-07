@@ -8,7 +8,9 @@ namespace Rocket {
 
 	OrthographicCameraController::OrthographicCameraController(float aspectRatio, bool rotation)
 	:m_aspectRatio(aspectRatio)
-	,m_camera(-m_aspectRatio * m_zoomLevel, m_aspectRatio * m_zoomLevel, -m_zoomLevel, m_zoomLevel), m_rotation(rotation) {
+	,m_cameraBounds(-m_aspectRatio * m_zoomLevel, m_aspectRatio* m_zoomLevel, -m_zoomLevel, m_zoomLevel)
+	,m_camera(m_cameraBounds.left, m_cameraBounds.right, m_cameraBounds.bottom, m_cameraBounds.top)
+	,m_rotation(rotation) {
 
 	}
 
@@ -63,7 +65,7 @@ namespace Rocket {
 
 		m_zoomLevel -= event.getOffsetY() * 0.45f;
 		m_zoomLevel = std::max(m_zoomLevel, 0.25f);
-		m_camera.setProjection(-m_aspectRatio * m_zoomLevel, m_aspectRatio * m_zoomLevel, -m_zoomLevel, m_zoomLevel);
+		calculateView();
 		return false;
 	}
 
@@ -71,8 +73,13 @@ namespace Rocket {
 		RCKT_PROFILE_FUNCTION();
 
 		m_aspectRatio = (float)event.getWidth() / (float)event.getHeight();
-		m_camera.setProjection(-m_aspectRatio * m_zoomLevel, m_aspectRatio * m_zoomLevel, -m_zoomLevel, m_zoomLevel);
+		calculateView();
 		return false;
+	}
+
+	void OrthographicCameraController::calculateView() {
+		m_cameraBounds = { -m_aspectRatio * m_zoomLevel, m_aspectRatio * m_zoomLevel, -m_zoomLevel, m_zoomLevel };
+		m_camera.setProjection(m_cameraBounds.left, m_cameraBounds.right, m_cameraBounds.bottom, m_cameraBounds.top);
 	}
 
 } // namespace Rocket

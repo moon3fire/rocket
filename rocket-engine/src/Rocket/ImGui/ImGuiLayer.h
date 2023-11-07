@@ -17,6 +17,7 @@ namespace Rocket {
 
 		virtual void onAttach() override;
 		virtual void onDetach() override;
+		virtual void onEvent(Event& event) override;
 		virtual void onImGuiRender() override;
 
 		void begin();

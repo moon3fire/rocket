@@ -3,6 +3,31 @@
 
 #include <Rocket/Core/EntryPoint.h>
 
+
+static const char* s_mapTiles =
+"677777777777777777777777777777777778"
+"5XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX9"
+"5XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX9"
+"5XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX9"
+"5XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX9"
+"5XXXXXXXXXXXXXXXXXXN3333333OXXXXXXX9"
+"5XXXXXXXXXXXXXXXXXX9JJJJJJJ5XXXXXXX9"
+"5XXXXXXXXXXXXXXXXXX9JJJJJJJ5XXXXXXX9"
+"5XXXXXXXXXXXXXXXXXXM7777777PXXXXXXX9"
+"5XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX9"
+"5XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX9"
+"5XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX9"
+"5XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX9"
+"5XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX9"
+"5XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX9"
+"5XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX9"
+"5XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX9"
+"5XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX9"
+"5XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX9"
+"123332333322333332223333333332233324"
+;
+
+
 Sandbox2D::Sandbox2D() :Layer("Sandbox2D"), m_cameraController(1280.0f / 720.0f, true) {
 	onAttach();
 }
@@ -10,7 +35,68 @@ Sandbox2D::Sandbox2D() :Layer("Sandbox2D"), m_cameraController(1280.0f / 720.0f,
 void Sandbox2D::onAttach() {
 	RCKT_PROFILE_FUNCTION();
 
-	m_squareWoodTexture = Rocket::Texture2D::create("assets/textures/wood.png");
+	m_spriteSheet = Rocket::Texture2D::create("assets/textures/spritesheet.png");
+	m_textureMap['F'] = Rocket::SubTexture2D::createFromCoords(m_spriteSheet, { 5, 5 }, { 64, 64 }); // press F to pay respect
+
+	m_textureMap['X'] = Rocket::SubTexture2D::createFromCoords(m_spriteSheet, { 12, 11 }, { 64, 64 }); // grass
+	m_textureMap['A'] = Rocket::SubTexture2D::createFromCoords(m_spriteSheet, { 12, 6 }, { 64, 64 }); // sand 
+	m_textureMap['Q'] = Rocket::SubTexture2D::createFromCoords(m_spriteSheet, { 11, 2 }, { 64, 64 }); // stone
+	m_textureMap['J'] = Rocket::SubTexture2D::createFromCoords(m_spriteSheet, { 0, 9 }, { 64, 64 }); // water
+
+	//grass specific
+	m_textureMap['1'] = Rocket::SubTexture2D::createFromCoords(m_spriteSheet, { 10, 12 }, { 64, 64 }); // grass left corner
+	m_textureMap['2'] = Rocket::SubTexture2D::createFromCoords(m_spriteSheet, { 11, 12 }, { 64, 64 }); // grass corner next
+	m_textureMap['3'] = Rocket::SubTexture2D::createFromCoords(m_spriteSheet, { 10, 13 }, { 64, 64 }); // grass bot continue
+	m_textureMap['4'] = Rocket::SubTexture2D::createFromCoords(m_spriteSheet, { 11, 13 }, { 64, 64 }); // grass right corner
+	m_textureMap['5'] = Rocket::SubTexture2D::createFromCoords(m_spriteSheet, { 12, 10 }, { 64, 64 }); // grass left continue
+	m_textureMap['6'] = Rocket::SubTexture2D::createFromCoords(m_spriteSheet, { 13, 9 }, { 64, 64 }); // grass left up corner
+	m_textureMap['7'] = Rocket::SubTexture2D::createFromCoords(m_spriteSheet, { 13, 10 }, { 64, 64 }); // grass up continue
+	m_textureMap['8'] = Rocket::SubTexture2D::createFromCoords(m_spriteSheet, { 13, 11 }, { 64, 64 }); // grass up right corner
+	m_textureMap['9'] = Rocket::SubTexture2D::createFromCoords(m_spriteSheet, { 12, 12 }, { 64, 64 }); // grass right continue
+
+	m_textureMap['M'] = Rocket::SubTexture2D::createFromCoords(m_spriteSheet, { 12, 13 }, { 64, 64 }); // water-grass left bot
+	m_textureMap['N'] = Rocket::SubTexture2D::createFromCoords(m_spriteSheet, { 13, 12 }, { 64, 64 }); // water-grass left up
+	m_textureMap['O'] = Rocket::SubTexture2D::createFromCoords(m_spriteSheet, { 13, 13 }, { 64, 64 }); // water-grass right up
+	m_textureMap['P'] = Rocket::SubTexture2D::createFromCoords(m_spriteSheet, { 11, 0 }, { 64, 64 }); // water-grass right bot
+
+	// additional textures on top of others
+	m_textureMap['a'] = Rocket::SubTexture2D::createFromCoords(m_spriteSheet, { 10, 1 }, { 64, 64 }); // tree 1
+	m_textureMap['b'] = Rocket::SubTexture2D::createFromCoords(m_spriteSheet, { 9, 2 }, { 64, 64 }); // tree 2
+	m_textureMap['c'] = Rocket::SubTexture2D::createFromCoords(m_spriteSheet, { 6, 9 }, { 64, 64 }); // mushroom
+	m_textureMap['d'] = Rocket::SubTexture2D::createFromCoords(m_spriteSheet, { 11, 10 }, { 64, 64 }); // cactus
+	m_textureMap['e'] = Rocket::SubTexture2D::createFromCoords(m_spriteSheet, { 5, 11 }, { 64, 64 }); // zarosli
+	m_textureMap['f'] = Rocket::SubTexture2D::createFromCoords(m_spriteSheet, { 10, 10 }, { 64, 64 }); // stone
+	m_textureMap['g'] = Rocket::SubTexture2D::createFromCoords(m_spriteSheet, { 9, 1 }, { 64, 64 }); // tup
+
+	for (int i = 0; i < 50; i++) {
+		float x = rand() % m_mapWidth;
+		float y = rand() % m_mapHeight;
+		char tileType = 97 + rand() % 7;
+
+		glm::vec2 scale = { 1.0f, 1.0f };
+		/*
+		* if needed
+		if (tileType == 'a') {
+			scale.x = 1.0f;
+			scale.y = 1.0f;
+		}
+		*/
+
+		m_subtextureData[i] = { { x, y }, scale, tileType };
+	}
+	m_mapWidth = 36;
+	m_mapHeight = 20;
+
+	m_particle.colorBegin = m_particleStartColor;
+	m_particle.colorEnd = m_particleEndColor;
+	m_particle.sizeBegin = 0.15f, m_particle.sizeVariation = 0.05f, m_particle.sizeEnd = 0.0f;
+	m_particle.lifeTime = 1.0f;
+	m_particle.velocity = { 0.0f, 0.0f };
+	m_particle.velocityVariation = { 3.0f, 1.0f };
+	m_particle.position = { 0.0f, 0.0f };
+
+	m_cameraController.setZoomLevel(5.5f);
+	m_cameraController.getBounds();
 }
 
 void Sandbox2D::onDetach() {
@@ -25,6 +111,7 @@ void Sandbox2D::onUpdate(Rocket::Timestep ts) {
 	m_cameraController.onUpdate(ts);
 	
 	//render
+	Rocket::Renderer2D::resetStats();
 	{
 		RCKT_PROFILE_SCOPE("Clear color set:");
 		Rocket::RenderCommand::setClearColor({ 0.2f, 0.2f, 0.2f, 1.0f });
@@ -34,30 +121,100 @@ void Sandbox2D::onUpdate(Rocket::Timestep ts) {
 		RCKT_PROFILE_SCOPE("Scene render");
 		Rocket::Renderer2D::beginScene(m_cameraController.getCamera());
 		{
-			Rocket::Renderer2D::drawQuad2DWithTexture({ -1.0f, 0.0f }, { 0.8f, 0.8f }, { 0.8f, 0.2f, 0.3f, 1.0f });
+			/*
+			for (int i = 0; i < 100; i++) {
+				for (int j = 0; j < 100; j++) {
+					float x = j * 0.2f + 0.1f;
+					float y = i * 0.2f + 0.1f;
+					Rocket::Renderer2D::drawQuad2D({ x, y }, { 0.1f, 0.1f }, { 0.7f, 0.2f, 0.3f, 1.0f });
+				}
+			}
+			*/
+			
+			/*
+			static float rotation = 0.0;
+			rotation += ts * 50.0f;
+			Rocket::Renderer2D::drawQuad2D({ 0.0f, 0.0f }, { 1.0f, 1.0f }, { 0.2f, 0.3f, 0.8f, 1.0f }, rotation);
+			Rocket::Renderer2D::drawQuad2D({ 0.0f, 0.0f }, { 1.5f, 1.5f }, { 0.7f, 0.2f, 0.3f, 1.0f });
+			Rocket::Renderer2D::drawQuad2DWithTexture({ 0.0f, 0.0f }, { 10.0f, 10.0f }, { 1.0f, 1.0f, 1.0f, 1.0f });
+			*/
 
-			Rocket::Renderer2D::drawQuad2DWithTexture({ 1.0f, 0.0f }, { 0.8f, 0.8f }, { 0.2f, 0.2f, 0.9f, 1.0f });
+			/*
+			Rocket::Renderer2D::drawQuad2DWithSubTexture({ 0.0f, 0.0f }, { 1.0f, 1.0f }, { 1.0f, 1.0f, 1.0f, 1.0f }, m_grassTexture);
+			Rocket::Renderer2D::drawQuad2DWithSubTexture({ -3.0f, 0.0f }, { 1.0f, 1.0f }, { 1.0f, 1.0f, 1.0f, 1.0f }, m_sandTexture);
+			Rocket::Renderer2D::drawQuad2DWithSubTexture({ -3.0f, 2.0f }, { 1.0f, 1.0f }, { 1.0f, 1.0f, 1.0f, 1.0f }, m_stoneTexture);
+			*/
+
+			for (uint32_t y = 0; y < m_mapHeight; y++) {
+				for (uint32_t x = 0; x < m_mapWidth; x++) {
+					char tileType = s_mapTiles[x + y * m_mapWidth];
+					Rocket::Ref<Rocket::SubTexture2D> texture;
+					if (m_textureMap.find(tileType) != m_textureMap.end())
+						texture = m_textureMap[tileType];
+					else
+						texture = m_textureMap['F'];
+					
+					if (tileType > 47 && tileType < 58 || tileType > 76 && tileType < 81) {
+						Rocket::Renderer2D::drawQuad3DWithSubTexture({ x - m_mapWidth / 2.0f, m_mapHeight - y - m_mapHeight / 2.0f, -0.9f }, { 1.0f, 1.0f }, { 1.0f, 1.0f, 1.0f, 1.0f }, m_textureMap['J']);
+					}
+					Rocket::Renderer2D::drawQuad3DWithSubTexture({ x - m_mapWidth / 2.0f, m_mapHeight - y - m_mapHeight / 2.0f, 0.0f }, { 1.0f, 1.0f }, { 1.0f, 1.0f, 1.0f, 1.0f }, texture, texture->getRotation());
+				}
+			}
+
+			for (int i = 0; i < 50; i++) {
+				Rocket::Ref<Rocket::SubTexture2D> texture;
+				if (m_textureMap.find(m_subtextureData[i].tileSymbol) != m_textureMap.end())
+					texture = m_textureMap[m_subtextureData[i].tileSymbol];
+				else
+					texture = m_textureMap['F'];
+
+				Rocket::Renderer2D::drawQuad3DWithSubTexture({ m_subtextureData[i].coords.x - m_mapWidth / 2.0f, m_mapHeight - m_subtextureData[i].coords.y - m_mapHeight / 2.0f, 0.1f}, m_subtextureData[i].scale, {1.0f, 1.0f, 1.0f, 1.0f}, texture, texture->getRotation());
+			}
+
 		}
 		Rocket::Renderer2D::endScene();
+
+		if (Rocket::Input::isMouseButtonPressed(RCKT_MOUSE_BUTTON_LEFT)) {
+			auto [x, y] = Rocket::Input::getMousePositions();
+			auto width = Rocket::Application::get().getWindow().getWidth();
+			auto height = Rocket::Application::get().getWindow().getHeight();
+
+			auto bounds = m_cameraController.getBounds();
+			auto pos = m_cameraController.getCamera().getPosition();
+			x = (x / width) * bounds.getWidth() - bounds.getWidth() * 0.5f;
+			y = bounds.getHeight() * 0.5f - (y / height) * bounds.getHeight();
+			m_particle.position = { x + pos.x, y + pos.y };
+			for (int i = 0; i < 3; i++)
+				m_particleSystem.emit(m_particle);
+		}
+
+		m_particleSystem.onUpdate(ts);
+		m_particleSystem.onRender(m_cameraController.getCamera());
 	}
 }
 
 void Sandbox2D::onImGuiRender() {
 	RCKT_PROFILE_FUNCTION();
 	ImGui::Begin("Settings");
-	if (ImGui::TreeNode("Square")) {
-		ImGui::ColorEdit4("Color Square", glm::value_ptr(m_squareColor));
-		ImGui::DragFloat2("Position Square", glm::value_ptr(m_squarePosition), 0.002f);
-		ImGui::DragFloat2("Scale Square", glm::value_ptr(m_squareScale), 0.002f);
-		ImGui::DragFloat("Rotation Square", &m_squareRotation, 0.002f);
+	ImGui::Text("Application average %.3f ms/frame (%.1f FPS)", 1000.0f / ImGui::GetIO().Framerate, ImGui::GetIO().Framerate);
+	if (ImGui::TreeNode("Particle Start Color")) {
+		ImGui::ColorEdit4("Start", glm::value_ptr(m_particleStartColor));
+		m_particle.colorBegin = m_particleStartColor;
 		ImGui::TreePop();
 	}
-	if (ImGui::TreeNode("Background")) {
-		ImGui::ColorEdit4("Color##Square2", glm::value_ptr(m_backgroundColor));
-		ImGui::DragFloat2("Position##Square2", glm::value_ptr(m_backgroundPosition), 0.002f);
-		ImGui::DragFloat2("Scale##Square2", glm::value_ptr(m_backgroundScale), 0.002f);
+	if (ImGui::TreeNode("Particle End Color")) {
+		ImGui::ColorEdit4("End", glm::value_ptr(m_particleEndColor));
+		m_particle.colorEnd = m_particleEndColor;
 		ImGui::TreePop();
 	}
+
+	auto stats = Rocket::Renderer2D::getStats();
+
+	ImGui::Text("Renderer 2D stats:");
+	ImGui::Text("Draw Calls: %d", stats.drawCalls);
+	ImGui::Text("Quads: %d:", stats.quadCount);
+	ImGui::Text("Vertices: %d", stats.getTotalVertexCount());
+	ImGui::Text("Indices: %d", stats.getTotalIndexCount());
 
 	ImGui::End();
 }

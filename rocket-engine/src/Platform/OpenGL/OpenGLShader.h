@@ -22,6 +22,7 @@ namespace Rocket {
 		virtual void setFloat4(const std::string& name, const glm::vec4& value) override;
 		virtual void setMat4(const std::string& name, const glm::mat4& value) override;
 		virtual void setInt(const std::string& name, int value) override;
+		virtual void setIntArray(const std::string& name, int* values, uint32_t count) override;
 		virtual void setBool(const std::string& name, bool value) override;
 
 		virtual const std::string& getName() const override { return m_name; }
@@ -29,6 +30,7 @@ namespace Rocket {
 		void uploadUniformBool(const std::string& name, bool value);
 
 		void uploadUniformInt(const std::string& name, int value);
+		void uploadUniformIntArray(const std::string& name, int* values, uint32_t count);
 		void uploadUniformFloat(const std::string& name, float value);
 		void uploadUniformFloat2(const std::string& name, const glm::vec2& value);
 		void uploadUniformFloat3(const std::string& name, const glm::vec3& value);

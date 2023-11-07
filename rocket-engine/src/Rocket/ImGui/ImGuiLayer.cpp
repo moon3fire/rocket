@@ -64,6 +64,12 @@ namespace Rocket {
         ImGui::DestroyContext();
 	}
 
+    void ImGuiLayer::onEvent(Event& event) {
+        ImGuiIO& io = ImGui::GetIO();
+        event.handled |= event.isInCategory(EventCategoryMouse) & io.WantCaptureMouse;
+        event.handled |= event.isInCategory(EventCategoryKeyboard) & io.WantCaptureKeyboard;
+    }
+
     void ImGuiLayer::onImGuiRender() {
         static bool show = true;
         //show window here

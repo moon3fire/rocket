@@ -39,9 +39,9 @@ namespace Rocket {
 		dispatcher.dispatch<WindowResizeEvent>(BIND_EVENT_FUNC(Application::onWindowResize));
 
 		for (auto it = m_layerStack.end(); it != m_layerStack.begin();) {
-			(*--it)->onEvent(event);
 			if (event.handled)
 				break;
+			(*--it)->onEvent(event);
 		}
 	}
 

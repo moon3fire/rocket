@@ -207,6 +207,10 @@ namespace Rocket {
 		uploadUniformInt(name, value);
 	}
 
+	void OpenGLShader::setIntArray(const std::string& name, int* values, uint32_t count) {
+
+	}
+
 	void OpenGLShader::setBool(const std::string& name, bool value) {
 		uploadUniformBool(name, value);
 	}
@@ -219,6 +223,11 @@ namespace Rocket {
 	void OpenGLShader::uploadUniformInt(const std::string& name, int value) {
 		GLint location = getUniformLocation(name);
 		glUniform1i(location, value);
+	}
+
+	void OpenGLShader::uploadUniformIntArray(const std::string& name, int* values, uint32_t count) {
+		GLint location = getUniformLocation(name);
+		glUniform1iv(location, count, values);
 	}
 
 	void OpenGLShader::uploadUniformFloat(const std::string& name, float value) {

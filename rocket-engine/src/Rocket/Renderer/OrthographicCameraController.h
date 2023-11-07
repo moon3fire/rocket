@@ -8,6 +8,14 @@
 
 namespace Rocket {
 
+	struct OrthographicCameraBounds {
+		float left, right;
+		float bottom, top;
+
+		float getWidth() { return right - left; }
+		float getHeight() { return top - bottom; }
+	};
+
 	class OrthographicCameraController {
 
 	public:
@@ -20,14 +28,19 @@ namespace Rocket {
 		const OrthographicCamera2D& getCamera() const { return m_camera; }
 
 		float getZoomLevel() const { return m_zoomLevel; }
-		void setZoomLevel(float zoomLevel) { m_zoomLevel = zoomLevel; }
+		void setZoomLevel(float zoomLevel) { m_zoomLevel = zoomLevel; calculateView(); }
+
+		const OrthographicCameraBounds& getBounds() const { return m_cameraBounds; }
 	private:
 		bool onMouseScrolled(MouseScrolledEvent& event);
 		bool onWindowResized(WindowResizeEvent& event);
 
 	private:
+		void calculateView();
+
 		float m_aspectRatio;
 		float m_zoomLevel = 1.0f;
+		OrthographicCameraBounds m_cameraBounds;
 		OrthographicCamera2D m_camera;
 
 		bool m_rotation;

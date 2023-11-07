@@ -39,7 +39,7 @@ namespace Rocket {
 		virtual int getCategoryFlags() const = 0;
 		virtual std::string toString() const { return getName(); }
 
-		inline bool IsInCategory(EventCategory category)
+		inline bool isInCategory(EventCategory category)
 		{
 			return getCategoryFlags() & category;
 		}
