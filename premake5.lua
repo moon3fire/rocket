@@ -16,8 +16,9 @@ IncludeDir["Glad"] = "rocket-engine/vendors/Glad/include"
 IncludeDir["ImGui"] = "rocket-engine/vendors/imgui"
 IncludeDir["glm"] = "rocket-engine/vendors/glm"
 IncludeDir["stb"] = "rocket-engine/vendors/stb_image"
+IncludeDir["entt"] = "rocket-engine/vendors/entt"
 
-startproject "Sandbox"
+startproject "rocket-editor"
 
 include "rocket-engine/vendors/GLFW"
 include "rocket-engine/vendors/Glad"
@@ -57,7 +58,8 @@ project "rocket-engine"
 		"%{IncludeDir.Glad}",
 		"%{IncludeDir.ImGui}",
 		"%{IncludeDir.glm}",
-		"%{IncludeDir.stb}"
+		"%{IncludeDir.stb}",
+		"%{IncludeDir.entt}/include"
 	}
 
 	links 
@@ -123,7 +125,8 @@ project "Sandbox"
 		"rocket-engine/vendors/spdlog/include",
 		"rocket-engine/vendors/glm",
 		"rocket-engine/vendors/Glad/include",
-		"rocket-engine/src"
+		"rocket-engine/src",
+		"%{IncludeDir.entt}/include"
 	}
 
 	links
@@ -151,3 +154,60 @@ project "Sandbox"
 		defines "RCKT_DIST"
 		runtime "Release"
 		optimize "On"
+
+
+	project "rocket-editor"
+		location "rocket-editor"
+		kind "ConsoleApp"
+		language "C++"
+		cppdialect "C++20"
+		staticruntime "on"
+	
+		targetdir ("bin/" .. outputdir .. "/%{prj.name}")
+		objdir ("bin-int/" .. outputdir .. "/%{prj.name}")
+	
+		files 
+		{
+			"%{prj.name}/src/**.h",
+			"%{prj.name}/src/**.cpp"
+		}
+	
+		defines 
+		{
+			"RCKT_PLATFORM_WINDOWS"
+		}
+	
+		includedirs 
+		{
+			"rocket-engine/vendors/spdlog/include",
+			"rocket-engine/vendors/glm",
+			"rocket-engine/vendors/Glad/include",
+			"rocket-engine/src",
+			"%{IncludeDir.entt}/include"
+		}
+	
+		links
+		{
+			"rocket-engine"
+		}
+	
+		filter "system:windows"
+			cppdialect "C++20"
+			systemversion "latest"
+	
+		filter "configurations:Debug"
+			defines "RCKT_DEBUG"
+			runtime "Debug"
+			symbols "on"
+	
+		
+		filter "configurations:Release"
+			defines "RCKT_RELEASE"
+			runtime "Release"
+			optimize "on"
+	
+		
+		filter "configurations:Dist"
+			defines "RCKT_DIST"
+			runtime "Release"
+			optimize "On"

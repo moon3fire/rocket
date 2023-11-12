@@ -23,8 +23,10 @@ namespace Rocket {
 		void begin();
 		void end();
 
+		void blockEvents(bool block) { m_blockEvents = block; }
 	private:
 		//variables
+		bool m_blockEvents = true;
 		float m_time = 0.0f;
 	};
 

@@ -6,8 +6,8 @@
 namespace Rocket {
 	
 	class OpenGLContext: public GraphicsContext {
-
 	public:
+		virtual ~OpenGLContext() = default;
 		
 		OpenGLContext(GLFWwindow* windowHandle);
 

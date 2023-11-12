@@ -35,6 +35,11 @@ Sandbox2D::Sandbox2D() :Layer("Sandbox2D"), m_cameraController(1280.0f / 720.0f,
 void Sandbox2D::onAttach() {
 	RCKT_PROFILE_FUNCTION();
 
+	Rocket::FramebufferSpecification frameBufferSpec;
+	frameBufferSpec.width = 1280;
+	frameBufferSpec.height = 720;
+	m_framebuffer = Rocket::Framebuffer::create(frameBufferSpec);
+
 	m_spriteSheet = Rocket::Texture2D::create("assets/textures/spritesheet.png");
 	m_textureMap['F'] = Rocket::SubTexture2D::createFromCoords(m_spriteSheet, { 5, 5 }, { 64, 64 }); // press F to pay respect
 
@@ -67,7 +72,10 @@ void Sandbox2D::onAttach() {
 	m_textureMap['e'] = Rocket::SubTexture2D::createFromCoords(m_spriteSheet, { 5, 11 }, { 64, 64 }); // zarosli
 	m_textureMap['f'] = Rocket::SubTexture2D::createFromCoords(m_spriteSheet, { 10, 10 }, { 64, 64 }); // stone
 	m_textureMap['g'] = Rocket::SubTexture2D::createFromCoords(m_spriteSheet, { 9, 1 }, { 64, 64 }); // tup
-
+	
+	m_mapWidth = 36;
+	m_mapHeight = 20;
+	
 	for (int i = 0; i < 50; i++) {
 		float x = rand() % m_mapWidth;
 		float y = rand() % m_mapHeight;
@@ -84,16 +92,6 @@ void Sandbox2D::onAttach() {
 
 		m_subtextureData[i] = { { x, y }, scale, tileType };
 	}
-	m_mapWidth = 36;
-	m_mapHeight = 20;
-
-	m_particle.colorBegin = m_particleStartColor;
-	m_particle.colorEnd = m_particleEndColor;
-	m_particle.sizeBegin = 0.15f, m_particle.sizeVariation = 0.05f, m_particle.sizeEnd = 0.0f;
-	m_particle.lifeTime = 1.0f;
-	m_particle.velocity = { 0.0f, 0.0f };
-	m_particle.velocityVariation = { 3.0f, 1.0f };
-	m_particle.position = { 0.0f, 0.0f };
 
 	m_cameraController.setZoomLevel(5.5f);
 	m_cameraController.getBounds();
@@ -121,29 +119,6 @@ void Sandbox2D::onUpdate(Rocket::Timestep ts) {
 		RCKT_PROFILE_SCOPE("Scene render");
 		Rocket::Renderer2D::beginScene(m_cameraController.getCamera());
 		{
-			/*
-			for (int i = 0; i < 100; i++) {
-				for (int j = 0; j < 100; j++) {
-					float x = j * 0.2f + 0.1f;
-					float y = i * 0.2f + 0.1f;
-					Rocket::Renderer2D::drawQuad2D({ x, y }, { 0.1f, 0.1f }, { 0.7f, 0.2f, 0.3f, 1.0f });
-				}
-			}
-			*/
-			
-			/*
-			static float rotation = 0.0;
-			rotation += ts * 50.0f;
-			Rocket::Renderer2D::drawQuad2D({ 0.0f, 0.0f }, { 1.0f, 1.0f }, { 0.2f, 0.3f, 0.8f, 1.0f }, rotation);
-			Rocket::Renderer2D::drawQuad2D({ 0.0f, 0.0f }, { 1.5f, 1.5f }, { 0.7f, 0.2f, 0.3f, 1.0f });
-			Rocket::Renderer2D::drawQuad2DWithTexture({ 0.0f, 0.0f }, { 10.0f, 10.0f }, { 1.0f, 1.0f, 1.0f, 1.0f });
-			*/
-
-			/*
-			Rocket::Renderer2D::drawQuad2DWithSubTexture({ 0.0f, 0.0f }, { 1.0f, 1.0f }, { 1.0f, 1.0f, 1.0f, 1.0f }, m_grassTexture);
-			Rocket::Renderer2D::drawQuad2DWithSubTexture({ -3.0f, 0.0f }, { 1.0f, 1.0f }, { 1.0f, 1.0f, 1.0f, 1.0f }, m_sandTexture);
-			Rocket::Renderer2D::drawQuad2DWithSubTexture({ -3.0f, 2.0f }, { 1.0f, 1.0f }, { 1.0f, 1.0f, 1.0f, 1.0f }, m_stoneTexture);
-			*/
 
 			for (uint32_t y = 0; y < m_mapHeight; y++) {
 				for (uint32_t x = 0; x < m_mapWidth; x++) {
@@ -173,50 +148,24 @@ void Sandbox2D::onUpdate(Rocket::Timestep ts) {
 
 		}
 		Rocket::Renderer2D::endScene();
-
-		if (Rocket::Input::isMouseButtonPressed(RCKT_MOUSE_BUTTON_LEFT)) {
-			auto [x, y] = Rocket::Input::getMousePositions();
-			auto width = Rocket::Application::get().getWindow().getWidth();
-			auto height = Rocket::Application::get().getWindow().getHeight();
-
-			auto bounds = m_cameraController.getBounds();
-			auto pos = m_cameraController.getCamera().getPosition();
-			x = (x / width) * bounds.getWidth() - bounds.getWidth() * 0.5f;
-			y = bounds.getHeight() * 0.5f - (y / height) * bounds.getHeight();
-			m_particle.position = { x + pos.x, y + pos.y };
-			for (int i = 0; i < 3; i++)
-				m_particleSystem.emit(m_particle);
-		}
-
-		m_particleSystem.onUpdate(ts);
-		m_particleSystem.onRender(m_cameraController.getCamera());
 	}
 }
 
 void Sandbox2D::onImGuiRender() {
 	RCKT_PROFILE_FUNCTION();
-	ImGui::Begin("Settings");
-	ImGui::Text("Application average %.3f ms/frame (%.1f FPS)", 1000.0f / ImGui::GetIO().Framerate, ImGui::GetIO().Framerate);
-	if (ImGui::TreeNode("Particle Start Color")) {
-		ImGui::ColorEdit4("Start", glm::value_ptr(m_particleStartColor));
-		m_particle.colorBegin = m_particleStartColor;
-		ImGui::TreePop();
-	}
-	if (ImGui::TreeNode("Particle End Color")) {
-		ImGui::ColorEdit4("End", glm::value_ptr(m_particleEndColor));
-		m_particle.colorEnd = m_particleEndColor;
-		ImGui::TreePop();
-	}
 
-	auto stats = Rocket::Renderer2D::getStats();
+		ImGui::Begin("Settings");
 
-	ImGui::Text("Renderer 2D stats:");
-	ImGui::Text("Draw Calls: %d", stats.drawCalls);
-	ImGui::Text("Quads: %d:", stats.quadCount);
-	ImGui::Text("Vertices: %d", stats.getTotalVertexCount());
-	ImGui::Text("Indices: %d", stats.getTotalIndexCount());
+		auto stats = Rocket::Renderer2D::getStats();
+		ImGui::Text("Renderer2D Stats:");
+		ImGui::Text("Draw Calls: %d", stats.drawCalls);
+		ImGui::Text("Quads: %d", stats.quadCount);
+		ImGui::Text("Vertices: %d", stats.getTotalVertexCount());
+		ImGui::Text("Indices: %d", stats.getTotalIndexCount());
 
-	ImGui::End();
+		uint32_t textureID = m_framebuffer->getColorAttachmentRendererID();
+		ImGui::Image((void*)textureID, ImVec2{ 1280, 720 });
+		ImGui::End();
 }
 
 void Sandbox2D::onEvent(Rocket::Event& event) {

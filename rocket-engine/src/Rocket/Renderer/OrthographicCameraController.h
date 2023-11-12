@@ -30,6 +30,8 @@ namespace Rocket {
 		float getZoomLevel() const { return m_zoomLevel; }
 		void setZoomLevel(float zoomLevel) { m_zoomLevel = zoomLevel; calculateView(); }
 
+		void onResize(float width, float height);
+
 		const OrthographicCameraBounds& getBounds() const { return m_cameraBounds; }
 	private:
 		bool onMouseScrolled(MouseScrolledEvent& event);

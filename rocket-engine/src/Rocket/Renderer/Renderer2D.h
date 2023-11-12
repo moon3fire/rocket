@@ -1,6 +1,7 @@
 #pragma once
 
 #include "OrthographicCamera.h"
+#include "Camera.h"
 
 #include "Texture.h"
 #include "SubTexture2D.h"
@@ -13,7 +14,10 @@ namespace Rocket {
 		static void shutdown();
 
 		static void beginScene(const OrthographicCamera2D& camera);
+		static void beginScene(const Camera& camera, const glm::mat4& transform);
+
 		static void endScene();
+		
 		static void flush();
 
 		static void drawQuad2D(const glm::vec2& position = { 0.0f, 0.0f },
@@ -44,6 +48,12 @@ namespace Rocket {
 			const glm::vec4& color = { 1.0f, 1.0f, 1.0f, 1.0f },
 			const Ref<SubTexture2D>& subtexture = nullptr,
 			float rotation = 0.0f);
+
+		//components
+		static void drawQuadWithViewMat(
+			const glm::mat4& transform = glm::mat4{1.0f},
+			const glm::vec4& color = { 1.0f, 1.0f, 1.0f, 1.0f });
+
 
 		//Stats
 

@@ -22,7 +22,7 @@ namespace Rocket {
 
 	class ROCKET_API Application {
 	public:
-		Application();
+		Application(const std::string& name = "Rocket App");
 		virtual ~Application();
 		
 		void run();
@@ -31,8 +31,11 @@ namespace Rocket {
 		void pushLayer(Layer* layer);
 		void pushOverlay(Layer* overlay);
 
-		inline static Application& get() { return *s_instance; }
+		static Application& get() { return *s_instance; }
 
+		ImGuiLayer* getImGuiLayer() { return m_imguiLayer; }
+
+		void close() { m_running = false; }
 		inline Window& getWindow() { return *m_window; }
 	private:
 		bool onWindowClose(WindowCloseEvent& event);
@@ -41,6 +44,7 @@ namespace Rocket {
 	private:
 		std::unique_ptr<Window> m_window;
 		ImGuiLayer* m_imguiLayer;
+		
 		bool m_running = true;
 		bool m_minimized = false;
 		LayerStack m_layerStack;

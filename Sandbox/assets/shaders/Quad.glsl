@@ -72,5 +72,6 @@ void main()
 		case 30: textureColor *= texture(u_textures[30], v_textureCoord * v_tilingFactor); break;
 		case 31: textureColor *= texture(u_textures[31], v_textureCoord * v_tilingFactor); break;
 	}
+
 	color = textureColor;
 }

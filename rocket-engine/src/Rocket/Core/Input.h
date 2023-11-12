@@ -7,17 +7,13 @@ namespace Rocket {
 	class ROCKET_API Input {
 
 	public:
-		static inline bool isKeyPressed(int keycode) { return s_instance->isKeyPressedImpl(keycode); }
-		static inline bool isMouseButtonPressed(int button) { return s_instance->isMouseButtonPressedImpl(button); }
-		static inline std::pair<float, float> getMousePositions() { return s_instance->getMousePositionsImpl(); }
-	protected:
-		virtual bool isKeyPressedImpl(int keycode) = 0;
-		virtual bool isMouseButtonPressedImpl(int button) = 0;
-		virtual std::pair<float, float> getMousePositionsImpl() = 0;
+		virtual ~Input() = default;
 
-	private:
-		static Scope<Input> s_instance;
-
+		static bool isKeyPressed(int keycode);
+		static bool isMouseButtonPressed(int button);
+		static std::pair<float, float> getMousePosition();
+		static float getMouseX();
+		static float getMouseY();
 	};
 
 } // namespace Rocket

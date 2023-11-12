@@ -9,11 +9,11 @@ namespace Rocket {
 
 	struct WindowProps {
 		std::string title;
-		unsigned int width;
-		unsigned int height;
+		uint32_t width;
+		uint32_t height;
 
-		WindowProps(const std::string& title_ = "Rocket engine", unsigned int width_ = 1280,
-					unsigned int height_ = 720) :width(width_), height(height_), title(title_) { }
+		WindowProps(const std::string& title_ = "Rocket engine", uint32_t width_ = 1280,
+					uint32_t height_ = 720) :width(width_), height(height_), title(title_) { }
 	};
 
 	// interface representing a desktop system based window
@@ -26,8 +26,8 @@ namespace Rocket {
 
 		virtual void onUpdate() = 0;
 
-		virtual unsigned int getWidth() const = 0;
-		virtual unsigned int getHeight() const = 0;
+		virtual uint32_t getWidth() const = 0;
+		virtual uint32_t getHeight() const = 0;
 
 		// window attributes
 		virtual void setEventCallback(const eventCallBackFunc& callback) = 0;

@@ -13,14 +13,14 @@ namespace Rocket {
 
 	Application* Application::s_instance = nullptr;
 
-	Application::Application() :m_running(false) {
+	Application::Application(const std::string& name) :m_running(false) {
 
 		RCKT_PROFILE_FUNCTION();
 
 		RCKT_CORE_ASSERT(!s_instance, "Application already exist!");
 		s_instance = this;
 
-		m_window = std::unique_ptr<Window>(Window::create());
+		m_window = std::unique_ptr<Window>(Window::create(WindowProps(name)));
 		m_window->setEventCallback(BIND_EVENT_FUNC(Application::onEvent));
 
 		Renderer::init();
@@ -109,7 +109,8 @@ namespace Rocket {
 		}
 		else 
 			m_minimized = false;
-		Renderer::onWindowResize(event.getWidth(), event.getHeight());
+		
+		//Renderer::onWindowResize(); no need to resize camera bounds
 		return false;
 	}
 

@@ -52,6 +52,11 @@ namespace Rocket {
 		m_camera.setPosition(m_cameraPosition);
 	}
 
+	void OrthographicCameraController::onResize(float width, float height) {
+		m_aspectRatio = width / height;
+		calculateView();
+	}
+
 	void OrthographicCameraController::onEvent(Event& event) {
 		RCKT_PROFILE_FUNCTION();
 
@@ -71,9 +76,8 @@ namespace Rocket {
 
 	bool OrthographicCameraController::onWindowResized(WindowResizeEvent& event) {
 		RCKT_PROFILE_FUNCTION();
-
-		m_aspectRatio = (float)event.getWidth() / (float)event.getHeight();
-		calculateView();
+	
+		onResize(m_cameraBounds.getWidth(), m_cameraBounds.getHeight());
 		return false;
 	}
 

@@ -1,7 +1,6 @@
 #pragma once
 
 #include "Rocket.h"
-#include "ParticleSystem.h"
 
 class Sandbox2D : public Rocket::Layer {
 public:
@@ -25,10 +24,12 @@ private:
 
 	Rocket::OrthographicCameraController m_cameraController;
 
+	Rocket::Ref<Rocket::Framebuffer> m_framebuffer;
 	Rocket::Ref<Rocket::Texture2D> m_spriteSheet;
 
 	SubtextureData m_subtextureData[50];
 
+	//scene 1
 	glm::vec4 m_backgroundColor = { 1.0f, 1.0f, 1.0f, 1.0f };
 	glm::vec2 m_backgroundPosition = { 0.0f, 0.0f };
 	glm::vec2 m_backgroundScale = { 10.0f, 10.0f };
@@ -37,9 +38,6 @@ private:
 	glm::vec2 m_squarePosition = { 0.0f, 0.0f };
 	glm::vec2 m_squareScale = { 1.0f, 1.0f };
 	float m_squareRotation = 0.0f;
-
-	ParticleProps m_particle;
-	ParticleSystem m_particleSystem;
 
 	uint32_t m_mapWidth, m_mapHeight;
 	std::unordered_map<char, Rocket::Ref<Rocket::SubTexture2D>> m_textureMap;

@@ -125,6 +125,21 @@ namespace Rocket {
 		s_data.textureSlotIndex = 1;
 	}
 
+	void Renderer2D::beginScene(const Camera& camera, const glm::mat4& transform) {
+		RCKT_PROFILE_FUNCTION();
+
+		glm::mat4 viewProj = camera.getProjection() * glm::inverse(transform);
+
+		s_data.quadShader->bind();
+		s_data.quadShader->setMat4("u_viewProjection", viewProj);
+
+		s_data.quadIndexCount = 0;
+		s_data.quadVertexBufferPtr = s_data.quadVertexBufferBase;
+
+		//starting from slot 1 in each frame
+		s_data.textureSlotIndex = 1;
+	}
+
 	void Renderer2D::endScene() {
 		RCKT_PROFILE_FUNCTION();
 
@@ -344,15 +359,48 @@ namespace Rocket {
 		s_data.quadIndexCount += 6;
 		s_data.stats.quadCount++;
 
+	}
 
+	void Renderer2D::drawQuadWithViewMat(const glm::mat4& transform, const glm::vec4& color) {
+		RCKT_PROFILE_FUNCTION();
 
+		if (s_data.quadIndexCount >= Renderer2DStorage::maxIndices) {
+			flushAndReset();
+		}
 
+		const float textureIndex = -1.0f; // no texture for simple quads
+		const float tilingFactor = 1.0f;
 
+		s_data.quadVertexBufferPtr->color = color;
+		s_data.quadVertexBufferPtr->position = transform * s_data.quadVertexPositions[0];
+		s_data.quadVertexBufferPtr->texCoord = { 0.0f, 0.0f };
+		s_data.quadVertexBufferPtr->texIndex = textureIndex;
+		s_data.quadVertexBufferPtr->tilingFactor = tilingFactor;
+		s_data.quadVertexBufferPtr++;
 
+		s_data.quadVertexBufferPtr->color = color;
+		s_data.quadVertexBufferPtr->position = transform * s_data.quadVertexPositions[1];
+		s_data.quadVertexBufferPtr->texCoord = { 1.0f, 0.0f };
+		s_data.quadVertexBufferPtr->texIndex = textureIndex;
+		s_data.quadVertexBufferPtr->tilingFactor = tilingFactor;
+		s_data.quadVertexBufferPtr++;
 
+		s_data.quadVertexBufferPtr->color = color;
+		s_data.quadVertexBufferPtr->position = transform * s_data.quadVertexPositions[2];
+		s_data.quadVertexBufferPtr->texCoord = { 1.0f, 1.0f };
+		s_data.quadVertexBufferPtr->texIndex = textureIndex;
+		s_data.quadVertexBufferPtr->tilingFactor = tilingFactor;
+		s_data.quadVertexBufferPtr++;
 
+		s_data.quadVertexBufferPtr->color = color;
+		s_data.quadVertexBufferPtr->position = transform * s_data.quadVertexPositions[3];
+		s_data.quadVertexBufferPtr->texCoord = { 0.0f, 1.0f };
+		s_data.quadVertexBufferPtr->texIndex = textureIndex;
+		s_data.quadVertexBufferPtr->tilingFactor = tilingFactor;
+		s_data.quadVertexBufferPtr++;
 
-
+		s_data.quadIndexCount += 6;
+		s_data.stats.quadCount++;
 	}
 
 	Renderer2D::Statistics Renderer2D::getStats() {

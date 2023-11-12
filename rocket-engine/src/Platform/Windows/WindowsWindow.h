@@ -7,7 +7,7 @@
 
 namespace Rocket {
 	class WindowsWindow : public Window {
-	
+
 	public:
 		WindowsWindow(const WindowProps& props);
 		virtual ~WindowsWindow();
@@ -42,4 +42,3 @@ namespace Rocket {
 		WindowData m_data;
 	};
 } // namespace Rocket
-
