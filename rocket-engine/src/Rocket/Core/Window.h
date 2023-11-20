@@ -12,8 +12,8 @@ namespace Rocket {
 		uint32_t width;
 		uint32_t height;
 
-		WindowProps(const std::string& title_ = "Rocket engine", uint32_t width_ = 1280,
-					uint32_t height_ = 720) :width(width_), height(height_), title(title_) { }
+		WindowProps(const std::string& title_ = "Rocket engine", uint32_t width_ = 1600,
+					uint32_t height_ = 900) :width(width_), height(height_), title(title_) { }
 	};
 
 	// interface representing a desktop system based window

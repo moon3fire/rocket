@@ -5,9 +5,7 @@
 
 namespace Rocket {
 
-	EditorLayer::EditorLayer() :Layer("EditorLayer"), m_cameraController(1280.0f / 720.0f, true) {
-		onAttach();
-	}
+	EditorLayer::EditorLayer() :Layer("EditorLayer"), m_cameraController(1280.0f / 720.0f, true) {}
 
 	void EditorLayer::onAttach() {
 		RCKT_PROFILE_FUNCTION();
@@ -26,13 +24,58 @@ namespace Rocket {
 		square.addComponent<SpriteRendererComponent>(glm::vec4(0.0f, 1.0f, 0.0f, 1.0f));
 		m_squareEntity = square;
 
+		auto square2 = m_activeScene->createEntity("MYSQUARE2");
+		square2.addComponent<SpriteRendererComponent>(glm::vec4(0.0f, 0.0f, 1.0f, 1.0f));
+		m_squareEntity2 = square2;
+
 		m_cameraEntity1 = m_activeScene->createEntity("Main camera");
-		auto& mainCam = m_cameraEntity1.addComponent<CameraComponent>(glm::ortho(-16.0f, 16.0f, -9.0f, 9.0f, -1.0f, 1.0f));
+		auto& mainCam = m_cameraEntity1.addComponent<CameraComponent>();
 		mainCam.primary = true;
 
 		m_cameraEntity2 = m_activeScene->createEntity("Second camera");
-		auto& second = m_cameraEntity2.addComponent<CameraComponent>(glm::ortho(-1.0f, 1.0f, -1.0f, 1.0f, -1.0f, 1.0f));
+		// already has m_cameraEntity2.addComponent<TagComponent>("THIS IS A TAG");
+		auto& second = m_cameraEntity2.addComponent<CameraComponent>();
 		second.primary = false;
+
+		class CameraController : public ScriptableEntity {
+		public:
+			void onCreate() {
+				//getComponent<TransformComponent>();
+			}
+
+			void onDestroy() {
+
+			}
+
+			void onUpdate(Timestep ts) {
+				auto& transform = getComponent<TransformComponent>().position;
+				float speed = 5.0f;
+
+				if (Input::isKeyPressed(RCKT_KEY_A)) {
+					transform.x -= speed * ts;
+				}
+				if (Input::isKeyPressed(RCKT_KEY_W)) {
+					transform.z -= speed * ts;
+				}
+				if (Input::isKeyPressed(RCKT_KEY_D)) {
+					transform.x += speed * ts;
+				}
+				if (Input::isKeyPressed(RCKT_KEY_S)) {
+					transform.z += speed * ts;
+				}
+				if (Input::isKeyPressed(RCKT_KEY_E)) {
+					transform.y += speed * ts;
+				}
+				if (Input::isKeyPressed(RCKT_KEY_Q)) {
+					transform.y -= speed * ts;
+				}
+			}
+		};
+
+		m_cameraEntity2.addComponent<NativeScriptComponent>().bind<CameraController>();
+		m_cameraEntity1.addComponent<NativeScriptComponent>().bind<CameraController>();
+
+		m_hierarchypPanel.setContext(m_activeScene);
 	}
 
 	void EditorLayer::onDetach() {
@@ -101,11 +144,17 @@ namespace Rocket {
 			ImGui::PopStyleVar(2);
 
 		ImGuiIO& io = ImGui::GetIO();
+		ImGuiStyle& style = ImGui::GetStyle();
+		float minWindowSizeX = style.WindowMinSize.x;
+		style.WindowMinSize.x = 370.0f;
+
 		if (io.ConfigFlags & ImGuiConfigFlags_DockingEnable)
 		{
 			ImGuiID dockspace_id = ImGui::GetID("MyDockSpace");
 			ImGui::DockSpace(dockspace_id, ImVec2(0.0f, 0.0f), dockspace_flags);
 		}
+
+		style.WindowMinSize.x = minWindowSizeX;
 
 		if (ImGui::BeginMenuBar())
 		{
@@ -126,21 +175,11 @@ namespace Rocket {
 			ImGui::Text("Quads: %d", stats.quadCount);
 			ImGui::Text("Vertices: %d", stats.getTotalVertexCount());
 			ImGui::Text("Indices: %d", stats.getTotalIndexCount());
-			if (m_squareEntity) {
-				ImGui::Separator();
-				ImGui::ColorEdit4(m_squareEntity.getComponent<TagComponent>().tag.c_str(),
-					glm::value_ptr(m_squareEntity.getComponent<SpriteRendererComponent>().color));
-			}
-			
-			ImGui::DragFloat3("Camera Transform",
-				glm::value_ptr(m_cameraEntity1.getComponent<TransformComponent>().transform[3]));
 
-			if (ImGui::Checkbox("Camera change", &m_primaryCamera))
-			{
-				m_cameraEntity1.getComponent<CameraComponent>().primary = m_primaryCamera;
-				m_cameraEntity2.getComponent<CameraComponent>().primary = !m_primaryCamera;
-			}
 			ImGui::End();
+		}
+		{
+			m_hierarchypPanel.onImGuiRender();
 		}
 		ImGui::End();
 
@@ -176,6 +215,8 @@ namespace Rocket {
 			(m_specification.width != m_viewportSize.x || m_specification.height != m_viewportSize.y)) {
 			m_framebuffer->resize((uint32_t)m_viewportSize.x, (uint32_t)m_viewportSize.y);
 			m_cameraController.onResize(m_viewportSize.x, m_viewportSize.y);
+
+			m_activeScene->onViewportResize((uint32_t)m_viewportSize.x, (uint32_t)m_viewportSize.y);
 		}
 	}
 

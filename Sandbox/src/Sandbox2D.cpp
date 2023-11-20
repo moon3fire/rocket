@@ -154,18 +154,19 @@ void Sandbox2D::onUpdate(Rocket::Timestep ts) {
 void Sandbox2D::onImGuiRender() {
 	RCKT_PROFILE_FUNCTION();
 
-		ImGui::Begin("Settings");
+	ImGui::Begin("Settings");
 
-		auto stats = Rocket::Renderer2D::getStats();
-		ImGui::Text("Renderer2D Stats:");
-		ImGui::Text("Draw Calls: %d", stats.drawCalls);
-		ImGui::Text("Quads: %d", stats.quadCount);
-		ImGui::Text("Vertices: %d", stats.getTotalVertexCount());
-		ImGui::Text("Indices: %d", stats.getTotalIndexCount());
+	auto stats = Rocket::Renderer2D::getStats();
+	ImGui::Text("Renderer2D Stats:");
+	ImGui::Text("Draw Calls: %d", stats.drawCalls);
+	ImGui::Text("Quads: %d", stats.quadCount);
+	ImGui::Text("Vertices: %d", stats.getTotalVertexCount());
+	ImGui::Text("Indices: %d", stats.getTotalIndexCount());
 
-		uint32_t textureID = m_framebuffer->getColorAttachmentRendererID();
-		ImGui::Image((void*)textureID, ImVec2{ 1280, 720 });
-		ImGui::End();
+	uint32_t textureID = m_framebuffer->getColorAttachmentRendererID();
+	ImGui::Image((void*)textureID, ImVec2{ 1280, 720 });
+	ImGui::End();
+
 }
 
 void Sandbox2D::onEvent(Rocket::Event& event) {

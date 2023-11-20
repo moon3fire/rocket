@@ -27,9 +27,12 @@ ___________________________________Renderer___________________________________*/
 #include "Rocket/Renderer/SubTexture2D.h"
 #include "Rocket/Renderer/VertexArray.h"
 
+// ECS
 #include "Rocket/Scene/Scene.h"
 #include "Rocket/Scene/Entity.h"
+#include "Rocket/Scene/ScriptableEntity.h"
 #include "Rocket/Scene/Components.h"
+//
 
 #include "Rocket/Renderer/OrthographicCamera.h"
 #include "Rocket/Renderer/OrthographicCameraController.h"

@@ -37,6 +37,8 @@ namespace Rocket {
         //can be done with viewport no taskbar icons
         //can be done for viewports with no merge
 
+        io.FontDefault = io.Fonts->AddFontFromFileTTF("assets/fonts/UbuntuCondensed-Regular.ttf", 18.0f);
+
         //style setup
         ImGui::StyleColorsDark();
         //can be classic
@@ -47,6 +49,8 @@ namespace Rocket {
             style.WindowRounding = 0.0f;
             style.Colors[ImGuiCol_WindowBg].w = 1.0f;
         }
+
+        setDarkThemeColors();
 
         Application& app = Application::get();
         GLFWwindow* window = static_cast<GLFWwindow*>(app.getWindow().getNativeWindow());
@@ -103,6 +107,39 @@ namespace Rocket {
             ImGui::RenderPlatformWindowsDefault();
             glfwMakeContextCurrent(backup_current_context);
         }
+    }
+
+    void ImGuiLayer::setDarkThemeColors() {
+        auto& colors = ImGui::GetStyle().Colors;
+        colors[ImGuiCol_WindowBg] = ImVec4{ 0.1f, 0.105f, 0.11f, 1.0f };
+
+        // headers
+        colors[ImGuiCol_Header] = ImVec4{ 0.21f, 0.235f, 0.23f, 1.0f };
+        colors[ImGuiCol_HeaderHovered] = ImVec4{ 0.3f, 0.35f, 0.13f, 1.0f };
+        colors[ImGuiCol_HeaderActive] = ImVec4{ 0.1f, 0.125f, 0.34f, 1.0f };
+
+        // buttons
+        colors[ImGuiCol_Button] = ImVec4{ 0.3f, 0.135f, 0.53f, 1.0f };
+        colors[ImGuiCol_ButtonHovered] = ImVec4{ 0.3f, 0.135f, 0.23f, 1.0f };
+        colors[ImGuiCol_ButtonActive] = ImVec4{ 0.2f, 0.335f, 0.33f, 1.0f };
+
+        // frame BG
+        colors[ImGuiCol_FrameBg] = ImVec4{ 0.2f, 0.235f, 0.13f, 1.0f };
+        colors[ImGuiCol_FrameBgHovered] = ImVec4{ 0.2f, 0.335f, 0.33f, 1.0f };
+        colors[ImGuiCol_FrameBgActive] = ImVec4{ 0.23f, 0.235f, 0.23f, 1.0f };
+
+        // tabs
+        colors[ImGuiCol_Tab] = ImVec4{ 0.15f, 0.0505f, 0.151f, 1.0f };
+        colors[ImGuiCol_TabHovered] = ImVec4{ 0.25f, 0.1305f, 0.21f, 1.0f };
+        colors[ImGuiCol_TabActive] = ImVec4{ 0.25f, 0.1505f, 0.151f, 1.0f };
+        colors[ImGuiCol_TabUnfocused] = ImVec4{ 0.15f, 0.1585f, 0.251f, 1.0f };
+        colors[ImGuiCol_TabUnfocusedActive] = ImVec4{ 0.35f, 0.1995f, 0.151f, 1.0f };
+
+        // title
+        colors[ImGuiCol_TitleBg] = ImVec4{ 0.15f, 0.2505f, 0.251f, 1.0f };
+        colors[ImGuiCol_TitleBgActive] = ImVec4{ 0.18f, 0.2595f, 0.231f, 1.0f };
+        colors[ImGuiCol_TitleBgCollapsed] = ImVec4{ 0.17f, 0.2205f, 0.291f, 1.0f };
+
     }
 
 

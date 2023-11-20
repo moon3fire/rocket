@@ -29,9 +29,10 @@ namespace Rocket {
         int m_ProfileCount;
     public:
         Instrumentor()
-            : m_CurrentSession(nullptr), m_ProfileCount(0)
-        {
-        }
+            : m_CurrentSession(nullptr), m_ProfileCount(0) {}
+        Instrumentor(const Instrumentor&) = delete;
+        Instrumentor(Instrumentor&&) = delete;
+
 
         void BeginSession(const std::string& name, const std::string& filepath = "results.json")
         {

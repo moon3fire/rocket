@@ -24,6 +24,7 @@ namespace Rocket {
 		void end();
 
 		void blockEvents(bool block) { m_blockEvents = block; }
+		void setDarkThemeColors();
 	private:
 		//variables
 		bool m_blockEvents = true;

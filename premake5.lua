@@ -174,7 +174,7 @@ project "Sandbox"
 	
 		defines 
 		{
-			"RCKT_PLATFORM_WINDOWS"
+			"RCKT_PLATFORM_WINDOWS",
 		}
 	
 		includedirs 

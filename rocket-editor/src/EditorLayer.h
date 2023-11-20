@@ -2,6 +2,8 @@
 
 #include "Rocket.h"
 
+#include "panels/SceneHierarchyPanel.h"
+
 namespace Rocket {
 
 	class EditorLayer : public Layer {
@@ -20,11 +22,17 @@ namespace Rocket {
 
 	private:
 
+		//panels
+		SceneHierarchyPanel m_hierarchypPanel;
+
 		OrthographicCameraController m_cameraController;
 
 		//scene
 		Ref<Scene> m_activeScene;
+	
 		Entity m_squareEntity;
+		Entity m_squareEntity2;
+		
 		Entity m_cameraEntity1;
 		Entity m_cameraEntity2;
 
