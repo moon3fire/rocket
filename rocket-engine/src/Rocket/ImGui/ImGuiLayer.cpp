@@ -111,34 +111,34 @@ namespace Rocket {
 
     void ImGuiLayer::setDarkThemeColors() {
         auto& colors = ImGui::GetStyle().Colors;
-        colors[ImGuiCol_WindowBg] = ImVec4{ 0.1f, 0.105f, 0.11f, 1.0f };
+        colors[ImGuiCol_WindowBg] = ImVec4{ 0.11f, 0.105f, 0.12f, 1.0f };
 
         // headers
-        colors[ImGuiCol_Header] = ImVec4{ 0.21f, 0.235f, 0.23f, 1.0f };
-        colors[ImGuiCol_HeaderHovered] = ImVec4{ 0.3f, 0.35f, 0.13f, 1.0f };
-        colors[ImGuiCol_HeaderActive] = ImVec4{ 0.1f, 0.125f, 0.34f, 1.0f };
+        colors[ImGuiCol_Header] = ImVec4{ 0.3f, 0.405f, 0.511f, 1.0f };
+        colors[ImGuiCol_HeaderHovered] = ImVec4{ 0.1f, 0.405f, 0.811f, 1.0f };
+        colors[ImGuiCol_HeaderActive] = ImVec4{ 0.3f, 0.505f, 0.511f, 1.0f };
 
         // buttons
-        colors[ImGuiCol_Button] = ImVec4{ 0.3f, 0.135f, 0.53f, 1.0f };
-        colors[ImGuiCol_ButtonHovered] = ImVec4{ 0.3f, 0.135f, 0.23f, 1.0f };
-        colors[ImGuiCol_ButtonActive] = ImVec4{ 0.2f, 0.335f, 0.33f, 1.0f };
+        colors[ImGuiCol_Button] = ImVec4{ 0.2f, 0.305f, 0.21f, 1.0f };
+        colors[ImGuiCol_ButtonHovered] = ImVec4{ 0.3f, 0.405f, 0.31f, 1.0f };
+        colors[ImGuiCol_ButtonActive] = ImVec4{ 0.4f, 0.505f, 0.41f, 1.0f };
 
         // frame BG
-        colors[ImGuiCol_FrameBg] = ImVec4{ 0.2f, 0.235f, 0.13f, 1.0f };
-        colors[ImGuiCol_FrameBgHovered] = ImVec4{ 0.2f, 0.335f, 0.33f, 1.0f };
-        colors[ImGuiCol_FrameBgActive] = ImVec4{ 0.23f, 0.235f, 0.23f, 1.0f };
+        colors[ImGuiCol_FrameBg] = ImVec4{ 0.1f, 0.305f, 0.311f, 1.0f };
+        colors[ImGuiCol_FrameBgHovered] = ImVec4{ 0.3f, 0.305f, 0.311f, 1.0f };
+        colors[ImGuiCol_FrameBgActive] = ImVec4{ 0.3f, 0.305f, 0.511f, 1.0f };
 
         // tabs
-        colors[ImGuiCol_Tab] = ImVec4{ 0.15f, 0.0505f, 0.151f, 1.0f };
-        colors[ImGuiCol_TabHovered] = ImVec4{ 0.25f, 0.1305f, 0.21f, 1.0f };
-        colors[ImGuiCol_TabActive] = ImVec4{ 0.25f, 0.1505f, 0.151f, 1.0f };
-        colors[ImGuiCol_TabUnfocused] = ImVec4{ 0.15f, 0.1585f, 0.251f, 1.0f };
-        colors[ImGuiCol_TabUnfocusedActive] = ImVec4{ 0.35f, 0.1995f, 0.151f, 1.0f };
+        colors[ImGuiCol_Tab] = ImVec4{ 0.4f, 0.105f, 0.451f, 1.0f };
+        colors[ImGuiCol_TabHovered] = ImVec4{ 0.15f, 0.105f, 0.211f, 1.0f };
+        colors[ImGuiCol_TabActive] = ImVec4{ 0.55f, 0.505f, 0.531f, 1.0f };
+        colors[ImGuiCol_TabUnfocused] = ImVec4{ 0.21f, 0.105f, 0.11f, 1.0f };
+        colors[ImGuiCol_TabUnfocusedActive] = ImVec4{ 0.1f, 0.105f, 0.311f, 1.0f };
 
         // title
-        colors[ImGuiCol_TitleBg] = ImVec4{ 0.15f, 0.2505f, 0.251f, 1.0f };
-        colors[ImGuiCol_TitleBgActive] = ImVec4{ 0.18f, 0.2595f, 0.231f, 1.0f };
-        colors[ImGuiCol_TitleBgCollapsed] = ImVec4{ 0.17f, 0.2205f, 0.291f, 1.0f };
+        colors[ImGuiCol_TitleBg] = ImVec4{ 0.45f, 0.3505f, 0.351f, 1.0f };
+        colors[ImGuiCol_TitleBgActive] = ImVec4{ 0.38f, 0.3595f, 0.431f, 1.0f };
+        colors[ImGuiCol_TitleBgCollapsed] = ImVec4{ 0.217f, 0.2205f, 0.291f, 1.0f };
 
     }
 
