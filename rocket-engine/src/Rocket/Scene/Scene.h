@@ -30,6 +30,7 @@ namespace Rocket {
 		uint32_t m_entityCount = 0;
 
 		friend class Entity;
+		friend class SceneSerializer;
 		friend class SceneHierarchyPanel;
 	};
 

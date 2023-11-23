@@ -9,7 +9,7 @@
 
 namespace Rocket {
 	
-	class ROCKET_API Log {
+	class  Log {
 	public:
 		static void init();
 

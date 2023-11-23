@@ -5,12 +5,11 @@
 #ifdef RCKT_PLATFORM_WINDOWS
 	#if RCKT_DYNAMIC_LINK
 		#ifdef RCKT_BUILD_DLL
-			#define ROCKET_API __declspec(dllexport)
+			#define  __declspec(dllexport)
 		#else
-			#define ROCKET_API __declspec(dllimport)
+			#define  __declspec(dllimport)
 		#endif
 	#else 
-		#define ROCKET_API
 		#define RCKT_ENABLE_ASSERTS
 	#endif
 #endif

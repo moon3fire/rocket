@@ -3,7 +3,7 @@
 #include "Rocket/Renderer/Shader.h"
 #include <unordered_map>
 
-#include "glad/glad.h"
+#include <glad.h>
 
 namespace Rocket {
 

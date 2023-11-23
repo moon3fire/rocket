@@ -1,7 +1,7 @@
 #include "rcktpch.h"
 #include "OpenGLRendererAPI.h"
 
-#include <glad/glad.h>
+#include <glad.h>
 
 namespace Rocket {
 	

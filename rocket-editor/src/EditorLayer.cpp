@@ -3,6 +3,8 @@
 
 #include <Rocket/Core/EntryPoint.h>
 
+#include "Rocket/Scene/SceneSerializer.h"
+
 namespace Rocket {
 
 	EditorLayer::EditorLayer() :Layer("EditorLayer"), m_cameraController(1280.0f / 720.0f, true) {}
@@ -20,6 +22,7 @@ namespace Rocket {
 
 		m_activeScene = createRef<Scene>();
 
+		/*
 		auto square = m_activeScene->createEntity("MYSQUARE");
 		square.addComponent<SpriteRendererComponent>(glm::vec4(0.0f, 1.0f, 0.0f, 1.0f));
 		m_squareEntity = square;
@@ -74,7 +77,7 @@ namespace Rocket {
 
 		m_cameraEntity2.addComponent<NativeScriptComponent>().bind<CameraController>();
 		m_cameraEntity1.addComponent<NativeScriptComponent>().bind<CameraController>();
-
+		*/
 		m_hierarchypPanel.setContext(m_activeScene);
 	}
 
@@ -161,8 +164,21 @@ namespace Rocket {
 			if (ImGui::BeginMenu("File"))
 			{
 				if (ImGui::MenuItem("Exit")) Rocket::Application::get().close();
+
+				if (ImGui::MenuItem("Save Scene")) {
+					SceneSerializer serializer(m_activeScene);
+					serializer.serialize("assets/scenes/example.rckt");
+				}
+
+				if (ImGui::MenuItem("Load Scene")) {
+					SceneSerializer serializer(m_activeScene);
+					serializer.deserialize("assets/scenes/example.rckt");
+				}
 				ImGui::EndMenu();
 			}
+
+
+		
 
 			ImGui::EndMenuBar();
 		}

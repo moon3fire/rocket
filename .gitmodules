@@ -10,3 +10,6 @@
 [submodule "rocket-engine/vendors/glm"]
 	path = rocket-engine/vendors/glm
 	url = https://github.com/g-truc/glm
+[submodule "rocket-engine/vendors/yaml-cpp"]
+	path = rocket-engine/vendors/yaml-cpp
+	url = https://github.com/moon3fire/yaml-cpp

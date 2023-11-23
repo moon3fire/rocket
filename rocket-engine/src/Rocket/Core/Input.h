@@ -4,7 +4,7 @@
 
 namespace Rocket {
 
-	class ROCKET_API Input {
+	class  Input {
 
 	public:
 		virtual ~Input() = default;

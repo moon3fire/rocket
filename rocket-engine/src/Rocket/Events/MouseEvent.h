@@ -4,7 +4,7 @@
 
 namespace Rocket {
 
-	class ROCKET_API MouseMovedEvent : public Event {
+	class  MouseMovedEvent : public Event {
 	public:
 		MouseMovedEvent(float x, float y) :m_mouseX(x), m_mouseY(y) {}
 
@@ -25,7 +25,7 @@ namespace Rocket {
 	};
 
 
-	class ROCKET_API MouseScrolledEvent : public Event {
+	class  MouseScrolledEvent : public Event {
 	public:
 		MouseScrolledEvent(float offsetX, float offsetY) :m_offsetX(offsetX), m_offsetY(offsetY) {}
 
@@ -44,7 +44,7 @@ namespace Rocket {
 		float m_offsetX, m_offsetY;
 	};
 
-	class ROCKET_API MouseButtonEvent : public Event {
+	class  MouseButtonEvent : public Event {
 	public:
 
 		inline int getMouseButton() const { return m_button; }
@@ -56,7 +56,7 @@ namespace Rocket {
 		int m_button;
 	};
 
-	class ROCKET_API MouseButtonPressedEvent : public MouseButtonEvent {
+	class  MouseButtonPressedEvent : public MouseButtonEvent {
 	public:
 		MouseButtonPressedEvent(int button) :MouseButtonEvent(button) {}
 
@@ -69,7 +69,7 @@ namespace Rocket {
 		EVENT_CLASS_TYPE(MouseButtonPressed)
 	};
 
-	class ROCKET_API MouseButtonReleasedEvent : public MouseButtonEvent {
+	class  MouseButtonReleasedEvent : public MouseButtonEvent {
 	public:
 		MouseButtonReleasedEvent(int button) :MouseButtonEvent(button) {}
 

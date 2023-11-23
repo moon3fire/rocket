@@ -1,7 +1,7 @@
 #include "SceneHierarchyPanel.h"
 
-#include <Rocket/../../vendors/imgui/imgui.h>
-#include <Rocket/../../vendors/imgui/imgui_internal.h>
+#include <imgui/imgui.h>
+#include <imgui/imgui_internal.h>
 
 #include <glm/gtc/type_ptr.hpp>
 

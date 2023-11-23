@@ -5,7 +5,7 @@
 
 namespace Rocket {
 	
-	class ROCKET_API LayerStack {
+	class  LayerStack {
 
 	public:
 		LayerStack();

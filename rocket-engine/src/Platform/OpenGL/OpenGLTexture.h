@@ -2,7 +2,7 @@
 
 #include "Rocket/Renderer/Texture.h"
 
-#include <glad/glad.h>
+#include <glad.h>
 
 namespace Rocket {
 
