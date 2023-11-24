@@ -19,11 +19,16 @@ namespace Rocket {
 		void onEvent(Event& event) override;
 
 		void resizeFramebuffer();
-
 	private:
+		bool onKeyPressed(KeyPressedEvent& event);
 
+		void createNewScene();
+		void openScene();
+		void saveSceneAs();
+	
+	private:
 		//panels
-		SceneHierarchyPanel m_hierarchypPanel;
+		SceneHierarchyPanel m_hierarchyPanel;
 
 		OrthographicCameraController m_cameraController;
 
@@ -42,6 +47,8 @@ namespace Rocket {
 		FramebufferSpecification m_specification;
 		glm::vec2 m_viewportSize = { 0.0f, 0.0f };
 		bool m_viewportFocused = false, m_viewportHovered = false;
+
+		int m_gizmosType = -1;
 	};
 
 } // namespace Rocket

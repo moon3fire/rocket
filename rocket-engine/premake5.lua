@@ -18,6 +18,9 @@ project "rocket-engine"
 		"vendors/stb_image/**.cpp",
 		"vendors/glm/glm/**.hpp",
 		"vendors/glm/glm/**.inl",
+
+		"vendors/ImGuizmo/ImGuizmo.h",
+		"vendors/ImGuizmo/ImGuizmo.cpp"
 	}
 
 	defines
@@ -38,7 +41,8 @@ project "rocket-engine"
 		"%{IncludeDir.glm}",
 		"%{IncludeDir.stb_image}",
 		"%{IncludeDir.entt}",
-		"%{IncludeDir.yaml_cpp}"
+		"%{IncludeDir.yaml_cpp}",
+		"%{IncludeDir.ImGuizmo}"
 	}
 
 	links
@@ -49,6 +53,9 @@ project "rocket-engine"
 		"yaml-cpp",
 		"opengl32.lib"
 	}
+
+	filter "files:vendors/ImGuizmo/**.cpp"
+	flags { "NoPCH" }
 
 	filter "system:windows"
 		systemversion "latest"

@@ -15,6 +15,8 @@ namespace Rocket {
 		void setContext(const Ref<Scene>& scene);
 
 		void onImGuiRender();
+
+		Entity getSelectedEntity() const { return m_selectionContext; }
 	private:
 		void drawEntityNode(Entity entity);
 		void drawProperties(Entity entity);

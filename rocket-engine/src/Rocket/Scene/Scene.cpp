@@ -8,6 +8,9 @@
 
 #include "Rocket/Renderer/Renderer2D.h"
 
+//temp
+#include "Controller.h"
+
 namespace Rocket {
 	
 	Scene::Scene() {}
@@ -95,6 +98,20 @@ namespace Rocket {
 			Renderer2D::endScene();
 		}
 	}
+
+	Entity Scene::getPrimaryCameraEntity() {
+		auto view = m_registry.view<CameraComponent>();
+
+		for (auto entity : view) {
+			const auto& camera = view.get<CameraComponent>(entity);
+			if (camera.primary)
+				return Entity(entity, this);
+		}
+		return {};
+	}
+
+	//TEMP TO DELETE
+	void Scene::addCameraController(Entity& entity) { entity.addComponent<NativeScriptComponent>().bind<CameraController>(); }
 
 	template <typename T>
 	void Scene::onComponentAdded(Entity entity, T& component) {

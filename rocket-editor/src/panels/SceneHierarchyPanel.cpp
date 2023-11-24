@@ -15,6 +15,7 @@ namespace Rocket {
 
 	void SceneHierarchyPanel::setContext(const Ref<Scene>& scene) {
 		m_context = scene;
+		m_selectionContext = {};
 	}
 
 	void SceneHierarchyPanel::onImGuiRender() {
@@ -211,6 +212,10 @@ namespace Rocket {
 			if (ImGui::MenuItem("Sprite Renderer")) {
 				m_selectionContext.addComponent<SpriteRendererComponent>();
 				ImGui::CloseCurrentPopup();
+			}
+
+			if (ImGui::MenuItem("Camera Controller")) {
+				m_context->addCameraController(m_selectionContext);
 			}
 
 			ImGui::EndPopup();

@@ -7,6 +7,8 @@
 #include "examples/imgui_impl_glfw.h"
 #include "examples/imgui_impl_opengl3.h"
 
+#include "ImGuizmo.h"
+
 #include "Rocket/Core/Application.h"
 
 //temporary
@@ -88,6 +90,7 @@ namespace Rocket {
         ImGui_ImplOpenGL3_NewFrame();
         ImGui_ImplGlfw_NewFrame();
         ImGui::NewFrame();
+        ImGuizmo::BeginFrame();
     }
 
     void ImGuiLayer::end() {

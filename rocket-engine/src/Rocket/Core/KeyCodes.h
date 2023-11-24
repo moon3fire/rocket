@@ -1,5 +1,6 @@
 #pragma once
 
+// TODO: Add enum class for keycodes
 //from glfw3.h
 #define RCKT_KEY_SPACE              32
 #define RCKT_KEY_APOSTROPHE         39  /* ' */
@@ -123,4 +124,3 @@
 #define RCKT_KEY_RIGHT_ALT          346
 #define RCKT_KEY_RIGHT_SUPER        347
 #define RCKT_KEY_MENU               348
-

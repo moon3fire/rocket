@@ -32,6 +32,7 @@ IncludeDir["glm"] = "%{wks.location}/rocket-engine/vendors/glm"
 IncludeDir["stb_image"] = "%{wks.location}/rocket-engine/vendors/stb_image"
 IncludeDir["entt"] = "%{wks.location}/rocket-engine/vendors/entt/include"
 IncludeDir["yaml_cpp"] = "%{wks.location}/rocket-engine/vendors/yaml-cpp/include"
+IncludeDir["ImGuizmo"] = "%{wks.location}/rocket-engine/vendors/ImGuizmo"
 
 group "Dependencies"
 	include "vendors/premake"

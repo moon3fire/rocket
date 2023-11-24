@@ -5,12 +5,12 @@ Entities:
     TagComponent:
       Tag: Main camera
     TransformComponent:
-      Position: [0, 0, 0]
+      Position: [6, 0.300000012, 2.79999995]
       Scale: [1, 1, 1]
-      Rotation: [0, 0, 0]
+      Rotation: [0, 0.860447288, -0.00349065848]
     CameraComponent:
       Camera:
-        ProjectionType: 1
+        ProjectionType: 0
         PerspectiveFOV: 0.785398185
         PerspectiveNear: 0.00999999978
         PerspectiveFar: 1000
@@ -23,8 +23,8 @@ Entities:
     TagComponent:
       Tag: MYSQUARE
     TransformComponent:
-      Position: [1.5, -1.89999998, 0]
-      Scale: [7.9000001, -0.300000012, 1]
-      Rotation: [0, 0, 0]
+      Position: [2.29999995, 0, 0]
+      Scale: [3.9000001, 3.5, 1]
+      Rotation: [0, 0.326376587, 0]
     SpriteRendererComponent:
-      Color: [0, 1, 0, 1]
+      Color: [0, 0.223938227, 1, 1]

@@ -4,6 +4,11 @@
 #include <Rocket/Core/EntryPoint.h>
 
 #include "Rocket/Scene/SceneSerializer.h"
+#include "Rocket/Utils/PlatformUtils.h"
+
+#include "ImGuizmo/ImGuizmo.h"
+
+#include "Rocket/Math/Math.h"
 
 namespace Rocket {
 
@@ -39,46 +44,12 @@ namespace Rocket {
 		// already has m_cameraEntity2.addComponent<TagComponent>("THIS IS A TAG");
 		auto& second = m_cameraEntity2.addComponent<CameraComponent>();
 		second.primary = false;
-
-		class CameraController : public ScriptableEntity {
-		public:
-			void onCreate() {
-				//getComponent<TransformComponent>();
-			}
-
-			void onDestroy() {
-
-			}
-
-			void onUpdate(Timestep ts) {
-				auto& transform = getComponent<TransformComponent>().position;
-				float speed = 5.0f;
-
-				if (Input::isKeyPressed(RCKT_KEY_A)) {
-					transform.x -= speed * ts;
-				}
-				if (Input::isKeyPressed(RCKT_KEY_W)) {
-					transform.z -= speed * ts;
-				}
-				if (Input::isKeyPressed(RCKT_KEY_D)) {
-					transform.x += speed * ts;
-				}
-				if (Input::isKeyPressed(RCKT_KEY_S)) {
-					transform.z += speed * ts;
-				}
-				if (Input::isKeyPressed(RCKT_KEY_E)) {
-					transform.y += speed * ts;
-				}
-				if (Input::isKeyPressed(RCKT_KEY_Q)) {
-					transform.y -= speed * ts;
-				}
-			}
-		};
-
-		m_cameraEntity2.addComponent<NativeScriptComponent>().bind<CameraController>();
-		m_cameraEntity1.addComponent<NativeScriptComponent>().bind<CameraController>();
 		*/
-		m_hierarchypPanel.setContext(m_activeScene);
+
+		//m_cameraEntity2.addComponent<NativeScriptComponent>().bind<CameraController>();
+		//m_cameraEntity1.addComponent<NativeScriptComponent>().bind<CameraController>();
+
+		m_hierarchyPanel.setContext(m_activeScene);
 	}
 
 	void EditorLayer::onDetach() {
@@ -158,31 +129,33 @@ namespace Rocket {
 		}
 
 		style.WindowMinSize.x = minWindowSizeX;
-
+		
+		// MENU BAR
 		if (ImGui::BeginMenuBar())
 		{
 			if (ImGui::BeginMenu("File"))
 			{
 				if (ImGui::MenuItem("Exit")) Rocket::Application::get().close();
 
-				if (ImGui::MenuItem("Save Scene")) {
-					SceneSerializer serializer(m_activeScene);
-					serializer.serialize("assets/scenes/example.rckt");
+				if (ImGui::MenuItem("New", "Ctrl+N")) {
+					createNewScene();
 				}
 
-				if (ImGui::MenuItem("Load Scene")) {
-					SceneSerializer serializer(m_activeScene);
-					serializer.deserialize("assets/scenes/example.rckt");
+				if (ImGui::MenuItem("Open", "Ctrl+O")) {
+					openScene();
 				}
+
+				if (ImGui::MenuItem("Save as", "Ctrl+Shift+S")) {
+					saveSceneAs();
+				}
+
 				ImGui::EndMenu();
 			}
-
-
-		
 
 			ImGui::EndMenuBar();
 		}
 		
+		// Settings panel (stats)
 		{
 			ImGui::Begin("Settings");
 			auto stats = Renderer2D::getStats();
@@ -195,7 +168,7 @@ namespace Rocket {
 			ImGui::End();
 		}
 		{
-			m_hierarchypPanel.onImGuiRender();
+			m_hierarchyPanel.onImGuiRender();
 		}
 		ImGui::End();
 
@@ -205,7 +178,7 @@ namespace Rocket {
 
 			m_viewportFocused = ImGui::IsWindowFocused();
 			m_viewportHovered = ImGui::IsWindowHovered();
-			Application::get().getImGuiLayer()->blockEvents(!m_viewportFocused || !m_viewportHovered);
+			Application::get().getImGuiLayer()->blockEvents(!m_viewportFocused && !m_viewportHovered);
 		
 
 			ImVec2 viewportPanelSize = ImGui::GetContentRegionAvail();
@@ -215,6 +188,48 @@ namespace Rocket {
 			uint32_t textureID = m_framebuffer->getColorAttachmentRendererID();
 			ImGui::Image((void*)textureID, ImVec2{ m_viewportSize.x, m_viewportSize.y }, ImVec2{ 0, 1 }, ImVec2{ 1, 0 });
 
+			// Gizmos
+			Entity selectedEntity = m_hierarchyPanel.getSelectedEntity();
+			if (selectedEntity && m_gizmosType != -1) {
+				ImGuizmo::SetOrthographic(false);
+				ImGuizmo::SetDrawlist();
+				float windowWidth = (float)ImGui::GetWindowWidth();
+				float windowHeight = (float)ImGui::GetWindowHeight();
+				ImGuizmo::SetRect(ImGui::GetWindowPos().x, ImGui::GetWindowPos().y, windowWidth, windowHeight);
+
+				//camera
+				auto cameraEntity = m_activeScene->getPrimaryCameraEntity();
+				const auto& camera = cameraEntity.getComponent<CameraComponent>().camera;
+				const glm::mat4& cameraProjection = camera.getProjection();
+				glm::mat4 cameraView = glm::inverse(cameraEntity.getComponent<TransformComponent>().getTransform());
+
+				//entity transform
+				auto& transformComponent = selectedEntity.getComponent<TransformComponent>();
+				glm::mat4 transform = transformComponent.getTransform();
+
+				// snapping
+				bool snap = Input::isKeyPressed(RCKT_KEY_LEFT_SHIFT);
+				float snapValue = 0.5f;
+				if (m_gizmosType == ImGuizmo::OPERATION::ROTATE)
+					snapValue = 10.0f;
+
+				float snapValues[3] = { snapValue, snapValue, snapValue };
+
+				ImGuizmo::Manipulate(glm::value_ptr(cameraView), glm::value_ptr(cameraProjection), (ImGuizmo::OPERATION)m_gizmosType,
+									 ImGuizmo::LOCAL, glm::value_ptr(transform), nullptr, snap ? snapValues : nullptr);
+
+				if (ImGuizmo::IsUsing()) {
+					glm::vec3 position, scale, rotation;
+					Math::DecomposeTransform(transform, position, scale, rotation);
+
+					glm::vec3 deltaRotation = rotation - transformComponent.rotation;
+					 
+					transformComponent.position = position;
+					transformComponent.scale = scale;
+					transformComponent.rotation += deltaRotation;
+				}
+			}
+
 			ImGui::End();
 			ImGui::PopStyleVar();
 		}
@@ -223,7 +238,77 @@ namespace Rocket {
 
 	void EditorLayer::onEvent(Rocket::Event& event) {
 		m_cameraController.onEvent(event);
+
+		EventDispatcher dispatcher(event);
+		dispatcher.dispatch<KeyPressedEvent>(RCKT_BIND_EVENT_FUNC(EditorLayer::onKeyPressed));
 	}
+
+	bool EditorLayer::onKeyPressed(KeyPressedEvent& event)
+	{
+		//Shortcuts handling
+		if (event.getRepeatCount() > 0)
+			return false;
+			
+		bool isControlPressed = Input::isKeyPressed(RCKT_KEY_LEFT_CONTROL) || Input::isKeyPressed(RCKT_KEY_RIGHT_CONTROL);
+		bool isShiftPressed = Input::isKeyPressed(RCKT_KEY_LEFT_SHIFT) || Input::isKeyPressed(RCKT_KEY_RIGHT_SHIFT);
+
+		switch (event.getKeyCode()) {
+			
+			case RCKT_KEY_N: {
+				if (isControlPressed)
+					createNewScene();
+				break;
+			}
+
+			case RCKT_KEY_O: {
+				if (isControlPressed)
+					openScene();
+				break;
+			}
+
+			case RCKT_KEY_S: {
+				if (isControlPressed && isShiftPressed)
+					saveSceneAs();
+				break;
+			}
+
+			// gizmos
+			case RCKT_KEY_Q: {
+				m_gizmosType++;
+				if (m_gizmosType > 2) m_gizmosType = 0;
+			}
+
+		}
+
+		return true;
+	}
+
+	void EditorLayer::createNewScene() {
+		m_activeScene = createRef<Scene>();
+		m_activeScene->onViewportResize((uint32_t)m_viewportSize.x, (uint32_t)m_viewportSize.y);
+		m_hierarchyPanel.setContext(m_activeScene);
+	}
+
+	void EditorLayer::openScene() {
+		std::string filepath = FileDialogs::openFile("Rocket Scene (*.rkct)\0*.rckt\0");
+		if (!filepath.empty()) {
+			m_activeScene = createRef<Scene>();
+			m_activeScene->onViewportResize((uint32_t)m_viewportSize.x, (uint32_t)m_viewportSize.y);
+			m_hierarchyPanel.setContext(m_activeScene);
+
+			SceneSerializer serializer(m_activeScene);
+			serializer.deserialize(filepath);
+		}
+	}
+
+	void EditorLayer::saveSceneAs() {
+		std::string filepath = FileDialogs::saveFile("Rocket Scene (*.rkct)\0*.rckt\0");
+		if (!filepath.empty()) {
+			SceneSerializer serializer(m_activeScene);
+			serializer.serialize(filepath + ".rckt");
+		}
+	}
+
 
 	void EditorLayer::resizeFramebuffer() {
 		m_specification = m_framebuffer->getSpecification();

@@ -13,3 +13,6 @@
 [submodule "rocket-engine/vendors/yaml-cpp"]
 	path = rocket-engine/vendors/yaml-cpp
 	url = https://github.com/moon3fire/yaml-cpp
+[submodule "rocket-engine/vendors/ImGuizmo"]
+	path = rocket-engine/vendors/ImGuizmo
+	url = https://github.com/moon3fire/ImGuizmo

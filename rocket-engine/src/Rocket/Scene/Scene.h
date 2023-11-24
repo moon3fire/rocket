@@ -20,12 +20,17 @@ namespace Rocket {
 
 		void onViewportResize(uint32_t width, uint32_t height);
 		void onUpdate(Timestep ts);
+
+		Entity getPrimaryCameraEntity();
 	private:
 		template <typename T>
 		void onComponentAdded(Entity entity, T& component);
-	private:		
+	
+	private: // TODO: Move this into editor camera
+		static void addCameraController(Entity& entity);
+	private:
 		entt::registry m_registry;
-		
+
 		uint32_t m_viewportWidth = 0, m_viewportHeight = 0;
 		uint32_t m_entityCount = 0;
 
