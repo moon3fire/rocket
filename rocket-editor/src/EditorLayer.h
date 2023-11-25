@@ -3,6 +3,7 @@
 #include "Rocket.h"
 
 #include "panels/SceneHierarchyPanel.h"
+#include "Rocket/Renderer/EditorCamera.h"
 
 namespace Rocket {
 
@@ -34,14 +35,10 @@ namespace Rocket {
 
 		//scene
 		Ref<Scene> m_activeScene;
-	
-		Entity m_squareEntity;
-		Entity m_squareEntity2;
-		
-		Entity m_cameraEntity1;
-		Entity m_cameraEntity2;
 
 		bool m_primaryCamera = true;
+
+		EditorCamera m_editorCamera;
 
 		Ref<Framebuffer> m_framebuffer;
 		FramebufferSpecification m_specification;

@@ -1,8 +1,9 @@
 #pragma once
 
-#include <entt.hpp>
-
+#include "Rocket/Renderer/EditorCamera.h"
 #include "Rocket/Core/Timestep.h"
+
+#include <entt.hpp>
 
 namespace Rocket {
 
@@ -19,7 +20,8 @@ namespace Rocket {
 		void destroyEntity(Entity entity);
 
 		void onViewportResize(uint32_t width, uint32_t height);
-		void onUpdate(Timestep ts);
+		void onUpdateRuntime(Timestep ts);
+		void onUpdateEditor(Timestep ts, EditorCamera& camera);
 
 		Entity getPrimaryCameraEntity();
 	private:

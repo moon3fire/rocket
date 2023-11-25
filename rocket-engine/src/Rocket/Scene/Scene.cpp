@@ -48,7 +48,7 @@ namespace Rocket {
 		}
 	}
 
-	void Scene::onUpdate(Timestep ts) {
+	void Scene::onUpdateRuntime(Timestep ts) {
 
 		// Update native scripts
 		{
@@ -97,6 +97,19 @@ namespace Rocket {
 
 			Renderer2D::endScene();
 		}
+	}
+
+	void Scene::onUpdateEditor(Timestep ts, EditorCamera& camera) {
+		Renderer2D::beginScene(camera);
+
+		auto group = m_registry.group<TransformComponent>(entt::get<SpriteRendererComponent>);
+		for (auto entity : group) {
+			auto [transform, sprite] = group.get<TransformComponent, SpriteRendererComponent>(entity);
+
+			Renderer2D::drawQuadWithViewMat(transform.getTransform(), sprite.color);
+		}
+
+		Renderer2D::endScene();
 	}
 
 	Entity Scene::getPrimaryCameraEntity() {

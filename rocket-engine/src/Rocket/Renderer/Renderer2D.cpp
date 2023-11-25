@@ -140,6 +140,21 @@ namespace Rocket {
 		s_data.textureSlotIndex = 1;
 	}
 
+	void Renderer2D::beginScene(const EditorCamera& camera) {
+		RCKT_PROFILE_FUNCTION();
+
+		glm::mat4 viewProj = camera.getViewProjection();
+
+		s_data.quadShader->bind();
+		s_data.quadShader->setMat4("u_viewProjection", viewProj);
+
+		s_data.quadIndexCount = 0;
+		s_data.quadVertexBufferPtr = s_data.quadVertexBufferBase;
+		
+		//starting from slot 1 in each frame
+		s_data.textureSlotIndex = 1;
+	}
+
 	void Renderer2D::endScene() {
 		RCKT_PROFILE_FUNCTION();
 

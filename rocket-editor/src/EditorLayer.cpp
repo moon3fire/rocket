@@ -25,6 +25,8 @@ namespace Rocket {
 		m_cameraController.setZoomLevel(5.5f);
 		Renderer::setCameraController(m_cameraController);
 
+		m_editorCamera = EditorCamera(30.0f, 1778.0f, 0.1f, 1000.0f);
+
 		m_activeScene = createRef<Scene>();
 
 		/*
@@ -63,9 +65,10 @@ namespace Rocket {
 		resizeFramebuffer();
 
 		//update
-		if (m_viewportFocused)
+		if (m_viewportFocused) {
 			m_cameraController.onUpdate(ts);
-
+			m_editorCamera.onUpdate(ts);
+		}
 		//render
 		Renderer2D::resetStats();
 
@@ -79,7 +82,7 @@ namespace Rocket {
 		{
 			RCKT_PROFILE_SCOPE("Scene render");
 			//updating scene
-			m_activeScene->onUpdate(ts);
+			m_activeScene->onUpdateEditor(ts, m_editorCamera);
 		}
 		
 		m_framebuffer->unbind();
@@ -197,11 +200,16 @@ namespace Rocket {
 				float windowHeight = (float)ImGui::GetWindowHeight();
 				ImGuizmo::SetRect(ImGui::GetWindowPos().x, ImGui::GetWindowPos().y, windowWidth, windowHeight);
 
-				//camera
-				auto cameraEntity = m_activeScene->getPrimaryCameraEntity();
-				const auto& camera = cameraEntity.getComponent<CameraComponent>().camera;
-				const glm::mat4& cameraProjection = camera.getProjection();
-				glm::mat4 cameraView = glm::inverse(cameraEntity.getComponent<TransformComponent>().getTransform());
+				/* Runtime Camera */
+
+				//auto cameraEntity = m_activeScene->getPrimaryCameraEntity();
+				//const auto& camera = cameraEntity.getComponent<CameraComponent>().camera;
+				//const glm::mat4& cameraProjection = camera.getProjection();
+				//glm::mat4 cameraView = glm::inverse(cameraEntity.getComponent<TransformComponent>().getTransform());
+
+				// Editor camera
+				const glm::mat4& cameraProjection = m_editorCamera.getProjection();
+				glm::mat4 cameraView = m_editorCamera.getViewMatrix();
 
 				//entity transform
 				auto& transformComponent = selectedEntity.getComponent<TransformComponent>();
@@ -223,7 +231,6 @@ namespace Rocket {
 					Math::DecomposeTransform(transform, position, scale, rotation);
 
 					glm::vec3 deltaRotation = rotation - transformComponent.rotation;
-					 
 					transformComponent.position = position;
 					transformComponent.scale = scale;
 					transformComponent.rotation += deltaRotation;
@@ -238,6 +245,7 @@ namespace Rocket {
 
 	void EditorLayer::onEvent(Rocket::Event& event) {
 		m_cameraController.onEvent(event);
+		m_editorCamera.onEvent(event);
 
 		EventDispatcher dispatcher(event);
 		dispatcher.dispatch<KeyPressedEvent>(RCKT_BIND_EVENT_FUNC(EditorLayer::onKeyPressed));
@@ -316,6 +324,8 @@ namespace Rocket {
 			(m_specification.width != m_viewportSize.x || m_specification.height != m_viewportSize.y)) {
 			m_framebuffer->resize((uint32_t)m_viewportSize.x, (uint32_t)m_viewportSize.y);
 			m_cameraController.onResize(m_viewportSize.x, m_viewportSize.y);
+
+			m_editorCamera.setViewportSize(m_viewportSize.x, m_viewportSize.y);
 
 			m_activeScene->onViewportResize((uint32_t)m_viewportSize.x, (uint32_t)m_viewportSize.y);
 		}

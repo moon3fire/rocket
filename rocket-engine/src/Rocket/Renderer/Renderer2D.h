@@ -5,6 +5,7 @@
 
 #include "Texture.h"
 #include "SubTexture2D.h"
+#include "EditorCamera.h"
 
 namespace Rocket {
 
@@ -13,8 +14,9 @@ namespace Rocket {
 		static void init();
 		static void shutdown();
 
-		static void beginScene(const OrthographicCamera2D& camera);
+		static void beginScene(const OrthographicCamera2D& camera); // TODO: Remove
 		static void beginScene(const Camera& camera, const glm::mat4& transform);
+		static void beginScene(const EditorCamera& camera);
 
 		static void endScene();
 		

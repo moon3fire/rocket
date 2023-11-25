@@ -2,6 +2,7 @@
 
 #include <Rocket/Core/Core.h>
 #include <string>
+#include <sstream>
 
 namespace Rocket {
 
