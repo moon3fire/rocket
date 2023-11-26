@@ -42,7 +42,7 @@ namespace Rocket {
 		bool onWindowResize(WindowResizeEvent& event);
 
 	private:
-		std::unique_ptr<Window> m_window;
+		Scope<Window> m_window;
 		ImGuiLayer* m_imguiLayer;
 		
 		bool m_running = true;

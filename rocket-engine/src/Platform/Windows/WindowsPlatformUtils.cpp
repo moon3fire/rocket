@@ -12,11 +12,14 @@ namespace Rocket {
 	std::string FileDialogs::openFile(const char* filter) {
 		OPENFILENAMEA openFileName;
 		CHAR fileSize[260] = { 0 };
+		CHAR currentDir[256] = { 0 };
 		ZeroMemory(&openFileName, sizeof(OPENFILENAME));
 		openFileName.lStructSize = sizeof(OPENFILENAME);
 		openFileName.hwndOwner = glfwGetWin32Window((GLFWwindow*)Application::get().getWindow().getNativeWindow());
 		openFileName.lpstrFile = fileSize;
 		openFileName.nMaxFile = sizeof(fileSize);
+		if (GetCurrentDirectoryA(256, currentDir))
+			openFileName.lpstrInitialDir = currentDir;
 		openFileName.lpstrFilter = filter;
 		openFileName.nFilterIndex = 1;
 		openFileName.Flags = OFN_PATHMUSTEXIST | OFN_FILEMUSTEXIST | OFN_NOCHANGEDIR;
@@ -29,14 +32,17 @@ namespace Rocket {
 	std::string FileDialogs::saveFile(const char* filter) {
 		OPENFILENAMEA openFileName;
 		CHAR fileSize[260] = { 0 };
+		CHAR currentDir[256] = { 0 };
 		ZeroMemory(&openFileName, sizeof(OPENFILENAME));
 		openFileName.lStructSize = sizeof(OPENFILENAME);
 		openFileName.hwndOwner = glfwGetWin32Window((GLFWwindow*)Application::get().getWindow().getNativeWindow());
 		openFileName.lpstrFile = fileSize;
 		openFileName.nMaxFile = sizeof(fileSize);
+		if (GetCurrentDirectoryA(256, currentDir))
+			openFileName.lpstrInitialDir = currentDir;
 		openFileName.lpstrFilter = filter;
 		openFileName.nFilterIndex = 1;
-		openFileName.Flags = OFN_PATHMUSTEXIST | OFN_FILEMUSTEXIST | OFN_NOCHANGEDIR;
+		openFileName.Flags = OFN_PATHMUSTEXIST | OFN_OVERWRITEPROMPT | OFN_NOCHANGEDIR;
 		if (GetSaveFileNameA(&openFileName) == TRUE) {
 			return openFileName.lpstrFile;
 		}
