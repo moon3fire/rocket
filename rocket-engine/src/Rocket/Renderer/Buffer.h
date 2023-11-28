@@ -27,31 +27,32 @@ namespace Rocket {
 		return 0;
 	}
 
-	static uint32_t GetElementCount(ShaderDataType type) {
-		switch (type) {
-		case ShaderDataType::Float:		return 1;
-		case ShaderDataType::Float2:	return 2;
-		case ShaderDataType::Float3:	return 3;
-		case ShaderDataType::Float4:	return 4;
-		case ShaderDataType::Mat3:		return 3 * 3;
-		case ShaderDataType::Mat4:		return 3 * 4;
-		case ShaderDataType::Int:		return 1;
-		case ShaderDataType::Int2:		return 2;
-		case ShaderDataType::Int3:		return 3;
-		case ShaderDataType::Int4:		return 4;
-		case ShaderDataType::Bool:		return 1;
-		}
-
-		RCKT_CORE_ASSERT(false, "Unknown shader data type");
-		return 0;
-	}
-
 	struct BufferElement {
 
 		BufferElement() = default;
 		BufferElement(ShaderDataType type_, const std::string& name_, bool normalized_ = false)
 			:name(name_), type(type_),
 			size(ShaderDataTypeSize(type_)), offset(0), normalized(normalized_) {}
+
+		uint32_t GetComponentCount() const {
+			switch (type) {
+				case ShaderDataType::Float:   return 1;
+				case ShaderDataType::Float2:  return 2;
+				case ShaderDataType::Float3:  return 3;
+				case ShaderDataType::Float4:  return 4;
+				case ShaderDataType::Mat3:    return 3; // 3* float3
+				case ShaderDataType::Mat4:    return 4; // 4* float4
+				case ShaderDataType::Int:     return 1;
+				case ShaderDataType::Int2:    return 2;
+				case ShaderDataType::Int3:    return 3;
+				case ShaderDataType::Int4:    return 4;
+				case ShaderDataType::Bool:    return 1;
+			}
+
+			RCKT_CORE_ASSERT(false, "Unknown ShaderDataType!");
+			return 0;
+		}
+
 
 		std::string name;
 		uint32_t offset;

@@ -30,6 +30,12 @@ namespace Rocket {
 		glCreateVertexArrays(1, &m_rendererID);
 	}
 
+	OpenGLVertexArray::~OpenGLVertexArray() {
+		RCKT_PROFILE_FUNCTION();
+
+		glDeleteVertexArrays(1, &m_rendererID);
+	}
+
 	void OpenGLVertexArray::bind() const {
 		RCKT_PROFILE_FUNCTION();
 
@@ -50,28 +56,59 @@ namespace Rocket {
 		glBindVertexArray(m_rendererID);
 		vertexBuffer->bind();
 
-		uint32_t index = 0;
 		const auto& layout = vertexBuffer->getLayout();
-		for (const auto& elem : layout) {
-			glEnableVertexAttribArray(index);
-			glVertexAttribPointer(
-				index,
-				GetElementCount(elem.type),
-				ShaderDataTypeToOpenGLType(elem.type),
-				elem.normalized ? GL_TRUE : GL_FALSE,
-				layout.getStride(),
-				(void*)(intptr_t)elem.offset);
-
-			index++;
+		for (const auto& element : layout) {
+			switch (element.type) {
+				case ShaderDataType::Float:
+				case ShaderDataType::Float2:
+				case ShaderDataType::Float3:
+				case ShaderDataType::Float4: {
+					glEnableVertexAttribArray(m_vertexBufferIndex);
+					glVertexAttribPointer(m_vertexBufferIndex,
+										  element.GetComponentCount(),
+										  ShaderDataTypeToOpenGLType(element.type),
+										  element.normalized ? GL_TRUE : GL_FALSE,
+										  layout.getStride(),
+										  (const void*)element.offset);
+					m_vertexBufferIndex++;
+					break;
+				}
+				case ShaderDataType::Int:
+				case ShaderDataType::Int2:
+				case ShaderDataType::Int3:
+				case ShaderDataType::Int4:
+				case ShaderDataType::Bool: {
+					glEnableVertexAttribArray(m_vertexBufferIndex);
+					glVertexAttribIPointer(m_vertexBufferIndex,
+						element.GetComponentCount(),
+						ShaderDataTypeToOpenGLType(element.type),
+						layout.getStride(),
+						(const void*)element.offset);
+					m_vertexBufferIndex++;
+					break;
+				}
+				case ShaderDataType::Mat3:
+				case ShaderDataType::Mat4: {
+					uint8_t count = element.GetComponentCount();
+					for (uint8_t i = 0; i < count; i++) {
+						glEnableVertexAttribArray(m_vertexBufferIndex);
+						glVertexAttribPointer(m_vertexBufferIndex,
+							count,
+							ShaderDataTypeToOpenGLType(element.type),
+							element.normalized ? GL_TRUE : GL_FALSE,
+							layout.getStride(),
+							(const void*)(element.offset + sizeof(float) * count * i));
+						glVertexAttribDivisor(m_vertexBufferIndex, 1);
+						m_vertexBufferIndex++;
+					}
+					break;
+				}
+				default:
+					RCKT_CORE_ASSERT(false, "Unknown ShaderDataType!");
+			}
 		}
 
 		m_vertexBuffers.push_back(vertexBuffer);
-	}
-
-	OpenGLVertexArray::~OpenGLVertexArray() {
-		RCKT_PROFILE_FUNCTION();
-
-		glDeleteVertexArrays(1, &m_rendererID);
 	}
 
 	void OpenGLVertexArray::setIndexBuffer(const Ref<IndexBuffer>& indexBuffer) {

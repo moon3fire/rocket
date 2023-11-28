@@ -18,6 +18,7 @@ namespace Rocket {
 		RCKT_PROFILE_FUNCTION();
 
 		Rocket::FramebufferSpecification frameBufferSpec;
+		frameBufferSpec.attachments = { FramebufferTextureFormat::RGBA8, FramebufferTextureFormat::RED_INTEGER, FramebufferTextureFormat::Depth };
 		frameBufferSpec.width = 1280;
 		frameBufferSpec.height = 720;
 		m_framebuffer = Rocket::Framebuffer::create(frameBufferSpec);
@@ -52,6 +53,7 @@ namespace Rocket {
 		//m_cameraEntity1.addComponent<NativeScriptComponent>().bind<CameraController>();
 
 		m_hierarchyPanel.setContext(m_activeScene);
+
 	}
 
 	void EditorLayer::onDetach() {
@@ -77,12 +79,28 @@ namespace Rocket {
 			m_framebuffer->bind();
 			RenderCommand::setClearColor({ 0.2f, 0.2f, 0.2f, 1.0f });
 			RenderCommand::clear();
+
+			// clear entity ID attachment to -1's
+			m_framebuffer->clearAttachment(1, -1);
 		}
 		
 		{
 			RCKT_PROFILE_SCOPE("Scene render");
 			//updating scene
 			m_activeScene->onUpdateEditor(ts, m_editorCamera);
+
+			auto [mx, my] = ImGui::GetMousePos();
+			mx -= m_viewportBounds[0].x;
+			my -= m_viewportBounds[0].y;
+			glm::vec2 viewportSize = m_viewportBounds[1] - m_viewportBounds[0];
+			my = viewportSize.y - my;
+			int mouseX = (int)mx;
+			int mouseY = (int)my;
+
+			if (mouseX >= 0 && mouseY >= 0 && mouseX < (int)viewportSize.x && mouseY < (int)viewportSize.y) {
+				int pixelData = m_framebuffer->readPixel(1, mouseX, mouseY);
+				m_hoveredEntity = pixelData == -1 ? Entity() : Entity((entt::entity)pixelData, m_activeScene.get());
+			}
 		}
 		
 		m_framebuffer->unbind();
@@ -161,6 +179,14 @@ namespace Rocket {
 		// Settings panel (stats)
 		{
 			ImGui::Begin("Settings");
+			std::string name = "None";
+			if (m_hoveredEntity) {
+				name = m_hoveredEntity.getComponent<TagComponent>().tag;
+			}
+			ImGui::Text("Hovered entity: %s", name.c_str());
+
+			// to see all available entities m_activeScene->debugAllAvailableEntities();
+
 			auto stats = Renderer2D::getStats();
 			ImGui::Text("Renderer2D Stats:");
 			ImGui::Text("Draw Calls: %d", stats.drawCalls);
@@ -178,28 +204,30 @@ namespace Rocket {
 		{
 			ImGui::PushStyleVar(ImGuiStyleVar_WindowPadding, ImVec2{ 0, 0 });
 			ImGui::Begin("Viewport");
+			auto viewportMinRegion = ImGui::GetWindowContentRegionMin();
+			auto viewportMaxRegion = ImGui::GetWindowContentRegionMax();
+			auto viewportOffset = ImGui::GetWindowPos();
+			m_viewportBounds[0] = { viewportMinRegion.x + viewportOffset.x, viewportMinRegion.y + viewportOffset.y };
+			m_viewportBounds[1] = { viewportMaxRegion.x + viewportOffset.x, viewportMaxRegion.y + viewportOffset.y };
 
 			m_viewportFocused = ImGui::IsWindowFocused();
 			m_viewportHovered = ImGui::IsWindowHovered();
 			Application::get().getImGuiLayer()->blockEvents(!m_viewportFocused && !m_viewportHovered);
 		
-
 			ImVec2 viewportPanelSize = ImGui::GetContentRegionAvail();
 		
 			m_viewportSize = { viewportPanelSize.x, viewportPanelSize.y };
 
-			uint32_t textureID = m_framebuffer->getColorAttachmentRendererID();
-			ImGui::Image((void*)textureID, ImVec2{ m_viewportSize.x, m_viewportSize.y }, ImVec2{ 0, 1 }, ImVec2{ 1, 0 });
+			uint32_t textureID = m_framebuffer->getColorAttachmentRendererID(0);
+			ImGui::Image(reinterpret_cast<void*>(textureID), ImVec2{ m_viewportSize.x, m_viewportSize.y }, ImVec2{ 0, 1 }, ImVec2{ 1, 0 });
 
 			// Gizmos
 			Entity selectedEntity = m_hierarchyPanel.getSelectedEntity();
 			if (selectedEntity && m_gizmosType != -1) {
 				ImGuizmo::SetOrthographic(false);
 				ImGuizmo::SetDrawlist();
-				float windowWidth = (float)ImGui::GetWindowWidth();
-				float windowHeight = (float)ImGui::GetWindowHeight();
-				ImGuizmo::SetRect(ImGui::GetWindowPos().x, ImGui::GetWindowPos().y, windowWidth, windowHeight);
-
+				ImGuizmo::SetRect(m_viewportBounds[0].x, m_viewportBounds[0].y, m_viewportBounds[1].x - m_viewportBounds[0].x, m_viewportBounds[1].y - m_viewportBounds[0].y);
+			
 				/* Runtime Camera */
 
 				//auto cameraEntity = m_activeScene->getPrimaryCameraEntity();
@@ -249,6 +277,7 @@ namespace Rocket {
 
 		EventDispatcher dispatcher(event);
 		dispatcher.dispatch<KeyPressedEvent>(RCKT_BIND_EVENT_FUNC(EditorLayer::onKeyPressed));
+		dispatcher.dispatch<MouseButtonPressedEvent>(RCKT_BIND_EVENT_FUNC(EditorLayer::onMouseButtonPressed));
 	}
 
 	bool EditorLayer::onKeyPressed(KeyPressedEvent& event)
@@ -289,6 +318,15 @@ namespace Rocket {
 		}
 
 		return true;
+	}
+
+	bool EditorLayer::onMouseButtonPressed(MouseButtonPressedEvent& event) {
+		if (event.getMouseButton() == RCKT_MOUSE_BUTTON_LEFT) {
+			if (m_viewportHovered && !ImGuizmo::IsOver() && !Input::isKeyPressed(RCKT_KEY_LEFT_ALT)) {
+				m_hierarchyPanel.setSelectedEntity(m_hoveredEntity);
+			}
+		}
+		return false;
 	}
 
 	void EditorLayer::createNewScene() {

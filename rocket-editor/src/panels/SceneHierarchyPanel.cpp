@@ -58,6 +58,10 @@ namespace Rocket {
 		
 	}
 
+	void SceneHierarchyPanel::setSelectedEntity(Entity entity) {
+		m_selectionContext = entity;
+	}
+
 	void SceneHierarchyPanel::drawEntityNode(Entity entity) {
 		auto& tag = entity.getComponent<TagComponent>().tag;
 		ImGuiTreeNodeFlags flags = ((m_selectionContext == entity) ? ImGuiTreeNodeFlags_Selected : 0) | ImGuiTreeNodeFlags_OpenOnArrow;

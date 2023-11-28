@@ -14,6 +14,9 @@ namespace Rocket {
 		glm::vec4 color = { 0.0f, 0.0f, 0.0f, 0.0f };
 		float texIndex;
 		float tilingFactor;
+
+		//Editor only
+		int entityID;
 	};
 
 	//entire renderer2D data storage
@@ -44,6 +47,11 @@ namespace Rocket {
 
 	static Renderer2DStorage s_data;
 
+	void Renderer2D::setEntityID(uint32_t id) {
+		s_data.quadShader->setInt("currentEntityID", id);
+	}
+
+
 	void Renderer2D::init() {
 		RCKT_PROFILE_FUNCTION();
 		//VA stuff
@@ -51,11 +59,12 @@ namespace Rocket {
 		s_data.quadVertexBuffer = VertexBuffer::create(s_data.maxVertices * sizeof(QuadVertex));
 		s_data.quadVertexBuffer->setLayout(
 			{
-				{ ShaderDataType::Float3, "a_position" },
+				{ ShaderDataType::Float3, "a_position"     },
 				{ ShaderDataType::Float2, "a_textureCoord" },
-				{ ShaderDataType::Float4, "a_color" },
-				{ ShaderDataType::Float, "a_texIndex" },
-				{ ShaderDataType::Float, "a_tilingFactor" }
+				{ ShaderDataType::Float4, "a_color"        },
+				{ ShaderDataType::Float,  "a_texIndex"     },
+				{ ShaderDataType::Float,  "a_tilingFactor" },
+				{ ShaderDataType::Int,    "a_entityID"     }
 			});
 		s_data.quadVA->addVertexBuffer(s_data.quadVertexBuffer);
 		
@@ -376,43 +385,33 @@ namespace Rocket {
 
 	}
 
-	void Renderer2D::drawQuadWithViewMat(const glm::mat4& transform, const glm::vec4& color) {
+	void Renderer2D::drawSprite(const glm::mat4& transform, SpriteRendererComponent& src, int entityID) {
+		drawQuadWithViewMat(transform, src.color, entityID);
+	}
+
+	void Renderer2D::drawQuadWithViewMat(const glm::mat4& transform, const glm::vec4& color, int entityID) {
 		RCKT_PROFILE_FUNCTION();
 
 		if (s_data.quadIndexCount >= Renderer2DStorage::maxIndices) {
 			flushAndReset();
 		}
 
+		constexpr size_t quadVertexCount = 4;
+		constexpr glm::vec2 textureCoords[] = { { 0.0f, 0.0f }, { 1.0f, 0.0f }, { 1.0f, 1.0f }, { 0.0f, 1.0f } };
 		const float textureIndex = -1.0f; // no texture for simple quads
 		const float tilingFactor = 1.0f;
 
-		s_data.quadVertexBufferPtr->color = color;
-		s_data.quadVertexBufferPtr->position = transform * s_data.quadVertexPositions[0];
-		s_data.quadVertexBufferPtr->texCoord = { 0.0f, 0.0f };
-		s_data.quadVertexBufferPtr->texIndex = textureIndex;
-		s_data.quadVertexBufferPtr->tilingFactor = tilingFactor;
-		s_data.quadVertexBufferPtr++;
 
-		s_data.quadVertexBufferPtr->color = color;
-		s_data.quadVertexBufferPtr->position = transform * s_data.quadVertexPositions[1];
-		s_data.quadVertexBufferPtr->texCoord = { 1.0f, 0.0f };
-		s_data.quadVertexBufferPtr->texIndex = textureIndex;
-		s_data.quadVertexBufferPtr->tilingFactor = tilingFactor;
-		s_data.quadVertexBufferPtr++;
+		for (size_t i = 0; i < quadVertexCount; i++) {
+			s_data.quadVertexBufferPtr->position = transform * s_data.quadVertexPositions[i];
+			s_data.quadVertexBufferPtr->color = color;
+			s_data.quadVertexBufferPtr->texCoord = textureCoords[i];
+			s_data.quadVertexBufferPtr->texIndex = textureIndex;
+			s_data.quadVertexBufferPtr->tilingFactor = tilingFactor;
+			s_data.quadVertexBufferPtr->entityID = entityID;
+			s_data.quadVertexBufferPtr++;
 
-		s_data.quadVertexBufferPtr->color = color;
-		s_data.quadVertexBufferPtr->position = transform * s_data.quadVertexPositions[2];
-		s_data.quadVertexBufferPtr->texCoord = { 1.0f, 1.0f };
-		s_data.quadVertexBufferPtr->texIndex = textureIndex;
-		s_data.quadVertexBufferPtr->tilingFactor = tilingFactor;
-		s_data.quadVertexBufferPtr++;
-
-		s_data.quadVertexBufferPtr->color = color;
-		s_data.quadVertexBufferPtr->position = transform * s_data.quadVertexPositions[3];
-		s_data.quadVertexBufferPtr->texCoord = { 0.0f, 1.0f };
-		s_data.quadVertexBufferPtr->texIndex = textureIndex;
-		s_data.quadVertexBufferPtr->tilingFactor = tilingFactor;
-		s_data.quadVertexBufferPtr++;
+		}
 
 		s_data.quadIndexCount += 6;
 		s_data.stats.quadCount++;

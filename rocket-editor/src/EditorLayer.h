@@ -22,6 +22,7 @@ namespace Rocket {
 		void resizeFramebuffer();
 	private:
 		bool onKeyPressed(KeyPressedEvent& event);
+		bool onMouseButtonPressed(MouseButtonPressedEvent& event);
 
 		void createNewScene();
 		void openScene();
@@ -40,9 +41,12 @@ namespace Rocket {
 
 		EditorCamera m_editorCamera;
 
+		Entity m_hoveredEntity;
+
 		Ref<Framebuffer> m_framebuffer;
 		FramebufferSpecification m_specification;
 		glm::vec2 m_viewportSize = { 0.0f, 0.0f };
+		glm::vec2 m_viewportBounds[2];
 		bool m_viewportFocused = false, m_viewportHovered = false;
 
 		int m_gizmosType = -1;

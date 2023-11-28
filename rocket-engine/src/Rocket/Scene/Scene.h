@@ -19,6 +19,9 @@ namespace Rocket {
 		Entity createEntity(const std::string& name = std::string());
 		void destroyEntity(Entity entity);
 
+		//TODO: debug purposes, remove
+		void debugAllAvailableEntities();
+
 		void onViewportResize(uint32_t width, uint32_t height);
 		void onUpdateRuntime(Timestep ts);
 		void onUpdateEditor(Timestep ts, EditorCamera& camera);

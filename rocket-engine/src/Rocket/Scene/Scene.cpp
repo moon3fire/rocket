@@ -34,6 +34,12 @@ namespace Rocket {
 		m_registry.destroy(entity);
 	}
 
+	void Scene::debugAllAvailableEntities() {
+		m_registry.each([](auto entity) {
+			RCKT_CORE_INFO("{0}", (int)entity);
+		});
+	}
+
 	void Scene::onViewportResize(uint32_t width, uint32_t height) {
 		m_viewportWidth = width;
 		m_viewportHeight = height;
@@ -91,7 +97,8 @@ namespace Rocket {
 
 			for (auto entity : group) {
 				auto [transform, sprite] = group.get<TransformComponent, SpriteRendererComponent>(entity);
-				Renderer2D::drawQuadWithViewMat(transform.getTransform(), sprite.color);
+				//Renderer2D::drawSprite(transform.getTransform(), sprite, (int)entity);
+				//Renderer2D::drawQuadWithViewMat(transform.getTransform(), sprite.color);
 				//Renderer2D::drawQuad2D({ 1.0f, 1.0f }, { 2.0f, 2.0f }, { 0.2f, 0.3f, 0.8f, 1.0f });
 			}
 
@@ -105,8 +112,8 @@ namespace Rocket {
 		auto group = m_registry.group<TransformComponent>(entt::get<SpriteRendererComponent>);
 		for (auto entity : group) {
 			auto [transform, sprite] = group.get<TransformComponent, SpriteRendererComponent>(entity);
-
-			Renderer2D::drawQuadWithViewMat(transform.getTransform(), sprite.color);
+			Renderer2D::drawSprite(transform.getTransform(), sprite, (int)entity);
+			//Renderer2D::drawQuadWithViewMat(transform.getTransform(), sprite.color);
 		}
 
 		Renderer2D::endScene();
