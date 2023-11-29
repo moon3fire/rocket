@@ -3,13 +3,31 @@ Scene: Untitled
 Entities:
   - Entity: 1231814128
     TagComponent:
-      Tag: leftwall
+      Tag: rightwall
     TransformComponent:
-      Position: [5.03000021, 4.10054016, -4.10524702]
-      Scale: [10.0941811, 8.23201656, 0.999863744]
-      Rotation: [0, 1.57079637, 3.14159274]
+      Position: [-5.03111649, 3.60926771, -4.58005953]
+      Scale: [9.90312004, 6.89963388, 0.999851048]
+      Rotation: [3.14159274, -1.57079637, 0]
     SpriteRendererComponent:
-      Color: [0.569132686, 0.393822432, 0.857142866, 1]
+      Color: [0.857142866, 0.277992278, 0.277992278, 1]
+  - Entity: 1231814128
+    TagComponent:
+      Tag: backwall
+    TransformComponent:
+      Position: [0.0665814281, 3.96509027, -9.49973965]
+      Scale: [10.3000002, 7.9000001, 1]
+      Rotation: [0, 0, 0]
+    SpriteRendererComponent:
+      Color: [0.652509689, 0.345149875, 0.345149875, 1]
+  - Entity: 1231814128
+    TagComponent:
+      Tag: ground
+    TransformComponent:
+      Position: [0, 0.206772447, -4.53383923]
+      Scale: [10, 9.99471283, 0.99966681]
+      Rotation: [-1.57079637, 0, -0.00349065848]
+    SpriteRendererComponent:
+      Color: [0.712753296, 0.799227834, 0.681966603, 1]
   - Entity: 1231814128
     TagComponent:
       Tag: Camera
@@ -30,28 +48,10 @@ Entities:
       FixedAspectRatio: false
   - Entity: 1231814128
     TagComponent:
-      Tag: ground
+      Tag: leftwall
     TransformComponent:
-      Position: [0, 0.206772447, -4.53383923]
-      Scale: [10, 9.99471283, 0.99966681]
-      Rotation: [-1.57079637, 0, -0.00349065848]
+      Position: [5.11741686, 4.10054016, -4.4671278]
+      Scale: [10.0925837, 8.2320137, 0.999763906]
+      Rotation: [3.14159274, 1.57079637, 0]
     SpriteRendererComponent:
-      Color: [0.712753296, 0.799227834, 0.681966603, 1]
-  - Entity: 1231814128
-    TagComponent:
-      Tag: backwall
-    TransformComponent:
-      Position: [0.0665814281, 3.96509027, -9.49973965]
-      Scale: [10.3000002, 7.9000001, 1]
-      Rotation: [0, 0, 0]
-    SpriteRendererComponent:
-      Color: [0.652509689, 0.345149875, 0.345149875, 1]
-  - Entity: 1231814128
-    TagComponent:
-      Tag: rightwall
-    TransformComponent:
-      Position: [-5.0299263, 3.38882875, -4.57986593]
-      Scale: [9.90369797, 6.89978743, 0.999887228]
-      Rotation: [1.06310597e-06, -1.56729221, -3.10843492]
-    SpriteRendererComponent:
-      Color: [0.857142866, 0.277992278, 0.277992278, 1]
+      Color: [0.569132686, 0.393822432, 0.857142866, 1]
