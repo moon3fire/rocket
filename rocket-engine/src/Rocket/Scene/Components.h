@@ -47,6 +47,20 @@ namespace Rocket {
 		SpriteRendererComponent(const glm::vec4& color_) :color(color_) {}
 	};
 
+	struct DirectionalLightComponent {
+		// NOTE: order matters
+		glm::vec3 direction;
+		glm::vec3 ambient;
+		glm::vec3 diffuse;
+		glm::vec3 specular;
+		float ambientStrenght = 0.0f;
+
+		DirectionalLightComponent() = default;
+		DirectionalLightComponent(const DirectionalLightComponent& other) :direction(other.direction), ambient(other.ambient), diffuse(other.diffuse), specular(other.specular), ambientStrenght(other.ambientStrenght) {}
+		DirectionalLightComponent(const glm::vec3& direction_ = { 0.0f, 0.0f, 0.0f }, const glm::vec3& ambient_ = { 0.0f, 0.0f, 0.0f }, const glm::vec3& diffuse_ = { 0.0f, 0.0f, 0.0f }, const glm::vec3& specular_ = { 0.0f, 0.0f, 0.0f })
+			: direction(direction_), ambient(ambient_), diffuse(diffuse_), specular(specular_), ambientStrenght(0.2f) {}
+	};
+
 	struct CameraComponent {
 		SceneCamera camera;
 		bool primary = true; // TODO: move into scene

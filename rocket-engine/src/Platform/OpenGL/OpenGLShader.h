@@ -20,13 +20,16 @@ namespace Rocket {
 		virtual void setFloat2(const std::string& name, const glm::vec2& value) override;
 		virtual void setFloat3(const std::string& name, const glm::vec3& value) override;
 		virtual void setFloat4(const std::string& name, const glm::vec4& value) override;
+		virtual void setFloatArray(const std::string& name, float* values, uint32_t count) override;
 		virtual void setMat4(const std::string& name, const glm::mat4& value) override;
 		virtual void setInt(const std::string& name, int value) override;
 		virtual void setIntArray(const std::string& name, int* values, uint32_t count) override;
 		virtual void setBool(const std::string& name, bool value) override;
+		virtual void setDirectionalLights(const std::vector<DirectionalLightComponent>& dirLightComponents) override;
 
 		virtual const std::string& getName() const override { return m_name; }
 
+		void uploadUniformDirectionLight(const std::vector<DirectionalLightComponent>& dirLightComponents);
 		void uploadUniformBool(const std::string& name, bool value);
 
 		void uploadUniformInt(const std::string& name, int value);
@@ -35,6 +38,7 @@ namespace Rocket {
 		void uploadUniformFloat2(const std::string& name, const glm::vec2& value);
 		void uploadUniformFloat3(const std::string& name, const glm::vec3& value);
 		void uploadUniformFloat4(const std::string& name, const glm::vec4& value);
+		void uploadUniformFloatArray(const std::string& name, float* values, uint32_t count);
 
 		void uploadUniformMat3(const std::string& name, const glm::mat3& matrix);
 		void uploadUniformMat4(const std::string& name, const glm::mat4& matrix);

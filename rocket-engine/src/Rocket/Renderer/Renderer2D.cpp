@@ -74,6 +74,9 @@ namespace Rocket {
 		s_data.quadShader->setFloat3("u_viewPosition", position);
 	}
 
+	void Renderer2D::applyDirectionalLights(const std::vector<DirectionalLightComponent>& dirLights) {
+		s_data.quadShader->setDirectionalLights(dirLights);
+	}
 
 	//temp ends here
 
@@ -183,9 +186,12 @@ namespace Rocket {
 
 		s_data.quadShader->bind();
 		s_data.quadShader->setMat4("u_viewProjection", viewProj);
+
+		//for specular lighting
+		s_data.quadShader->setFloat3("u_viewPosition", camera.getPosition());
 		
 		//for specular lighting, most likely it will stay here somehow in some way
-		uploadSpecularViewerPosition(camera.getPosition());
+		//uploadSpecularViewerPosition(camera.getPosition());
 		// diffuse temp, for this is responsible scene class for now
 		//uploadDiffuseLight();
 		//

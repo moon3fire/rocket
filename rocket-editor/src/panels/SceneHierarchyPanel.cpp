@@ -38,6 +38,10 @@ namespace Rocket {
 					m_context->createEntity("Empty");
 				}
 
+				if (ImGui::MenuItem("Create Directional Light")) {
+					m_context->createDirectionalLight();
+				}
+
 				ImGui::EndPopup();
 			}
 
@@ -237,7 +241,18 @@ namespace Rocket {
 
 		drawComponent<SpriteRendererComponent>("Sprite Renderer", entity, [](auto& component) {
 			ImGui::ColorEdit4("Color", glm::value_ptr(component.color));
-			});
+		});
+
+		drawComponent<DirectionalLightComponent>("Directional Light", entity, [](auto& component) {
+			float strenght = component.ambientStrenght;
+			ImGui::DragFloat("Ambient Strenght", &strenght, 0.01f, 0.0f, 1.0f, "%.1f");
+			ImGui::DragFloat3("Direction", glm::value_ptr(component.direction), 0.01f, -1.0f, 1.0f, "%.1f");
+			ImGui::DragFloat3("Ambient Color", glm::value_ptr(component.ambient), 0.01f, -1.0f, 1.0f, "%.1f");
+			ImGui::DragFloat3("Diffuse", glm::value_ptr( component.diffuse), 0.01f, -1.0f, 1.0f, "%.1f");
+			ImGui::DragFloat3("Specular", glm::value_ptr(component.specular), 0.01f, -1.0f, 1.0f, "%.1f");
+
+			component.ambientStrenght = strenght;
+		});
 
 		drawComponent<CameraComponent>("Camera Component", entity, [](auto& component) {
 

@@ -22,6 +22,7 @@ namespace Rocket {
 		// temp
 		static void setEntityID(uint32_t id);
 		static void uploadDiffuseLight(const glm::vec3& color = glm::vec3(1.0f), const glm::vec3& pos = glm::vec3(0.0f));
+		static void applyDirectionalLights(const std::vector<DirectionalLightComponent>& dirLights);
 		//static void uploadModelMatrix(const glm::mat4& modelMat);
 		static void uploadSpecularViewerPosition(const glm::vec3& position); // this one will most likely stay
 		//

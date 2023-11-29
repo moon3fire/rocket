@@ -199,6 +199,10 @@ namespace Rocket {
 		uploadUniformFloat4(name, value);
 	}
 
+	void OpenGLShader::setFloatArray(const std::string& name, float* values, uint32_t count) {
+		uploadUniformFloatArray(name, values, count);
+	}
+
 	void OpenGLShader::setMat4(const std::string& name, const glm::mat4& value) {
 		uploadUniformMat4(name, value);
 	}
@@ -208,11 +212,66 @@ namespace Rocket {
 	}
 
 	void OpenGLShader::setIntArray(const std::string& name, int* values, uint32_t count) {
-
+		// TODO: Implement, need to fix maybe
+		uploadUniformIntArray(name, values, count);
 	}
 
 	void OpenGLShader::setBool(const std::string& name, bool value) {
 		uploadUniformBool(name, value);
+	}
+
+	void OpenGLShader::setDirectionalLights(const std::vector<DirectionalLightComponent>& dirLightComponents) {
+		uploadUniformDirectionLight(dirLightComponents);
+	}
+
+	void OpenGLShader::uploadUniformDirectionLight(const std::vector<DirectionalLightComponent>& dirLightComponents) {
+		
+		int lightsCount = dirLightComponents.size();
+		
+		if (lightsCount == 0)
+			return;
+
+		// setting active lights count
+		uploadUniformInt("u_directionalLightCount", lightsCount);
+
+		// setting strenghts float array to quad shader
+		float strengths[SCENE_MAX_DIRECTIONAL_LIGHTS_COUNT];
+		for (int i = 0; i < lightsCount; i++) {
+			strengths[i] = dirLightComponents[i].ambientStrenght;
+		}
+		uploadUniformFloatArray("u_ambientStrenghts", strengths, lightsCount);
+		
+		// setting directional lights uniforms		
+		//GLint lightsLocation1 = getUniformLocation("lights[10].ambient");// examples
+		//if (lightsLocation1 != -1)
+		//	RCKT_CORE_INFO("FOUND");
+		//GLint lightsLocation2 = getUniformLocation("lights[1].ambient");
+
+		
+		glm::vec3 directions[SCENE_MAX_DIRECTIONAL_LIGHTS_COUNT];
+		glm::vec3 ambients[SCENE_MAX_DIRECTIONAL_LIGHTS_COUNT];
+		glm::vec3 diffuses[SCENE_MAX_DIRECTIONAL_LIGHTS_COUNT];
+		glm::vec3 speculars[SCENE_MAX_DIRECTIONAL_LIGHTS_COUNT];
+
+		for (int i = 0; i < lightsCount; i++) {
+			directions[i] = dirLightComponents[i].direction;
+			ambients[i] = dirLightComponents[i].ambient;
+			diffuses[i] = dirLightComponents[i].diffuse;
+			speculars[i] = dirLightComponents[i].specular;
+		}
+
+		for (int i = 0; i < lightsCount; i++) {
+			GLint directionLocation = getUniformLocation("lights[" + std::to_string(i) + "].direction");
+			GLint ambientLocation = getUniformLocation("lights[" + std::to_string(i) + "].ambient");
+			GLint diffuseLocation = getUniformLocation("lights[" + std::to_string(i) + "].diffuse");
+			GLint specularLocation = getUniformLocation("lights[" + std::to_string(i) + "].specular");
+
+			glUniform3fv(directionLocation, 1, glm::value_ptr(directions[i]));
+			glUniform3fv(ambientLocation, 1, glm::value_ptr(ambients[i]));
+			glUniform3fv(diffuseLocation, 1, glm::value_ptr(diffuses[i]));
+			glUniform3fv(specularLocation, 1, glm::value_ptr(speculars[i]));
+		}
+
 	}
 
 	void OpenGLShader::uploadUniformBool(const std::string& name, bool value) {
@@ -248,6 +307,11 @@ namespace Rocket {
 	void OpenGLShader::uploadUniformFloat4(const std::string& name, const glm::vec4& value) {
 		GLint location = getUniformLocation(name);
 		glUniform4f(location, value.x, value.y, value.z, value.w);
+	}
+
+	void OpenGLShader::uploadUniformFloatArray(const std::string& name, float* values, uint32_t count) {
+		GLint location = getUniformLocation(name);
+		glUniform1fv(location, count, values);
 	}
 
 	void OpenGLShader::uploadUniformMat3(const std::string& name, const glm::mat3& matrix) {

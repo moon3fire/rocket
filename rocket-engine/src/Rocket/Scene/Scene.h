@@ -1,5 +1,7 @@
 #pragma once
 
+#define SCENE_MAX_DIRECTIONAL_LIGHTS_COUNT 10
+
 #include "Rocket/Renderer/EditorCamera.h"
 #include "Rocket/Core/Timestep.h"
 
@@ -17,6 +19,7 @@ namespace Rocket {
 		~Scene();
 
 		Entity createEntity(const std::string& name = std::string());
+		Entity createDirectionalLight();
 		void destroyEntity(Entity entity);
 
 		//TODO: debug purposes, remove
@@ -24,7 +27,7 @@ namespace Rocket {
 
 		void onViewportResize(uint32_t width, uint32_t height);
 		void onUpdateRuntime(Timestep ts);
-		void onUpdateEditor(Timestep ts, EditorCamera& camera, const glm::vec3& diffusePos = glm::vec3(0.0f), const glm::vec3& diffuseColor = glm::vec3(1.0f));
+		void onUpdateEditor(Timestep ts, EditorCamera& camera);
 
 		Entity getPrimaryCameraEntity();
 	private:
@@ -37,7 +40,9 @@ namespace Rocket {
 		entt::registry m_registry;
 
 		uint32_t m_viewportWidth = 0, m_viewportHeight = 0;
-		uint32_t m_entityCount = 0;
+		
+		int m_entityCount = 0;
+		int m_directionalLightCount = 0, m_pointLightCount = 0;
 
 		friend class Entity;
 		friend class SceneSerializer;

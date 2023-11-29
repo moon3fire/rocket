@@ -9,6 +9,7 @@
 #include "ImGuizmo/ImGuizmo.h"
 
 #include "Rocket/Math/Math.h"
+#include <glm/gtx/matrix_decompose.hpp>
 
 namespace Rocket {
 
@@ -87,7 +88,7 @@ namespace Rocket {
 		{
 			RCKT_PROFILE_SCOPE("Scene render");
 			//updating scene
-			m_activeScene->onUpdateEditor(ts, m_editorCamera, m_diffusePos, m_diffuseColor);
+			m_activeScene->onUpdateEditor(ts, m_editorCamera);
 
 			auto [mx, my] = ImGui::GetMousePos();
 			mx -= m_viewportBounds[0].x;
@@ -180,8 +181,8 @@ namespace Rocket {
 		{
 			ImGui::Begin("Settings");
 
-			ImGui::DragFloat3("Diffuse light position", glm::value_ptr(m_diffusePos), 1.0f, 0, 0, "%.2f");
-			ImGui::ColorEdit3("Diffuse light color", glm::value_ptr(m_diffuseColor));
+			//ImGui::DragFloat3("Diffuse light position", glm::value_ptr(m_diffusePos), 1.0f, 0, 0, "%.2f");
+			//ImGui::ColorEdit3("Diffuse light color", glm::value_ptr(m_diffuseColor));
 
 			std::string name = "None";
 			if (m_hoveredEntity) {
@@ -231,7 +232,7 @@ namespace Rocket {
 				ImGuizmo::SetOrthographic(false);
 				ImGuizmo::SetDrawlist();
 				ImGuizmo::SetRect(m_viewportBounds[0].x, m_viewportBounds[0].y, m_viewportBounds[1].x - m_viewportBounds[0].x, m_viewportBounds[1].y - m_viewportBounds[0].y);
-			
+					//?
 				/* Runtime Camera */
 
 				//auto cameraEntity = m_activeScene->getPrimaryCameraEntity();
@@ -259,8 +260,9 @@ namespace Rocket {
 									 ImGuizmo::LOCAL, glm::value_ptr(transform), nullptr, snap ? snapValues : nullptr);
 
 				if (ImGuizmo::IsUsing()) {
-					glm::vec3 position, scale, rotation;
-					Math::DecomposeTransform(transform, position, scale, rotation);
+					glm::vec3 position = { 0.0f, 0.0f, 0.0f }, scale = { 0.0f, 0.0f, 0.0f }, rotation = { 0.0f, 0.0f, 0.0f };
+					
+					Math::DecomposeTransform(transform, position, scale, rotation); // rotation x-z isn't correct
 
 					glm::vec3 deltaRotation = rotation - transformComponent.rotation;
 					transformComponent.position = position;

@@ -17,8 +17,7 @@ namespace Rocket {
 
 	Scene::~Scene() {}
 
-	Entity Scene::createEntity(const std::string& name)
-	{
+	Entity Scene::createEntity(const std::string& name) {
 		Entity entity = { m_registry.create(), this }; 
 
 		entity.addComponent<TransformComponent>();
@@ -27,6 +26,21 @@ namespace Rocket {
 		entityTag.tag = name.empty() ? "Unnamed" : name;
 		m_entityCount++;
 		RCKT_CORE_WARN("Entity count {0}", m_entityCount);
+		return entity;
+	}
+
+	Entity Scene::createDirectionalLight() {
+		Entity entity = { m_registry.create(), this };
+
+		entity.addComponent<TransformComponent>();
+		entity.addComponent<TagComponent>("Directional Light " + std::to_string(m_directionalLightCount));
+		entity.addComponent<DirectionalLightComponent>(glm::vec3(0.0f), glm::vec3(1.0f), glm::vec3(1.0f), glm::vec3(1.0f));
+		
+		m_entityCount++;
+		m_directionalLightCount++;
+
+		RCKT_CORE_WARN("Entity count {0}", m_entityCount);
+		RCKT_CORE_WARN("Directional light count: {0}", m_directionalLightCount);
 		return entity;
 	}
 
@@ -106,15 +120,26 @@ namespace Rocket {
 		}
 	}
 
-	void Scene::onUpdateEditor(Timestep ts, EditorCamera& camera, const glm::vec3& diffusePos, const glm::vec3& diffuseColor) {
+	void Scene::onUpdateEditor(Timestep ts, EditorCamera& camera) {
 		Renderer2D::beginScene(camera);
 
-		Renderer2D::uploadDiffuseLight(diffuseColor, diffusePos);
+		//Renderer2D::uploadDiffuseLight(diffuseColor, diffusePos);
+		
+		auto groupLights = m_registry.group<DirectionalLightComponent>(entt::get<TransformComponent>);
+		std::vector<DirectionalLightComponent> directionalLights;
+		for (auto light : groupLights) {
+			directionalLights.push_back(groupLights.get<DirectionalLightComponent>(light));
+		}
+		Renderer2D::applyDirectionalLights(directionalLights);
+		
+		// Note: View is read only, group is rw
+		auto view = m_registry.view<TransformComponent, SpriteRendererComponent>(entt::exclude<DirectionalLightComponent>);
 
-		auto group = m_registry.group<TransformComponent>(entt::get<SpriteRendererComponent>);
-		for (auto entity : group) {
-			auto [transform, sprite] = group.get<TransformComponent, SpriteRendererComponent>(entity);
+		for (auto entity : view) {
+			
+			auto [sprite, transform] = view.get<SpriteRendererComponent, TransformComponent>(entity);
 			Renderer2D::drawSprite(transform.getTransform(), sprite, (int)entity);
+			
 			//Renderer2D::uploadModelMatrix(transform.getTransform()); very temporary
 			//Renderer2D::drawQuadWithViewMat(transform.getTransform(), sprite.color);
 		}
@@ -155,6 +180,9 @@ namespace Rocket {
 	template<>
 	void Scene::onComponentAdded<TagComponent>(Entity entity, TagComponent& component) {}
 	
+	template<>
+	void Scene::onComponentAdded<DirectionalLightComponent>(Entity entity, DirectionalLightComponent& component) {}
+
 	template<>
 	void Scene::onComponentAdded<NativeScriptComponent>(Entity entity, NativeScriptComponent& component) {}
 
