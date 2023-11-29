@@ -4,17 +4,21 @@
 layout (location = 0) in vec3 a_position;
 layout (location = 1) in vec2 a_textureCoord;
 layout (location = 2) in vec4 a_color;
-layout (location = 3) in float a_texIndex;
-layout (location = 4) in float a_tilingFactor;
-layout (location = 5) in int a_entityID;
+layout (location = 3) in vec3 a_normal;
+layout (location = 4) in float a_texIndex;
+layout (location = 5) in float a_tilingFactor;
+layout (location = 6) in int a_entityID;
 
 uniform mat4 u_viewProjection;
-	
+
 out vec4 v_color;
 out vec2 v_textureCoord;
 out flat float v_texIndex;
 out float v_tilingFactor;
 out flat int v_entityID;
+
+out vec3 v_normal;
+out vec3 v_fragPos;
 
 void main()
 {
@@ -23,6 +27,10 @@ void main()
 	v_textureCoord = a_textureCoord;
 	v_texIndex = a_texIndex;
 	v_tilingFactor = a_tilingFactor;
+
+	v_normal = a_normal;
+	v_fragPos = a_position;
+
 	gl_Position = u_viewProjection * vec4(a_position, 1.0);		
 }
 
@@ -38,7 +46,15 @@ in flat float v_texIndex;
 in float v_tilingFactor;
 in flat int v_entityID;
 
+in vec3 v_fragPos;
+in vec3 v_normal;
+
 uniform sampler2D u_textures[32];
+
+//temp
+uniform vec3 u_viewPosition;
+uniform vec3 u_diffusePosition;
+uniform vec3 u_diffuseColor; 
 
 void main()
 {
@@ -78,6 +94,25 @@ void main()
 		case 31: textureColor *= texture(u_textures[31], v_textureCoord * v_tilingFactor); break;
 	}
 
-	color = textureColor;
+	float ambientStrenght = 0.2f;
+	vec3 ambient = vec3(ambientStrenght * vec4(1.0, 1.0, 1.0, 1.0));
+
+	vec3 norm = normalize(v_normal);
+
+	vec3 lightDir = normalize(u_diffusePosition - v_fragPos);
+	float diff = max(dot(norm, lightDir), 0.0);
+	vec3 diffuse = diff * u_diffuseColor;
+
+	float specularStrenght = 0.5;
+	vec3 viewDirection = normalize(u_viewPosition - v_fragPos);
+	vec3 reflectDirection = reflect(-lightDir, norm);
+	// 32 is the shininess
+	float spec = pow(max(dot(viewDirection, reflectDirection), 0.0), 256);
+	vec3 specular = specularStrenght * spec * u_diffuseColor;
+
+
+	vec3 result = (ambient + diffuse + specular) * textureColor.xyz;
+	
+	color = vec4(result, 1.0);
 	entityID = v_entityID; // placeholder for entity ID
 }

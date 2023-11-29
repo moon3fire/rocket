@@ -68,7 +68,7 @@ namespace Rocket {
 
 		//update
 		if (m_viewportFocused) {
-			m_cameraController.onUpdate(ts);
+			//m_cameraController.onUpdate(ts);
 			m_editorCamera.onUpdate(ts);
 		}
 		//render
@@ -87,7 +87,7 @@ namespace Rocket {
 		{
 			RCKT_PROFILE_SCOPE("Scene render");
 			//updating scene
-			m_activeScene->onUpdateEditor(ts, m_editorCamera);
+			m_activeScene->onUpdateEditor(ts, m_editorCamera, m_diffusePos, m_diffuseColor);
 
 			auto [mx, my] = ImGui::GetMousePos();
 			mx -= m_viewportBounds[0].x;
@@ -179,6 +179,10 @@ namespace Rocket {
 		// Settings panel (stats)
 		{
 			ImGui::Begin("Settings");
+
+			ImGui::DragFloat3("Diffuse light position", glm::value_ptr(m_diffusePos), 1.0f, 0, 0, "%.2f");
+			ImGui::ColorEdit3("Diffuse light color", glm::value_ptr(m_diffuseColor));
+
 			std::string name = "None";
 			if (m_hoveredEntity) {
 				name = m_hoveredEntity.getComponent<TagComponent>().tag;

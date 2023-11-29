@@ -12,6 +12,7 @@ namespace Rocket {
 		glm::vec3 position = { 0.0f, 0.0f, 0.0f };
 		glm::vec2 texCoord = { 0.0f, 0.0f };
 		glm::vec4 color = { 0.0f, 0.0f, 0.0f, 0.0f };
+		glm::vec3 normal = { 0.0f, 0.0f, 0.0f };
 		float texIndex;
 		float tilingFactor;
 
@@ -33,6 +34,11 @@ namespace Rocket {
 		glm::vec2 defaultTextureScale;
 		glm::mat4 quadTransform;
 
+		//temp diffuse light test, UPD given to scene
+		//glm::vec3 diffuseLightPosition = { 0.0f, 0.0f, 0.0f };
+		//glm::vec3 diffuseLightColor = { 1.0f, 1.0f, 1.0f };
+		//temp ends
+
 		uint32_t quadIndexCount = 0;
 		QuadVertex* quadVertexBufferBase = nullptr;
 		QuadVertex* quadVertexBufferPtr = nullptr; // TODO: Make an array of this to support multiple textures at once
@@ -47,9 +53,29 @@ namespace Rocket {
 
 	static Renderer2DStorage s_data;
 
+	//TODO: remove this one, temporary stuff
 	void Renderer2D::setEntityID(uint32_t id) {
 		s_data.quadShader->setInt("currentEntityID", id);
 	}
+
+	void Renderer2D::uploadDiffuseLight(const glm::vec3& color, const glm::vec3& pos) {
+		//s_data.diffuseLightColor = color;
+		//s_data.diffuseLightPosition = pos;
+
+		s_data.quadShader->setFloat3("u_diffusePosition", pos);
+		s_data.quadShader->setFloat3("u_diffuseColor", color);
+	}
+	/*
+	void Renderer2D::uploadModelMatrix(const glm::mat4& modelMat) {
+		//s_data.quadShader->setMat4("u_model", modelMat);
+	}
+	*/
+	void Renderer2D::uploadSpecularViewerPosition(const glm::vec3& position) {
+		s_data.quadShader->setFloat3("u_viewPosition", position);
+	}
+
+
+	//temp ends here
 
 
 	void Renderer2D::init() {
@@ -62,9 +88,10 @@ namespace Rocket {
 				{ ShaderDataType::Float3, "a_position"     },
 				{ ShaderDataType::Float2, "a_textureCoord" },
 				{ ShaderDataType::Float4, "a_color"        },
+				{ ShaderDataType::Float3, "a_normal"       },
 				{ ShaderDataType::Float,  "a_texIndex"     },
 				{ ShaderDataType::Float,  "a_tilingFactor" },
-				{ ShaderDataType::Int,    "a_entityID"     }
+				{ ShaderDataType::Int,    "a_entityID"     }, // color attachment 2
 			});
 		s_data.quadVA->addVertexBuffer(s_data.quadVertexBuffer);
 		
@@ -156,6 +183,12 @@ namespace Rocket {
 
 		s_data.quadShader->bind();
 		s_data.quadShader->setMat4("u_viewProjection", viewProj);
+		
+		//for specular lighting, most likely it will stay here somehow in some way
+		uploadSpecularViewerPosition(camera.getPosition());
+		// diffuse temp, for this is responsible scene class for now
+		//uploadDiffuseLight();
+		//
 
 		s_data.quadIndexCount = 0;
 		s_data.quadVertexBufferPtr = s_data.quadVertexBufferBase;
@@ -401,10 +434,15 @@ namespace Rocket {
 		const float textureIndex = -1.0f; // no texture for simple quads
 		const float tilingFactor = 1.0f;
 
+		glm::vec3 edge1 = transform * (s_data.quadVertexPositions[2] - s_data.quadVertexPositions[1]);
+		glm::vec3 edge2 = transform * (s_data.quadVertexPositions[0] - s_data.quadVertexPositions[1]);
+
+		glm::vec3 normal = glm::cross(edge1, edge2);
 
 		for (size_t i = 0; i < quadVertexCount; i++) {
 			s_data.quadVertexBufferPtr->position = transform * s_data.quadVertexPositions[i];
 			s_data.quadVertexBufferPtr->color = color;
+			s_data.quadVertexBufferPtr->normal = normal;
 			s_data.quadVertexBufferPtr->texCoord = textureCoords[i];
 			s_data.quadVertexBufferPtr->texIndex = textureIndex;
 			s_data.quadVertexBufferPtr->tilingFactor = tilingFactor;

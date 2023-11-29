@@ -106,13 +106,16 @@ namespace Rocket {
 		}
 	}
 
-	void Scene::onUpdateEditor(Timestep ts, EditorCamera& camera) {
+	void Scene::onUpdateEditor(Timestep ts, EditorCamera& camera, const glm::vec3& diffusePos, const glm::vec3& diffuseColor) {
 		Renderer2D::beginScene(camera);
+
+		Renderer2D::uploadDiffuseLight(diffuseColor, diffusePos);
 
 		auto group = m_registry.group<TransformComponent>(entt::get<SpriteRendererComponent>);
 		for (auto entity : group) {
 			auto [transform, sprite] = group.get<TransformComponent, SpriteRendererComponent>(entity);
 			Renderer2D::drawSprite(transform.getTransform(), sprite, (int)entity);
+			//Renderer2D::uploadModelMatrix(transform.getTransform()); very temporary
 			//Renderer2D::drawQuadWithViewMat(transform.getTransform(), sprite.color);
 		}
 

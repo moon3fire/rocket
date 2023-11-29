@@ -43,6 +43,11 @@ namespace Rocket {
 
 		Entity m_hoveredEntity;
 
+		//temp, diffuse lighting test
+		glm::vec3 m_diffuseColor = { 1.0f, 1.0f, 1.0f };
+		glm::vec3 m_diffusePos = { 0.0f, 0.0f, 0.0f };
+		//
+
 		Ref<Framebuffer> m_framebuffer;
 		FramebufferSpecification m_specification;
 		glm::vec2 m_viewportSize = { 0.0f, 0.0f };

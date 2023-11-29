@@ -24,7 +24,7 @@ namespace Rocket {
 
 		void onViewportResize(uint32_t width, uint32_t height);
 		void onUpdateRuntime(Timestep ts);
-		void onUpdateEditor(Timestep ts, EditorCamera& camera);
+		void onUpdateEditor(Timestep ts, EditorCamera& camera, const glm::vec3& diffusePos = glm::vec3(0.0f), const glm::vec3& diffuseColor = glm::vec3(1.0f));
 
 		Entity getPrimaryCameraEntity();
 	private:

@@ -61,7 +61,7 @@ namespace Rocket {
 			switch (element.type) {
 				case ShaderDataType::Float:
 				case ShaderDataType::Float2:
-				case ShaderDataType::Float3:
+				case ShaderDataType::Float3: 
 				case ShaderDataType::Float4: {
 					glEnableVertexAttribArray(m_vertexBufferIndex);
 					glVertexAttribPointer(m_vertexBufferIndex,
