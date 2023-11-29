@@ -28,7 +28,7 @@ void main()
 	v_texIndex = a_texIndex;
 	v_tilingFactor = a_tilingFactor;
 
-	v_normal = a_normal;
+	v_normal = normalize(a_normal);
 	v_fragPos = a_position;
 
 	gl_Position = u_viewProjection * vec4(a_position, 1.0);		
@@ -53,14 +53,12 @@ in vec3 v_normal;
 
 
 struct DirectionalLight {
-	//float ambientStrenght; TODO: make uniform from this
 	vec3 direction;
 	vec3 ambient;
 	vec3 diffuse;
 	vec3 specular;
-}; //directionalLightsUBO;
+};
 
-//uniform DirectionalLight u_directionalLightsData;
 uniform int u_directionalLightCount;
 uniform float u_ambientStrenghts[MAX_DIRECTIONAL_LIGHTS];
 uniform DirectionalLight lights[MAX_DIRECTIONAL_LIGHTS];
@@ -108,15 +106,11 @@ void main()
 		case 31: textureColor *= texture(u_textures[31], v_textureCoord * v_tilingFactor); break;
 	}
 
-//	vec3 result = textureColor.xyz;
-
-
-	float specularStrenght = 0.5; // TODO: move all hard code variables to uniforms/UBOs/SSBOs
-	vec3 normal = normalize(v_normal);
+	float specularStrenght = 0.6; // TODO: move all hard code variables to uniforms/UBOs/SSBOs UPD maybe not ;)
 	vec3 result = vec3(0.0, 0.0, 0.0);
 	for (int i = 0; i < u_directionalLightCount; i++) {
 		vec3 viewDirection = normalize(u_viewPosition - v_fragPos);
-		result += CalculateDirectionalLight(lights[i], normal, viewDirection, u_ambientStrenghts[i], 1.5);
+		result += CalculateDirectionalLight(lights[i], v_normal, viewDirection, u_ambientStrenghts[i], specularStrenght);
 	}
 
 	result = result * textureColor.xyz;

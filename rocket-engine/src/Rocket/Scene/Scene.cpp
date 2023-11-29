@@ -45,6 +45,8 @@ namespace Rocket {
 	}
 
 	void Scene::destroyEntity(Entity entity) {
+		if (entity.hasComponent<DirectionalLightComponent>())
+			m_directionalLightCount--;
 		m_registry.destroy(entity);
 	}
 

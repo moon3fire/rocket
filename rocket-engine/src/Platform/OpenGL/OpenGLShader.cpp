@@ -228,11 +228,29 @@ namespace Rocket {
 		
 		int lightsCount = dirLightComponents.size();
 		
-		if (lightsCount == 0)
-			return;
-
+		RCKT_CORE_ASSERT(lightsCount <= 10, "Currently supported directional lights count in the scene is <= 10");
+		
 		// setting active lights count
 		uploadUniformInt("u_directionalLightCount", lightsCount);
+		
+		if (lightsCount == 0) {
+			float value = 0.0f;
+			uploadUniformFloatArray("u_ambientStrenghts", &value, SCENE_MAX_DIRECTIONAL_LIGHTS_COUNT);
+
+			for (int i = 0; i < SCENE_MAX_DIRECTIONAL_LIGHTS_COUNT; i++) {
+				GLint directionLocation = getUniformLocation("lights[" + std::to_string(i) + "].direction");
+				GLint ambientLocation = getUniformLocation("lights[" + std::to_string(i) + "].ambient");
+				GLint diffuseLocation = getUniformLocation("lights[" + std::to_string(i) + "].diffuse");
+				GLint specularLocation = getUniformLocation("lights[" + std::to_string(i) + "].specular");
+
+				glUniform3fv(directionLocation, 1, 0);
+				glUniform3fv(ambientLocation, 1, 0);
+				glUniform3fv(diffuseLocation, 1, 0);
+				glUniform3fv(specularLocation, 1, 0);
+				return;
+			}
+		}
+
 
 		// setting strenghts float array to quad shader
 		float strengths[SCENE_MAX_DIRECTIONAL_LIGHTS_COUNT];

@@ -78,7 +78,7 @@ namespace Rocket {
 		{
 			RCKT_PROFILE_SCOPE("Clear color set:");
 			m_framebuffer->bind();
-			RenderCommand::setClearColor({ 0.2f, 0.2f, 0.2f, 1.0f });
+			RenderCommand::setClearColor({ 0.15f, 0.13f, 0.15f, 1.0f });
 			RenderCommand::clear();
 
 			// clear entity ID attachment to -1's
