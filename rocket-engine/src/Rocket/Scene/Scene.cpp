@@ -34,7 +34,7 @@ namespace Rocket {
 
 		entity.addComponent<TransformComponent>();
 		entity.addComponent<TagComponent>("Directional Light " + std::to_string(m_directionalLightCount));
-		entity.addComponent<DirectionalLightComponent>(glm::vec3(0.0f), glm::vec3(1.0f), glm::vec3(1.0f), glm::vec3(1.0f));
+		entity.addComponent<DirectionalLightComponent>();
 		
 		m_entityCount++;
 		m_directionalLightCount++;
@@ -50,6 +50,7 @@ namespace Rocket {
 		m_registry.destroy(entity);
 	}
 
+	//for debugging purposes
 	void Scene::debugAllAvailableEntities() {
 		m_registry.each([](auto entity) {
 			RCKT_CORE_INFO("{0}", (int)entity);
@@ -126,14 +127,15 @@ namespace Rocket {
 		Renderer2D::beginScene(camera);
 
 		//Renderer2D::uploadDiffuseLight(diffuseColor, diffusePos);
-		
+
 		auto groupLights = m_registry.group<DirectionalLightComponent>(entt::get<TransformComponent>);
 		std::vector<DirectionalLightComponent> directionalLights;
 		for (auto light : groupLights) {
 			directionalLights.push_back(groupLights.get<DirectionalLightComponent>(light));
 		}
-		Renderer2D::applyDirectionalLights(directionalLights);
-		
+
+		Renderer2D::applyDirectionalLights(directionalLights, camera.getPosition());
+
 		// Note: View is read only, group is rw
 		auto view = m_registry.view<TransformComponent, SpriteRendererComponent>(entt::exclude<DirectionalLightComponent>);
 
@@ -183,7 +185,7 @@ namespace Rocket {
 	void Scene::onComponentAdded<TagComponent>(Entity entity, TagComponent& component) {}
 	
 	template<>
-	void Scene::onComponentAdded<DirectionalLightComponent>(Entity entity, DirectionalLightComponent& component) {}
+	void Scene::onComponentAdded<DirectionalLightComponent>(Entity entity, DirectionalLightComponent& component) { m_directionalLightCount++; }
 
 	template<>
 	void Scene::onComponentAdded<NativeScriptComponent>(Entity entity, NativeScriptComponent& component) {}

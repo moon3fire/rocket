@@ -49,16 +49,16 @@ namespace Rocket {
 
 	struct DirectionalLightComponent {
 		// NOTE: order matters
-		glm::vec3 direction;
-		glm::vec3 ambient;
-		glm::vec3 diffuse;
-		glm::vec3 specular;
+		glm::vec3 direction = { 0.0f, 0.0f, 0.0f };
+		glm::vec3 ambient = { 1.0f, 1.0f, 1.0f };
+		glm::vec3 diffuse = { 1.0f, 1.0f, 1.0f };
+		glm::vec3 specular = { 1.0f, 1.0f, 1.0f };
 		float ambientStrenght = 0.0f;
 
-		DirectionalLightComponent() = default;
+		DirectionalLightComponent() :direction(glm::vec3(0.0f)), ambient(glm::vec3(1.0f)), diffuse(glm::vec3(1.0f)), specular(glm::vec3(1.0f)), ambientStrenght(0.0f) {}
 		DirectionalLightComponent(const DirectionalLightComponent& other) :direction(other.direction), ambient(other.ambient), diffuse(other.diffuse), specular(other.specular), ambientStrenght(other.ambientStrenght) {}
-		DirectionalLightComponent(const glm::vec3& direction_ = { 0.0f, 0.0f, 0.0f }, const glm::vec3& ambient_ = { 0.0f, 0.0f, 0.0f }, const glm::vec3& diffuse_ = { 0.0f, 0.0f, 0.0f }, const glm::vec3& specular_ = { 0.0f, 0.0f, 0.0f })
-			: direction(direction_), ambient(ambient_), diffuse(diffuse_), specular(specular_), ambientStrenght(0.2f) {}
+		DirectionalLightComponent(const glm::vec3& direction_, const glm::vec3& ambient_, const glm::vec3& diffuse_, const glm::vec3& specular_, float strenght)
+			: direction(direction_), ambient(ambient_), diffuse(diffuse_), specular(specular_), ambientStrenght(strenght) {}
 	};
 
 	struct CameraComponent {

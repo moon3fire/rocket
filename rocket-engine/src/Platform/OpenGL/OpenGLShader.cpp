@@ -247,6 +247,7 @@ namespace Rocket {
 				glUniform3fv(ambientLocation, 1, 0);
 				glUniform3fv(diffuseLocation, 1, 0);
 				glUniform3fv(specularLocation, 1, 0);
+
 				return;
 			}
 		}
@@ -260,12 +261,6 @@ namespace Rocket {
 		uploadUniformFloatArray("u_ambientStrenghts", strengths, lightsCount);
 		
 		// setting directional lights uniforms		
-		//GLint lightsLocation1 = getUniformLocation("lights[10].ambient");// examples
-		//if (lightsLocation1 != -1)
-		//	RCKT_CORE_INFO("FOUND");
-		//GLint lightsLocation2 = getUniformLocation("lights[1].ambient");
-
-		
 		glm::vec3 directions[SCENE_MAX_DIRECTIONAL_LIGHTS_COUNT];
 		glm::vec3 ambients[SCENE_MAX_DIRECTIONAL_LIGHTS_COUNT];
 		glm::vec3 diffuses[SCENE_MAX_DIRECTIONAL_LIGHTS_COUNT];

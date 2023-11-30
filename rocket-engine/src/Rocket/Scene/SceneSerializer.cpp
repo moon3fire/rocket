@@ -137,6 +137,19 @@ namespace Rocket {
 			out << YAML::EndMap;
 		}
 
+		if (entity.hasComponent<DirectionalLightComponent>()) {
+			out << YAML::Key << "DirectionalLightComponent";
+			out << YAML::BeginMap;
+
+			auto& dlc = entity.getComponent<DirectionalLightComponent>();
+			out << YAML::Key << "Ambient" << YAML::Value << dlc.ambient;
+			out << YAML::Key << "AmbientStrenght" << YAML::Value << dlc.ambientStrenght;
+			out << YAML::Key << "Diffuse" << YAML::Value << dlc.diffuse;
+			out << YAML::Key << "Direction" << YAML::Value << dlc.direction;
+			out << YAML::Key << "Specular" << YAML::Value << dlc.specular;
+
+			out << YAML::EndMap;
+		}
 
 		out << YAML::EndMap;
 	}
@@ -196,7 +209,7 @@ namespace Rocket {
 				RCKT_CORE_TRACE("Deserialized entity with ID = {0}, name = {1}", uuid, name);
 
 				Entity deserializedEntity = m_scene->createEntity(name);
-
+				
 				auto transformComponent = entity["TransformComponent"];
 				if (transformComponent) {
 					// transform component always exists
@@ -229,6 +242,16 @@ namespace Rocket {
 				if (spriteRendererComponent) {
 					auto& src = deserializedEntity.addComponent<SpriteRendererComponent>();
 					src.color = spriteRendererComponent["Color"].as<glm::vec4>();
+				}
+
+				auto dlc = entity["DirectionalLightComponent"];
+				if (dlc) {
+					auto& directionalLightComponent = deserializedEntity.addComponent<DirectionalLightComponent>();
+					directionalLightComponent.ambient = dlc["Ambient"].as<glm::vec3>();
+					directionalLightComponent.ambientStrenght = dlc["AmbientStrenght"].as<float>();
+					directionalLightComponent.diffuse = dlc["Diffuse"].as<glm::vec3>();
+					directionalLightComponent.direction = dlc["Direction"].as<glm::vec3>();
+					directionalLightComponent.specular = dlc["Specular"].as<glm::vec3>();
 				}
 			}
 		}

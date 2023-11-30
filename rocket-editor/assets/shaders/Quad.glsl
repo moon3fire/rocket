@@ -115,7 +115,6 @@ void main()
 
 	result = result * textureColor.xyz;
 
-	//return
 	color = vec4(result, 1.0);	
 	entityID = v_entityID; // placeholder for entity ID
 }
@@ -124,15 +123,15 @@ vec3 CalculateDirectionalLight(DirectionalLight light, vec3 normal, vec3 viewDir
 							   float ambientStrenght, float specularStrenght) {
 	// TODO: add materials
 	vec3 lightDir = normalize(-light.direction);
-    // diffuse shading
-    float diff = max(dot(normal, lightDir), 0.0);
-    // specular shading
-    vec3 reflectDir = reflect(-lightDir, normal);
+	// diffuse shading
+	float diff = max(dot(normal, lightDir), 0.0);
+	// specular shading
+	vec3 reflectDir = reflect(-lightDir, normal);
 	// last parameter is shininess
-    float spec = pow(max(dot(viewDir, reflectDir), 0.0), 32);
-    // combine results
-    vec3 ambient = light.ambient * ambientStrenght;
-    vec3 diffuse = light.diffuse * diff;
-    vec3 specular = light.specular * spec * specularStrenght;
-    return (ambient + diffuse + specular);
+	float spec = pow(max(dot(viewDir, reflectDir), 0.0), 32);
+	//combine results
+	vec3 ambient = light.ambient * ambientStrenght;
+	vec3 diffuse = light.diffuse * diff;
+	vec3 specular = light.specular * spec * specularStrenght;
+	return (ambient + diffuse + specular);
 }

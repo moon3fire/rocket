@@ -30,6 +30,7 @@ namespace Rocket {
 		Ref<VertexArray> quadVA;
 		Ref<VertexBuffer> quadVertexBuffer;
 		Ref<Shader> quadShader;
+		//Ref<Shader> lightingShader;
 		Ref<Texture2D> defaultTexture;
 		glm::vec2 defaultTextureScale;
 		glm::mat4 quadTransform;
@@ -74,7 +75,8 @@ namespace Rocket {
 		s_data.quadShader->setFloat3("u_viewPosition", position);
 	}
 
-	void Renderer2D::applyDirectionalLights(const std::vector<DirectionalLightComponent>& dirLights) {
+	void Renderer2D::applyDirectionalLights(const std::vector<DirectionalLightComponent>& dirLights, const glm::vec3& viewPosition) {
+		s_data.quadShader->setFloat3("u_viewPosition", viewPosition);
 		s_data.quadShader->setDirectionalLights(dirLights);
 	}
 
@@ -126,6 +128,7 @@ namespace Rocket {
 		delete[] quadIndices;
 
 		s_data.quadShader = Shader::create("assets/shaders/Quad.glsl");
+		//s_data.lightingShader = Shader::create("assets/shaders/Lighting.glsl");
 		s_data.quadShader->bind();
 		s_data.defaultTexture = Texture2D::create("assets/textures/default.png");
 		
@@ -186,16 +189,7 @@ namespace Rocket {
 
 		s_data.quadShader->bind();
 		s_data.quadShader->setMat4("u_viewProjection", viewProj);
-
-		//for specular lighting
-		s_data.quadShader->setFloat3("u_viewPosition", camera.getPosition());
-		
-		//for specular lighting, most likely it will stay here somehow in some way
-		//uploadSpecularViewerPosition(camera.getPosition());
-		// diffuse temp, for this is responsible scene class for now
-		//uploadDiffuseLight();
-		//
-
+	
 		s_data.quadIndexCount = 0;
 		s_data.quadVertexBufferPtr = s_data.quadVertexBufferBase;
 		
@@ -225,8 +219,11 @@ namespace Rocket {
 			s_data.textureSlots[i]->bind();
 		}
 
+
+
 		RenderCommand::drawIndexed(s_data.quadVA, s_data.quadIndexCount);
 		s_data.stats.drawCalls++;
+		s_data.quadShader->unbind();
 	}
 
 	void Renderer2D::drawQuad2D(const glm::vec2& position, const glm::vec2& size, const glm::vec4& color, float rotation) {

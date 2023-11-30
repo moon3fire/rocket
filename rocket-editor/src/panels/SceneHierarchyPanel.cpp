@@ -226,6 +226,11 @@ namespace Rocket {
 				m_context->addCameraController(m_selectionContext);
 			}
 
+			if (ImGui::MenuItem("Directional Light")) {
+				m_selectionContext.addComponent<DirectionalLightComponent>();
+				ImGui::CloseCurrentPopup();
+			}
+
 			ImGui::EndPopup();
 		}
 
