@@ -1,0 +1,12 @@
+Scene: Untitled
+---
+Entities:
+  - Entity: 1231814128
+    TagComponent:
+      Tag: aper
+    TransformComponent:
+      Position: [0, 0, 0]
+      Scale: [1, 1, 1]
+      Rotation: [0, 0, 0]
+    SpriteRendererComponent:
+      Color: [1, 1, 1, 1]

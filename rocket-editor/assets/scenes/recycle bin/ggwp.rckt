@@ -1,0 +1,28 @@
+Scene: Untitled
+---
+Entities:
+  - Entity: 1231814128
+    TagComponent:
+      Tag: Point Light 0
+    TransformComponent:
+      Position: [0, 0, 1.29999995]
+      Scale: [1, 1, 1]
+      Rotation: [0, 0, 0]
+    PointLightComponent:
+      Position: [0, 0, 1.29999995]
+      Ambient: [1, 1, 1]
+      Diffuse: [1, 1, 1]
+      Specular: [1, 1, 1]
+      Constant: 1
+      Linear: 0.100000001
+      Quadratic: 0.00999999978
+      AmbientStrenght: 0.0900000036
+  - Entity: 1231814128
+    TagComponent:
+      Tag: Empty
+    TransformComponent:
+      Position: [0, 0, 0]
+      Scale: [5.87411356, 3.96771955, 1]
+      Rotation: [0, 0, 0]
+    SpriteRendererComponent:
+      Color: [1, 1, 1, 1]

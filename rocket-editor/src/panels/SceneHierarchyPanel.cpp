@@ -41,6 +41,9 @@ namespace Rocket {
 				if (ImGui::MenuItem("Create Directional Light")) {
 					m_context->createDirectionalLight();
 				}
+				if (ImGui::MenuItem("Create Point Light")) {
+					m_context->createPointLight();
+				}
 
 				ImGui::EndPopup();
 			}
@@ -231,6 +234,11 @@ namespace Rocket {
 				ImGui::CloseCurrentPopup();
 			}
 
+			if (ImGui::MenuItem("Point Light")) {
+				m_selectionContext.addComponent<PointLightComponent>();
+				ImGui::CloseCurrentPopup();
+			}
+
 			ImGui::EndPopup();
 		}
 
@@ -252,12 +260,33 @@ namespace Rocket {
 			float strenght = component.ambientStrenght;
 			ImGui::DragFloat("Ambient Strenght", &strenght, 0.01f, 0.0f, 1.0f, "%.1f");
 			ImGui::DragFloat3("Direction", glm::value_ptr(component.direction), 0.01f, -1.0f, 1.0f, "%.1f");
-			ImGui::DragFloat3("Ambient Color", glm::value_ptr(component.ambient), 0.01f, -1.0f, 1.0f, "%.1f");
-			ImGui::DragFloat3("Diffuse", glm::value_ptr( component.diffuse), 0.01f, -1.0f, 1.0f, "%.1f");
-			ImGui::DragFloat3("Specular", glm::value_ptr(component.specular), 0.01f, -1.0f, 1.0f, "%.1f");
+			ImGui::DragFloat3("Ambient", glm::value_ptr(component.ambient), 0.01f, 0.0f, 1.0f, "%.1f");
+			ImGui::DragFloat3("Diffuse", glm::value_ptr( component.diffuse), 0.01f, 0.0f, 1.0f, "%.1f");
+			ImGui::DragFloat3("Specular", glm::value_ptr(component.specular), 0.01f, 0.0f, 1.0f, "%.1f");
 
 			component.ambientStrenght = strenght;
 		});
+
+		drawComponent<PointLightComponent>("Point Light", entity, [](auto& component) {
+			float strenght = component.ambientStrenght;
+			float constant = component.constant;
+			float linear = component.linear;
+			float quadratic = component.quadratic;
+
+			ImGui::DragFloat ("Ambient Strenght", &strenght, 0.01f, 0.0f, 0.9f, "%.2f");
+			ImGui::DragFloat3("Position", glm::value_ptr(*component.position), 0.1f, -10000.0f, 10000.0f, "%.1f");
+			ImGui::DragFloat3("Ambient", glm::value_ptr(component.ambient), 0.01f, 0.0f, 1.0f, "%.1f");
+			ImGui::DragFloat3("Diffuse", glm::value_ptr(component.diffuse), 0.01f, 0.0f, 1.0f, "%.1f");
+			ImGui::DragFloat3("Specular", glm::value_ptr(component.specular), 0.01f, 0.0f, 1.0f, "%.1f");
+			ImGui::DragFloat ("Constant", &constant, 0.01f, -100000.0f, 100000.0f, "%.2f");
+			ImGui::DragFloat ("Linear", &linear, 0.01f, -100000.0f, 100000.0f, "%.2f");
+			ImGui::DragFloat ("Quadratic", &quadratic, 0.01f, -100000.0f, 100000.0f, "%.2f");
+
+			component.quadratic = quadratic;
+			component.linear = linear;
+			component.constant = constant;
+			component.ambientStrenght = strenght;
+			});
 
 		drawComponent<CameraComponent>("Camera Component", entity, [](auto& component) {
 

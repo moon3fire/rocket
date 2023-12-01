@@ -38,6 +38,7 @@ void main()
 #version 450
 
 #define MAX_DIRECTIONAL_LIGHTS 10
+#define MAX_POINT_LIGHTS 100
 
 layout (location = 0) out vec4 color;
 layout (location = 1) out int entityID;
@@ -51,6 +52,17 @@ in flat int v_entityID;
 in vec3 v_fragPos;
 in vec3 v_normal;
 
+struct PointLight {
+	vec3 position;
+
+	vec3 ambient;
+	vec3 diffuse;
+	vec3 specular;
+
+	float constant;
+	float linear;
+	float quadratic;
+};
 
 struct DirectionalLight {
 	vec3 direction;
@@ -59,17 +71,28 @@ struct DirectionalLight {
 	vec3 specular;
 };
 
+// lights counters
 uniform int u_directionalLightCount;
-uniform float u_ambientStrenghts[MAX_DIRECTIONAL_LIGHTS];
-uniform DirectionalLight lights[MAX_DIRECTIONAL_LIGHTS];
+uniform int u_pointLightCount;
+
+// ambient strenghts
+uniform float u_ambientStrenghtsDirectional[MAX_DIRECTIONAL_LIGHTS];
+uniform float u_ambientStrenghtsPointLight[MAX_POINT_LIGHTS];
+
+//lights themselves
+uniform DirectionalLight directionals[MAX_DIRECTIONAL_LIGHTS];
+uniform PointLight pointLights[MAX_POINT_LIGHTS];
+// camera view position for specular lighting
 uniform vec3 u_viewPosition;
 
 uniform sampler2D u_textures[32];
 
 vec3 CalculateDirectionalLight(DirectionalLight light, vec3 normal, vec3 viewDir, float ambientStrenght, float specularStrenght);
+vec3 CalculatePointLights(PointLight light, vec3 normal, vec3 fragPos, vec3 viewDir, float ambientStrenght);
 
 void main()
 {
+	vec3 normal = normalize(v_normal);
 	vec4 textureColor = v_color;
 	switch(int(v_texIndex)) {
 		case 0: textureColor *= texture(u_textures[0], v_textureCoord * v_tilingFactor); break;
@@ -110,7 +133,12 @@ void main()
 	vec3 result = vec3(0.0, 0.0, 0.0);
 	for (int i = 0; i < u_directionalLightCount; i++) {
 		vec3 viewDirection = normalize(u_viewPosition - v_fragPos);
-		result += CalculateDirectionalLight(lights[i], v_normal, viewDirection, u_ambientStrenghts[i], specularStrenght);
+		result += CalculateDirectionalLight(directionals[i], normal, viewDirection, u_ambientStrenghtsDirectional[i], specularStrenght);
+	}
+
+	for (int i = 0; i < u_pointLightCount; i++) {
+		vec3 viewDirection = normalize(u_viewPosition - v_fragPos);
+		result += CalculatePointLights(pointLights[i], normal, v_fragPos, viewDirection, u_ambientStrenghtsPointLight[i]);
 	}
 
 	result = result * textureColor.xyz;
@@ -128,10 +156,30 @@ vec3 CalculateDirectionalLight(DirectionalLight light, vec3 normal, vec3 viewDir
 	// specular shading
 	vec3 reflectDir = reflect(-lightDir, normal);
 	// last parameter is shininess
-	float spec = pow(max(dot(viewDir, reflectDir), 0.0), 32);
+	float spec = pow(max(dot(viewDir, reflectDir), 0.0), 256);
 	//combine results
 	vec3 ambient = light.ambient * ambientStrenght;
 	vec3 diffuse = light.diffuse * diff;
 	vec3 specular = light.specular * spec * specularStrenght;
 	return (ambient + diffuse + specular);
+}
+
+vec3 CalculatePointLights(PointLight light, vec3 normal, vec3 fragPos, vec3 viewDir, float ambientStrenght) {
+    vec3 lightDir = normalize(light.position - fragPos);
+	// diffuse shading
+    float diff = max(dot(normal, lightDir), 0.0);
+	// specular shading
+    vec3 reflectDir = reflect(-lightDir, normal);
+    float spec = pow(max(dot(viewDir, reflectDir), 0.0), 256);
+	 // attenuation
+    float distance = length(light.position - fragPos);
+    float attenuation = 1.0 / (light.constant + light.linear * distance + light.quadratic * (distance * distance));
+	 // combine results
+    vec3 ambient = light.ambient * ambientStrenght;
+    vec3 diffuse = light.diffuse * diff;
+    vec3 specular = light.specular * spec;
+    ambient *= attenuation;
+    diffuse *= attenuation;
+    specular *= attenuation;
+    return (ambient + diffuse + specular);
 }

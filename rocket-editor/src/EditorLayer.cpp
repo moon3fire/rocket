@@ -160,14 +160,17 @@ namespace Rocket {
 				if (ImGui::MenuItem("Exit")) Rocket::Application::get().close();
 
 				if (ImGui::MenuItem("New", "Ctrl+N")) {
+					m_isUsingFilesystem = true;
 					createNewScene();
 				}
 
 				if (ImGui::MenuItem("Open", "Ctrl+O")) {
+					m_isUsingFilesystem = true;
 					openScene();
 				}
 
 				if (ImGui::MenuItem("Save as", "Ctrl+Shift+S")) {
+					m_isUsingFilesystem = true;
 					saveSceneAs();
 				}
 
@@ -185,7 +188,7 @@ namespace Rocket {
 			//ImGui::ColorEdit3("Diffuse light color", glm::value_ptr(m_diffuseColor));
 
 			std::string name = "None";
-			if (m_hoveredEntity) {
+			if (m_hoveredEntity && !m_isUsingFilesystem) {
 				name = m_hoveredEntity.getComponent<TagComponent>().tag;
 			}
 			ImGui::Text("Hovered entity: %s", name.c_str());
@@ -336,20 +339,24 @@ namespace Rocket {
 	}
 
 	void EditorLayer::createNewScene() {
+		m_activeScene->clear();
 		m_activeScene = createRef<Scene>();
 		m_activeScene->onViewportResize((uint32_t)m_viewportSize.x, (uint32_t)m_viewportSize.y);
 		m_hierarchyPanel.setContext(m_activeScene);
+		m_isUsingFilesystem = false;
 	}
 
 	void EditorLayer::openScene() {
 		std::string filepath = FileDialogs::openFile("Rocket Scene (*.rkct)\0*.rckt\0");
 		if (!filepath.empty()) {
+			m_activeScene->clear();
 			m_activeScene = createRef<Scene>();
 			m_activeScene->onViewportResize((uint32_t)m_viewportSize.x, (uint32_t)m_viewportSize.y);
 			m_hierarchyPanel.setContext(m_activeScene);
 
 			SceneSerializer serializer(m_activeScene);
 			serializer.deserialize(filepath);
+			m_isUsingFilesystem = false;
 		}
 	}
 
@@ -359,6 +366,7 @@ namespace Rocket {
 			SceneSerializer serializer(m_activeScene);
 			serializer.serialize(filepath + ".rckt");
 		}
+		m_isUsingFilesystem = false;
 	}
 
 

@@ -1,0 +1,89 @@
+Scene: Untitled
+---
+Entities:
+  - Entity: 1231814128
+    TagComponent:
+      Tag: left
+    TransformComponent:
+      Position: [-2.25, -1.49011612e-08, -6.24900007]
+      Scale: [4.49910831, 4.5, 0.999882996]
+      Rotation: [0, -1.57079637, 0]
+    SpriteRendererComponent:
+      Color: [1, 1, 1, 1]
+  - Entity: 1231814128
+    TagComponent:
+      Tag: back
+    TransformComponent:
+      Position: [0, 2.98023224e-08, -8.5]
+      Scale: [4.5, 4.5, 1]
+      Rotation: [0, 3.14159274, -3.14159226]
+    SpriteRendererComponent:
+      Color: [1, 1, 1, 1]
+  - Entity: 1231814128
+    TagComponent:
+      Tag: bottom
+    TransformComponent:
+      Position: [0, -2.25, -6.25]
+      Scale: [4.5, 4.49995947, 0.999994934]
+      Rotation: [1.57079637, 0, 0]
+    SpriteRendererComponent:
+      Color: [1, 1, 1, 1]
+  - Entity: 1231814128
+    TagComponent:
+      Tag: right
+    TransformComponent:
+      Position: [2.25, 0, -6.25]
+      Scale: [4.49987888, 4.5, 0.99998486]
+      Rotation: [0, 1.57079637, 0]
+    SpriteRendererComponent:
+      Color: [1, 1, 1, 1]
+  - Entity: 1231814128
+    TagComponent:
+      Tag: front
+    TransformComponent:
+      Position: [0, 0, -4]
+      Scale: [4.5, 4.5, 1]
+      Rotation: [0, 0, 0]
+    SpriteRendererComponent:
+      Color: [1, 1, 1, 1]
+  - Entity: 1231814128
+    TagComponent:
+      Tag: top
+    TransformComponent:
+      Position: [0, 2.24914551, -6.25]
+      Scale: [4.5, 4.4981637, 0.999770463]
+      Rotation: [-1.57079601, 0, 0]
+    SpriteRendererComponent:
+      Color: [1, 1, 1, 1]
+  - Entity: 1231814128
+    TagComponent:
+      Tag: Point Light 0
+    TransformComponent:
+      Position: [-2.4213562, 2.51131034, 0]
+      Scale: [1, 1, 1]
+      Rotation: [0, 0, 0]
+    PointLightComponent:
+      Position: [-2.4213562, 2.51131034, 0]
+      Ambient: [1, 1, 1]
+      Diffuse: [1, 0, 1]
+      Specular: [1, 1, 1]
+      Constant: 1
+      Linear: 0.100000001
+      Quadratic: 0.00999999978
+      AmbientStrenght: 0
+  - Entity: 1231814128
+    TagComponent:
+      Tag: Point Light 1
+    TransformComponent:
+      Position: [0, 0, -12.2980785]
+      Scale: [1, 1, 1]
+      Rotation: [0, 0, 0]
+    PointLightComponent:
+      Position: [0, 0, -12.2980785]
+      Ambient: [1, 1, 1]
+      Diffuse: [1, 0, 1]
+      Specular: [1, 1, 1]
+      Constant: 1
+      Linear: 0.100000001
+      Quadratic: 0.00999999978
+      AmbientStrenght: 0

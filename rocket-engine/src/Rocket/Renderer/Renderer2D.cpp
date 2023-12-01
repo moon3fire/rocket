@@ -76,9 +76,14 @@ namespace Rocket {
 	}
 
 	void Renderer2D::applyDirectionalLights(const std::vector<DirectionalLightComponent>& dirLights, const glm::vec3& viewPosition) {
-		s_data.quadShader->setFloat3("u_viewPosition", viewPosition);
+		uploadSpecularViewerPosition(viewPosition);
 		s_data.quadShader->setDirectionalLights(dirLights);
 	}
+
+	void Renderer2D::applyPointLights(const std::vector<PointLightComponent>& pointLights) {
+		s_data.quadShader->setPointLights(pointLights);
+	}
+
 
 	//temp ends here
 
@@ -218,8 +223,6 @@ namespace Rocket {
 		for (uint32_t i = 0; i < s_data.textureSlotIndex; i++) {
 			s_data.textureSlots[i]->bind();
 		}
-
-
 
 		RenderCommand::drawIndexed(s_data.quadVA, s_data.quadIndexCount);
 		s_data.stats.drawCalls++;

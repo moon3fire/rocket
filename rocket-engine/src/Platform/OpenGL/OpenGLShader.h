@@ -26,10 +26,14 @@ namespace Rocket {
 		virtual void setIntArray(const std::string& name, int* values, uint32_t count) override;
 		virtual void setBool(const std::string& name, bool value) override;
 		virtual void setDirectionalLights(const std::vector<DirectionalLightComponent>& dirLightComponents) override;
+		virtual void setPointLights(const std::vector<PointLightComponent>& pointLightComponents) override;
 
 		virtual const std::string& getName() const override { return m_name; }
 
+		//temporary
 		void uploadUniformDirectionLight(const std::vector<DirectionalLightComponent>& dirLightComponents);
+		void uploadUniformPointLight(const std::vector<PointLightComponent>& pointLightComponents);
+
 		void uploadUniformBool(const std::string& name, bool value);
 
 		void uploadUniformInt(const std::string& name, int value);

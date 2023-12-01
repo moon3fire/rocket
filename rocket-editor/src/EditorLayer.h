@@ -38,6 +38,7 @@ namespace Rocket {
 		Ref<Scene> m_activeScene;
 
 		bool m_primaryCamera = true;
+		bool m_isUsingFilesystem = false;
 
 		EditorCamera m_editorCamera;
 

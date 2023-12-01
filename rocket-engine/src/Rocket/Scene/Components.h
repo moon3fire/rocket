@@ -48,7 +48,7 @@ namespace Rocket {
 	};
 
 	struct DirectionalLightComponent {
-		// NOTE: order matters
+		// NOTE: order matters, UPD, maybe not
 		glm::vec3 direction = { 0.0f, 0.0f, 0.0f };
 		glm::vec3 ambient = { 1.0f, 1.0f, 1.0f };
 		glm::vec3 diffuse = { 1.0f, 1.0f, 1.0f };
@@ -59,6 +59,26 @@ namespace Rocket {
 		DirectionalLightComponent(const DirectionalLightComponent& other) :direction(other.direction), ambient(other.ambient), diffuse(other.diffuse), specular(other.specular), ambientStrenght(other.ambientStrenght) {}
 		DirectionalLightComponent(const glm::vec3& direction_, const glm::vec3& ambient_, const glm::vec3& diffuse_, const glm::vec3& specular_, float strenght)
 			: direction(direction_), ambient(ambient_), diffuse(diffuse_), specular(specular_), ambientStrenght(strenght) {}
+	};
+
+	struct PointLightComponent {
+		glm::vec3* position;
+
+		glm::vec3 ambient;
+		glm::vec3 diffuse;
+		glm::vec3 specular;
+
+		float constant = 1.0f;
+		float linear = 0.1f;
+		float quadratic = 0.01f;
+
+		float ambientStrenght = 0.0f;
+
+		PointLightComponent() :position(nullptr), ambient(glm::vec3(1.0f)), diffuse(glm::vec3(1.0f)), specular(glm::vec3(1.0f)), constant(1.0f), linear(0.1f), quadratic(0.01f) {}
+		PointLightComponent(const PointLightComponent& other) :position(other.position), ambient(other.ambient), diffuse(other.diffuse), specular(other.specular), constant(other.constant), linear(other.linear), quadratic(other.quadratic) {}
+		PointLightComponent(TransformComponent& tc, const glm::vec3& ambient_, const glm::vec3& diffuse_, const glm::vec3& specular_, float constant_, float linear_, float quadratic_)
+			: position(&(tc.position)), ambient(ambient_), diffuse(diffuse_), specular(specular_), constant(constant_), linear(linear_), quadratic(quadratic_) {}
+		
 	};
 
 	struct CameraComponent {

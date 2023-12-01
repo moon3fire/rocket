@@ -224,41 +224,28 @@ namespace Rocket {
 		uploadUniformDirectionLight(dirLightComponents);
 	}
 
+	void OpenGLShader::setPointLights(const std::vector<PointLightComponent>& pointLightComponents) {
+		uploadUniformPointLight(pointLightComponents);
+	}
+
 	void OpenGLShader::uploadUniformDirectionLight(const std::vector<DirectionalLightComponent>& dirLightComponents) {
 		
 		int lightsCount = dirLightComponents.size();
-		
-		RCKT_CORE_ASSERT(lightsCount <= 10, "Currently supported directional lights count in the scene is <= 10");
+		RCKT_CORE_ASSERT(lightsCount <= SCENE_MAX_DIRECTIONAL_LIGHTS_COUNT, "Currently supported directional lights count in the scene is <= 10");
 		
 		// setting active lights count
 		uploadUniformInt("u_directionalLightCount", lightsCount);
 		
 		if (lightsCount == 0) {
-			float value = 0.0f;
-			uploadUniformFloatArray("u_ambientStrenghts", &value, SCENE_MAX_DIRECTIONAL_LIGHTS_COUNT);
-
-			for (int i = 0; i < SCENE_MAX_DIRECTIONAL_LIGHTS_COUNT; i++) {
-				GLint directionLocation = getUniformLocation("lights[" + std::to_string(i) + "].direction");
-				GLint ambientLocation = getUniformLocation("lights[" + std::to_string(i) + "].ambient");
-				GLint diffuseLocation = getUniformLocation("lights[" + std::to_string(i) + "].diffuse");
-				GLint specularLocation = getUniformLocation("lights[" + std::to_string(i) + "].specular");
-
-				glUniform3fv(directionLocation, 1, 0);
-				glUniform3fv(ambientLocation, 1, 0);
-				glUniform3fv(diffuseLocation, 1, 0);
-				glUniform3fv(specularLocation, 1, 0);
-
-				return;
-			}
+			return;
 		}
-
 
 		// setting strenghts float array to quad shader
 		float strengths[SCENE_MAX_DIRECTIONAL_LIGHTS_COUNT];
 		for (int i = 0; i < lightsCount; i++) {
 			strengths[i] = dirLightComponents[i].ambientStrenght;
 		}
-		uploadUniformFloatArray("u_ambientStrenghts", strengths, lightsCount);
+		uploadUniformFloatArray("u_ambientStrenghtsDirectional", strengths, lightsCount);
 		
 		// setting directional lights uniforms		
 		glm::vec3 directions[SCENE_MAX_DIRECTIONAL_LIGHTS_COUNT];
@@ -268,23 +255,75 @@ namespace Rocket {
 
 		for (int i = 0; i < lightsCount; i++) {
 			directions[i] = dirLightComponents[i].direction;
-			ambients[i] = dirLightComponents[i].ambient;
-			diffuses[i] = dirLightComponents[i].diffuse;
-			speculars[i] = dirLightComponents[i].specular;
-		}
-
-		for (int i = 0; i < lightsCount; i++) {
-			GLint directionLocation = getUniformLocation("lights[" + std::to_string(i) + "].direction");
-			GLint ambientLocation = getUniformLocation("lights[" + std::to_string(i) + "].ambient");
-			GLint diffuseLocation = getUniformLocation("lights[" + std::to_string(i) + "].diffuse");
-			GLint specularLocation = getUniformLocation("lights[" + std::to_string(i) + "].specular");
+			ambients[i]   = dirLightComponents[i].ambient;
+			diffuses[i]   = dirLightComponents[i].diffuse;
+			speculars[i]  = dirLightComponents[i].specular;
+	
+			GLint directionLocation = getUniformLocation("directionals[" + std::to_string(i) + "].direction");
+			GLint ambientLocation   = getUniformLocation("directionals[" + std::to_string(i) + "].ambient");
+			GLint diffuseLocation   = getUniformLocation("directionals[" + std::to_string(i) + "].diffuse");
+			GLint specularLocation  = getUniformLocation("directionals[" + std::to_string(i) + "].specular");
 
 			glUniform3fv(directionLocation, 1, glm::value_ptr(directions[i]));
 			glUniform3fv(ambientLocation, 1, glm::value_ptr(ambients[i]));
 			glUniform3fv(diffuseLocation, 1, glm::value_ptr(diffuses[i]));
 			glUniform3fv(specularLocation, 1, glm::value_ptr(speculars[i]));
 		}
+	}
 
+	void OpenGLShader::uploadUniformPointLight(const std::vector<PointLightComponent>& pointLightComponents) {
+		
+		int lightsCount = pointLightComponents.size();
+		RCKT_CORE_ASSERT(lightsCount <= SCENE_MAX_POINT_LIGHTS_COUNT, "Currently supported point lights count in the scene is <= 100");
+		
+		// setting active lights count
+		uploadUniformInt("u_pointLightCount", lightsCount);
+
+		if (lightsCount == 0) {
+			return;
+		}
+
+
+
+		float strengths[SCENE_MAX_POINT_LIGHTS_COUNT];
+		for (int i = 0; i < lightsCount; i++) {
+			strengths[i] = pointLightComponents[i].ambientStrenght;
+		}
+		uploadUniformFloatArray("u_ambientStrenghtsPointLight", strengths, lightsCount);
+
+		glm::vec3 positions[SCENE_MAX_POINT_LIGHTS_COUNT];
+		glm::vec3 ambients[SCENE_MAX_POINT_LIGHTS_COUNT];
+		glm::vec3 diffuses[SCENE_MAX_POINT_LIGHTS_COUNT];
+		glm::vec3 speculars[SCENE_MAX_POINT_LIGHTS_COUNT];
+		float constants[SCENE_MAX_POINT_LIGHTS_COUNT];
+		float linears[SCENE_MAX_POINT_LIGHTS_COUNT];
+		float quadratics[SCENE_MAX_POINT_LIGHTS_COUNT];
+
+		for (int i = 0; i < lightsCount; i++) {
+			positions[i]  = *pointLightComponents[i].position;
+			ambients[i]   = pointLightComponents[i].ambient;
+			diffuses[i]   = pointLightComponents[i].diffuse;
+			speculars[i]  = pointLightComponents[i].specular;
+			constants[i]  = pointLightComponents[i].constant;
+			linears[i]    = pointLightComponents[i].linear;
+			quadratics[i] = pointLightComponents[i].quadratic;
+
+			GLint positionLocation   = getUniformLocation("pointLights[" + std::to_string(i) + "].position");
+			GLint ambientLocation    = getUniformLocation("pointLights[" + std::to_string(i) + "].ambient");
+			GLint diffuseLocation    = getUniformLocation("pointLights[" + std::to_string(i) + "].diffuse");
+			GLint specularLocation   = getUniformLocation("pointLights[" + std::to_string(i) + "].specular");
+			GLint constantsLocation  = getUniformLocation("pointLights[" + std::to_string(i) + "].constant");
+			GLint linearsLocation    = getUniformLocation("pointLights[" + std::to_string(i) + "].linear");
+			GLint quadraticsLocation = getUniformLocation("pointLights[" + std::to_string(i) + "].quadratic");
+
+			glUniform3fv(positionLocation, 1, glm::value_ptr(positions[i]));
+			glUniform3fv(ambientLocation, 1, glm::value_ptr(ambients[i]));
+			glUniform3fv(diffuseLocation, 1, glm::value_ptr(diffuses[i]));
+			glUniform3fv(specularLocation, 1, glm::value_ptr(speculars[i]));
+			glUniform1fv(constantsLocation, 1, &constants[i]);
+			glUniform1fv(linearsLocation, 1, &linears[i]);
+			glUniform1fv(quadraticsLocation, 1, &quadratics[i]);
+		}
 	}
 
 	void OpenGLShader::uploadUniformBool(const std::string& name, bool value) {
