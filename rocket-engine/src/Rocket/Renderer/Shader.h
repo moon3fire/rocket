@@ -25,8 +25,10 @@ namespace Rocket {
 		virtual void setInt(const std::string& name, int value) = 0;
 		virtual void setIntArray(const std::string& name, int* values, uint32_t count) = 0;
 		virtual void setBool(const std::string& name, bool value) = 0;
-		virtual void setDirectionalLights(const std::vector<DirectionalLightComponent>& dirLightComponents) = 0; // TODO: prosto nado ponyat 4o kak i sdelat pravilno
+
+		virtual void setDirectionalLights(const std::vector<DirectionalLightComponent>& dirLightComponents) = 0; // TODO: Refactor to good way of doing this
 		virtual void setPointLights(const std::vector<PointLightComponent>& pointLightComponents) = 0;
+		virtual void setSpotLights(const std::vector<SpotLightComponent>& spotLightComponents) = 0;
 
 		virtual const std::string& getName() const = 0;
 

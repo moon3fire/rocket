@@ -25,14 +25,17 @@ namespace Rocket {
 		virtual void setInt(const std::string& name, int value) override;
 		virtual void setIntArray(const std::string& name, int* values, uint32_t count) override;
 		virtual void setBool(const std::string& name, bool value) override;
+
 		virtual void setDirectionalLights(const std::vector<DirectionalLightComponent>& dirLightComponents) override;
 		virtual void setPointLights(const std::vector<PointLightComponent>& pointLightComponents) override;
+		virtual void setSpotLights(const std::vector<SpotLightComponent>& spotLightComponents) override;
 
 		virtual const std::string& getName() const override { return m_name; }
 
-		//temporary
+		// TODO: the same about refactoring in Shader class
 		void uploadUniformDirectionLight(const std::vector<DirectionalLightComponent>& dirLightComponents);
 		void uploadUniformPointLight(const std::vector<PointLightComponent>& pointLightComponents);
+		void uploadUniformSpotLight(const std::vector<SpotLightComponent>& spotLightComponents);
 
 		void uploadUniformBool(const std::string& name, bool value);
 

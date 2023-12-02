@@ -84,6 +84,9 @@ namespace Rocket {
 		s_data.quadShader->setPointLights(pointLights);
 	}
 
+	void Renderer2D::applySpotLights(const std::vector<SpotLightComponent>& spotLights) {
+		s_data.quadShader->setSpotLights(spotLights);
+	}
 
 	//temp ends here
 

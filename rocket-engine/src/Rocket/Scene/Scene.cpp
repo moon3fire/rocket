@@ -59,6 +59,22 @@ namespace Rocket {
 		return entity;
 	}
 
+	Entity Scene::createSpotLight()
+	{
+		Entity entity = { m_registry.create(), this };
+
+		entity.addComponent<TransformComponent>();
+		entity.addComponent<TagComponent>("Spot Light " + std::to_string(m_spotLightCount));
+		auto& slc = entity.addComponent<SpotLightComponent>();
+		slc.position = &(entity.getComponent<TransformComponent>().position);
+
+		m_entityCount++;
+
+		RCKT_CORE_WARN("Entity count {0}", m_entityCount);
+		RCKT_CORE_WARN("Spot light count: {0}", m_spotLightCount);
+		return entity;
+	}
+
 	void Scene::destroyEntity(Entity entity) {
 		if (entity.hasComponent<DirectionalLightComponent>())
 			m_directionalLightCount--;
@@ -163,8 +179,15 @@ namespace Rocket {
 			pointLights.push_back(pointLightGroup.get<PointLightComponent>(light));
 		}
 
+		auto spotLightGroup = m_registry.group<SpotLightComponent>(entt::get<TransformComponent>);
+		std::vector<SpotLightComponent> spotLights;
+		for (auto light : spotLightGroup) {
+			spotLights.push_back(spotLightGroup.get<SpotLightComponent>(light));
+		}
+
 		Renderer2D::applyDirectionalLights(directionalLights, camera.getPosition());
 		Renderer2D::applyPointLights(pointLights);
+		Renderer2D::applySpotLights(spotLights);
 		// Note: View is read only, group is rw
 		auto view = m_registry.view<TransformComponent, SpriteRendererComponent>(entt::exclude<DirectionalLightComponent>);
 
@@ -220,6 +243,12 @@ namespace Rocket {
 	void Scene::onComponentAdded<PointLightComponent>(Entity entity, PointLightComponent& component) {
 		component.position = &entity.getComponent<TransformComponent>().position;
 		m_pointLightCount++;
+	}
+
+	template<>
+	void Scene::onComponentAdded<SpotLightComponent>(Entity entity, SpotLightComponent& component) {
+		component.position = &entity.getComponent<TransformComponent>().position;
+		m_spotLightCount++;
 	}
 
 	template<>

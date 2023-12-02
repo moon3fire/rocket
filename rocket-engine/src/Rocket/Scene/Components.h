@@ -81,6 +81,25 @@ namespace Rocket {
 		
 	};
 
+	struct SpotLightComponent {
+		glm::vec3* position;
+		glm::vec3 direction;
+		float cutOff;
+		float outerCutOff;
+
+		float constant;
+		float linear;
+		float quadratic;
+		
+		glm::vec3 ambient;
+		glm::vec3 diffuse;
+		glm::vec3 specular;
+
+		SpotLightComponent() :position(nullptr), ambient(glm::vec3(0.0f)), diffuse(glm::vec3(0.0f)), specular(glm::vec3(1.0f)), constant(1.0f), linear(0.1f), quadratic(0.01f), direction(glm::vec3(0.0f)), cutOff(1.0f), outerCutOff(1.0f) {}
+		SpotLightComponent(const SpotLightComponent&) = default; // TODO: make sure if works change to this
+		SpotLightComponent(TransformComponent& tc) :position(&(tc.position)), ambient(glm::vec3(1.0f)), diffuse(glm::vec3(1.0f)), specular(glm::vec3(1.0f)), constant(1.0f), linear(0.1f), quadratic(0.01f), direction(glm::vec3(0.0f)), cutOff(1.0f), outerCutOff(1.0f) {}
+	};
+
 	struct CameraComponent {
 		SceneCamera camera;
 		bool primary = true; // TODO: move into scene

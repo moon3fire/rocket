@@ -157,7 +157,6 @@ namespace Rocket {
 
 			auto& plc = entity.getComponent<PointLightComponent>();
 
-			//out << YAML::Key << "Position" << YAML::Value << plc.position;
 			out << YAML::Key << "Ambient" << YAML::Value << plc.ambient;
 			out << YAML::Key << "Diffuse" << YAML::Value << plc.diffuse;
 			out << YAML::Key << "Specular" << YAML::Value << plc.specular;
@@ -168,7 +167,6 @@ namespace Rocket {
 
 			out << YAML::EndMap;
 		}
-
 		out << YAML::EndMap;
 	}
 
@@ -279,13 +277,13 @@ namespace Rocket {
 				if (plc) {
 					auto& pointLightComponent = deserializedEntity.addComponent<PointLightComponent>();
 					auto& tc = deserializedEntity.getComponent<TransformComponent>();
-					pointLightComponent.position = &tc.position;
-					pointLightComponent.ambient = plc["Ambient"].as<glm::vec3>();
-					pointLightComponent.diffuse = plc["Diffuse"].as<glm::vec3>();
-					pointLightComponent.specular = plc["Specular"].as<glm::vec3>();
-					pointLightComponent.constant = plc["Constant"].as<float>();
-					pointLightComponent.linear = plc["Linear"].as<float>();
-					pointLightComponent.quadratic = plc["Quadratic"].as<float>();
+					pointLightComponent.position		= &tc.position;
+					pointLightComponent.ambient			= plc["Ambient"].as<glm::vec3>();
+					pointLightComponent.diffuse			= plc["Diffuse"].as<glm::vec3>();
+					pointLightComponent.specular		= plc["Specular"].as<glm::vec3>();
+					pointLightComponent.constant		= plc["Constant"].as<float>();
+					pointLightComponent.linear			= plc["Linear"].as<float>();
+					pointLightComponent.quadratic		= plc["Quadratic"].as<float>();
 					pointLightComponent.ambientStrenght = plc["AmbientStrenght"].as<float>();
 				}
 			}

@@ -2,6 +2,7 @@
 
 #define SCENE_MAX_DIRECTIONAL_LIGHTS_COUNT 10
 #define SCENE_MAX_POINT_LIGHTS_COUNT 100
+#define SCENE_MAX_SPOT_LIGHTS_COUNT 100
 
 #include "Rocket/Renderer/EditorCamera.h"
 #include "Rocket/Core/Timestep.h"
@@ -22,6 +23,7 @@ namespace Rocket {
 		Entity createEntity(const std::string& name = std::string());
 		Entity createDirectionalLight();
 		Entity createPointLight();
+		Entity createSpotLight();
 		void destroyEntity(Entity entity);
 
 		//TODO: debug purposes, remove
@@ -45,7 +47,7 @@ namespace Rocket {
 		uint32_t m_viewportWidth = 0, m_viewportHeight = 0;
 		
 		int m_entityCount = 0;
-		int m_directionalLightCount = 0, m_pointLightCount = 0;
+		int m_directionalLightCount = 0, m_pointLightCount = 0, m_spotLightCount = 0;
 
 		friend class Entity;
 		friend class SceneSerializer;

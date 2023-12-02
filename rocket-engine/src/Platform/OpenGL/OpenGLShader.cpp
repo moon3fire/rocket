@@ -228,6 +228,10 @@ namespace Rocket {
 		uploadUniformPointLight(pointLightComponents);
 	}
 
+	void OpenGLShader::setSpotLights(const std::vector<SpotLightComponent>& spotLightComponents) {
+		uploadUniformSpotLight(spotLightComponents);
+	}
+
 	void OpenGLShader::uploadUniformDirectionLight(const std::vector<DirectionalLightComponent>& dirLightComponents) {
 		
 		int lightsCount = dirLightComponents.size();
@@ -284,7 +288,6 @@ namespace Rocket {
 		}
 
 
-
 		float strengths[SCENE_MAX_POINT_LIGHTS_COUNT];
 		for (int i = 0; i < lightsCount; i++) {
 			strengths[i] = pointLightComponents[i].ambientStrenght;
@@ -320,6 +323,60 @@ namespace Rocket {
 			glUniform3fv(ambientLocation, 1, glm::value_ptr(ambients[i]));
 			glUniform3fv(diffuseLocation, 1, glm::value_ptr(diffuses[i]));
 			glUniform3fv(specularLocation, 1, glm::value_ptr(speculars[i]));
+			glUniform1fv(constantsLocation, 1, &constants[i]);
+			glUniform1fv(linearsLocation, 1, &linears[i]);
+			glUniform1fv(quadraticsLocation, 1, &quadratics[i]);
+		}
+	}
+
+	void OpenGLShader::uploadUniformSpotLight(const std::vector<SpotLightComponent>& spotLightComponents) {
+		int lightsCount = spotLightComponents.size();
+		RCKT_CORE_ASSERT(lightsCount <= SCENE_MAX_POINT_LIGHTS_COUNT, "Currently supported spot lights count in the scene is <= 100");
+
+		// setting active lights count
+		uploadUniformInt("u_spotLightCount", lightsCount);
+
+		if (lightsCount == 0) {
+			return;
+		}
+
+		glm::vec3 positions[SCENE_MAX_SPOT_LIGHTS_COUNT];
+		glm::vec3 ambients[SCENE_MAX_SPOT_LIGHTS_COUNT];
+		glm::vec3 diffuses[SCENE_MAX_SPOT_LIGHTS_COUNT];
+		glm::vec3 speculars[SCENE_MAX_SPOT_LIGHTS_COUNT];
+		float cutOffs[SCENE_MAX_SPOT_LIGHTS_COUNT];
+		float outerCutOffs[SCENE_MAX_SPOT_LIGHTS_COUNT];
+		float constants[SCENE_MAX_SPOT_LIGHTS_COUNT];
+		float linears[SCENE_MAX_SPOT_LIGHTS_COUNT];
+		float quadratics[SCENE_MAX_SPOT_LIGHTS_COUNT];
+
+		for (int i = 0; i < lightsCount; i++) {
+			positions[i]	= *spotLightComponents[i].position;
+			ambients[i]		= spotLightComponents[i].ambient;
+			diffuses[i]		= spotLightComponents[i].diffuse;
+			speculars[i]	= spotLightComponents[i].specular;
+			cutOffs[i]		= spotLightComponents[i].cutOff;
+			outerCutOffs[i] = spotLightComponents[i].outerCutOff;
+			constants[i]	= spotLightComponents[i].constant;
+			linears[i]		= spotLightComponents[i].linear;
+			quadratics[i]	= spotLightComponents[i].quadratic;
+
+			GLint positionLocation = getUniformLocation("spotLights[" + std::to_string(i) + "].position");
+			GLint ambientLocation = getUniformLocation("spotLights[" + std::to_string(i) + "].ambient");
+			GLint diffuseLocation = getUniformLocation("spotLights[" + std::to_string(i) + "].diffuse");
+			GLint specularLocation = getUniformLocation("spotLights[" + std::to_string(i) + "].specular");
+			GLint cutOffsLocation = getUniformLocation("spotLights[" + std::to_string(i) + "].cutOff");
+			GLint outerCutOffsLocation = getUniformLocation("spotLights[" + std::to_string(i) + "].outerCutOff");
+			GLint constantsLocation = getUniformLocation("spotLights[" + std::to_string(i) + "].constant");
+			GLint linearsLocation = getUniformLocation("spotLights[" + std::to_string(i) + "].linear");
+			GLint quadraticsLocation = getUniformLocation("spotLights[" + std::to_string(i) + "].quadratic");
+
+			glUniform3fv(positionLocation, 1, glm::value_ptr(positions[i]));
+			glUniform3fv(ambientLocation, 1, glm::value_ptr(ambients[i]));
+			glUniform3fv(diffuseLocation, 1, glm::value_ptr(diffuses[i]));
+			glUniform3fv(specularLocation, 1, glm::value_ptr(speculars[i]));
+			glUniform1fv(cutOffsLocation, 1, &cutOffs[i]);
+			glUniform1fv(outerCutOffsLocation, 1, &outerCutOffs[i]);
 			glUniform1fv(constantsLocation, 1, &constants[i]);
 			glUniform1fv(linearsLocation, 1, &linears[i]);
 			glUniform1fv(quadraticsLocation, 1, &quadratics[i]);

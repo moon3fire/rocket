@@ -24,6 +24,7 @@ namespace Rocket {
 		static void uploadDiffuseLight(const glm::vec3& color = glm::vec3(1.0f), const glm::vec3& pos = glm::vec3(0.0f));
 		static void applyDirectionalLights(const std::vector<DirectionalLightComponent>& dirLights, const glm::vec3& viewPosition);
 		static void applyPointLights(const std::vector<PointLightComponent>& pointLights);
+		static void applySpotLights(const std::vector<SpotLightComponent>& spotLights);
 		//static void uploadModelMatrix(const glm::mat4& modelMat);
 		static void uploadSpecularViewerPosition(const glm::vec3& position); // this one will most likely stay
 		//
