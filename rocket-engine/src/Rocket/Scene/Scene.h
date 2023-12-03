@@ -30,6 +30,8 @@ namespace Rocket {
 		void clear();
 		void debugAllAvailableEntities();
 
+		void enableSkybox(bool enabled);
+		void changeSkybox();
 		void onViewportResize(uint32_t width, uint32_t height);
 		void onUpdateRuntime(Timestep ts);
 		void onUpdateEditor(Timestep ts, EditorCamera& camera, const glm::vec2& viewportSize);
@@ -48,7 +50,7 @@ namespace Rocket {
 		
 		int m_entityCount = 0;
 		int m_directionalLightCount = 0, m_pointLightCount = 0, m_spotLightCount = 0;
-
+		bool m_isSkyboxEnabled = false;
 		friend class Entity;
 		friend class SceneSerializer;
 		friend class SceneHierarchyPanel;

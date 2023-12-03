@@ -11,5 +11,4 @@ namespace Rocket {
 		static std::string saveFile(const char* filter);
 	};
 
-
 } // namespace Rocket

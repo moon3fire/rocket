@@ -110,6 +110,14 @@ namespace Rocket {
 		}
 	}
 
+	void Scene::enableSkybox(bool enabled) {
+		m_isSkyboxEnabled = enabled;
+	}
+
+	void Scene::changeSkybox() {
+		Renderer2D::changeSkybox();
+	}
+
 	void Scene::onUpdateRuntime(Timestep ts) {
 
 		// Update native scripts
@@ -201,7 +209,8 @@ namespace Rocket {
 		}
 
 		Renderer2D::endScene();
-		Renderer2D::applySkybox(camera, { m_viewportWidth, m_viewportHeight });
+		if (m_isSkyboxEnabled)
+			Renderer2D::applySkybox(camera, { m_viewportWidth, m_viewportHeight });
 	}
 
 	Entity Scene::getPrimaryCameraEntity() {

@@ -151,7 +151,7 @@ namespace Rocket {
 		}
 
 		style.WindowMinSize.x = minWindowSizeX;
-		
+
 		// MENU BAR
 		if (ImGui::BeginMenuBar())
 		{
@@ -179,7 +179,7 @@ namespace Rocket {
 
 			ImGui::EndMenuBar();
 		}
-		
+
 		// Settings panel (stats)
 		{
 			ImGui::Begin("Settings");
@@ -202,8 +202,18 @@ namespace Rocket {
 			ImGui::Text("Vertices: %d", stats.getTotalVertexCount());
 			ImGui::Text("Indices: %d", stats.getTotalIndexCount());
 
+			if (ImGui::Checkbox("Enable skybox", &m_isSkyboxEnabled))
+				m_activeScene->enableSkybox(m_isSkyboxEnabled);
+			
+			if (m_isSkyboxEnabled) {
+				if (ImGui::Button("Change skybox"))
+					m_activeScene->changeSkybox();
+			}
+			
 			ImGui::End();
+		
 		}
+
 		{
 			m_hierarchyPanel.onImGuiRender();
 		}
