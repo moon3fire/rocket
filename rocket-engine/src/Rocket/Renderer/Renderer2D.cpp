@@ -5,6 +5,9 @@
 #include "Shader.h"
 #include "RenderCommand.h"
 
+#include <glad.h>
+#include <stb_image.h>
+
 namespace Rocket {
 
 	//represents each vertex of the quad
@@ -35,9 +38,11 @@ namespace Rocket {
 		glm::vec2 defaultTextureScale;
 		glm::mat4 quadTransform;
 
-		//temp diffuse light test, UPD given to scene
-		//glm::vec3 diffuseLightPosition = { 0.0f, 0.0f, 0.0f };
-		//glm::vec3 diffuseLightColor = { 1.0f, 1.0f, 1.0f };
+		//Ref<VertexArray> skyboxVA;
+		//Ref<VertexBuffer> skyboxVB;
+		Ref<Shader> skyboxShader;
+		unsigned int skyboxVAO, skyboxVBO, skyboxTexture;
+
 		//temp ends
 
 		uint32_t quadIndexCount = 0;
@@ -88,6 +93,170 @@ namespace Rocket {
 		s_data.quadShader->setSpotLights(spotLights);
 	}
 
+	unsigned int Renderer2D::loadCubemap(std::vector<std::string> faces) {
+		unsigned int textureID;
+		glGenTextures(1, &textureID);
+		glBindTexture(GL_TEXTURE_CUBE_MAP, textureID);
+
+		int width, height, nrChannels;
+		for (unsigned int i = 0; i < faces.size(); i++)
+		{
+			if (i != 0)
+				stbi_set_flip_vertically_on_load(false);
+			unsigned char* data = stbi_load(faces[i].c_str(), &width, &height, &nrChannels, 0);
+			if (data)
+			{
+				glTexImage2D(GL_TEXTURE_CUBE_MAP_POSITIVE_X + i, 0, GL_RGB, width, height, 0, GL_RGB, GL_UNSIGNED_BYTE, data);
+				stbi_image_free(data);
+			}
+			else
+			{
+				std::cout << "Cubemap texture failed to load at path: " << faces[i] << std::endl;
+				stbi_image_free(data);
+			}
+		}
+		glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+		glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+		glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
+		glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
+		glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_WRAP_R, GL_CLAMP_TO_EDGE);
+
+		return textureID;
+	}
+
+	void Renderer2D::prepareSkybox() {
+		float cubeVertices[] = {
+			// positions          // texture Coords
+			-0.5f, -0.5f, -0.5f,  0.0f, 0.0f,
+			 0.5f, -0.5f, -0.5f,  1.0f, 0.0f,
+			 0.5f,  0.5f, -0.5f,  1.0f, 1.0f,
+			 0.5f,  0.5f, -0.5f,  1.0f, 1.0f,
+			-0.5f,  0.5f, -0.5f,  0.0f, 1.0f,
+			-0.5f, -0.5f, -0.5f,  0.0f, 0.0f,
+
+			-0.5f, -0.5f,  0.5f,  0.0f, 0.0f,
+			 0.5f, -0.5f,  0.5f,  1.0f, 0.0f,
+			 0.5f,  0.5f,  0.5f,  1.0f, 1.0f,
+			 0.5f,  0.5f,  0.5f,  1.0f, 1.0f,
+			-0.5f,  0.5f,  0.5f,  0.0f, 1.0f,
+			-0.5f, -0.5f,  0.5f,  0.0f, 0.0f,
+
+			-0.5f,  0.5f,  0.5f,  1.0f, 0.0f,
+			-0.5f,  0.5f, -0.5f,  1.0f, 1.0f,
+			-0.5f, -0.5f, -0.5f,  0.0f, 1.0f,
+			-0.5f, -0.5f, -0.5f,  0.0f, 1.0f,
+			-0.5f, -0.5f,  0.5f,  0.0f, 0.0f,
+			-0.5f,  0.5f,  0.5f,  1.0f, 0.0f,
+
+			 0.5f,  0.5f,  0.5f,  1.0f, 0.0f,
+			 0.5f,  0.5f, -0.5f,  1.0f, 1.0f,
+			 0.5f, -0.5f, -0.5f,  0.0f, 1.0f,
+			 0.5f, -0.5f, -0.5f,  0.0f, 1.0f,
+			 0.5f, -0.5f,  0.5f,  0.0f, 0.0f,
+			 0.5f,  0.5f,  0.5f,  1.0f, 0.0f,
+
+			-0.5f, -0.5f, -0.5f,  0.0f, 1.0f,
+			 0.5f, -0.5f, -0.5f,  1.0f, 1.0f,
+			 0.5f, -0.5f,  0.5f,  1.0f, 0.0f,
+			 0.5f, -0.5f,  0.5f,  1.0f, 0.0f,
+			-0.5f, -0.5f,  0.5f,  0.0f, 0.0f,
+			-0.5f, -0.5f, -0.5f,  0.0f, 1.0f,
+
+			-0.5f,  0.5f, -0.5f,  0.0f, 1.0f,
+			 0.5f,  0.5f, -0.5f,  1.0f, 1.0f,
+			 0.5f,  0.5f,  0.5f,  1.0f, 0.0f,
+			 0.5f,  0.5f,  0.5f,  1.0f, 0.0f,
+			-0.5f,  0.5f,  0.5f,  0.0f, 0.0f,
+			-0.5f,  0.5f, -0.5f,  0.0f, 1.0f
+		};
+		float skyboxVertices[] = {
+			// positions          
+			-1.0f,  1.0f, -1.0f,
+			-1.0f, -1.0f, -1.0f,
+			 1.0f, -1.0f, -1.0f,
+			 1.0f, -1.0f, -1.0f,
+			 1.0f,  1.0f, -1.0f,
+			-1.0f,  1.0f, -1.0f,
+
+			-1.0f, -1.0f,  1.0f,
+			-1.0f, -1.0f, -1.0f,
+			-1.0f,  1.0f, -1.0f,
+			-1.0f,  1.0f, -1.0f,
+			-1.0f,  1.0f,  1.0f,
+			-1.0f, -1.0f,  1.0f,
+
+			 1.0f, -1.0f, -1.0f,
+			 1.0f, -1.0f,  1.0f,
+			 1.0f,  1.0f,  1.0f,
+			 1.0f,  1.0f,  1.0f,
+			 1.0f,  1.0f, -1.0f,
+			 1.0f, -1.0f, -1.0f,
+
+			-1.0f, -1.0f,  1.0f,
+			-1.0f,  1.0f,  1.0f,
+			 1.0f,  1.0f,  1.0f,
+			 1.0f,  1.0f,  1.0f,
+			 1.0f, -1.0f,  1.0f,
+			-1.0f, -1.0f,  1.0f,
+
+			-1.0f,  1.0f, -1.0f,
+			 1.0f,  1.0f, -1.0f,
+			 1.0f,  1.0f,  1.0f,
+			 1.0f,  1.0f,  1.0f,
+			-1.0f,  1.0f,  1.0f,
+			-1.0f,  1.0f, -1.0f,
+
+			-1.0f, -1.0f, -1.0f,
+			-1.0f, -1.0f,  1.0f,
+			 1.0f, -1.0f, -1.0f,
+			 1.0f, -1.0f, -1.0f,
+			-1.0f, -1.0f,  1.0f,
+			 1.0f, -1.0f,  1.0f
+		};
+		glGenVertexArrays(1, &s_data.skyboxVAO);
+		glGenBuffers(1, &s_data.skyboxVBO);
+		glBindVertexArray(s_data.skyboxVAO);
+		glBindBuffer(GL_ARRAY_BUFFER, s_data.skyboxVBO);
+		glBufferData(GL_ARRAY_BUFFER, sizeof(skyboxVertices), &skyboxVertices, GL_STATIC_DRAW);
+		glEnableVertexAttribArray(0);
+		glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 3 * sizeof(float), (void*)0);
+		std::vector<std::string> faces
+		{
+			"C:/dev/rocket-engine/rocket-editor/assets/skybox/right.jpg",
+			"C:/dev/rocket-engine/rocket-editor/assets/skybox/left.jpg",
+			"C:/dev/rocket-engine/rocket-editor/assets/skybox/top.jpg",
+			"C:/dev/rocket-engine/rocket-editor/assets/skybox/bottom.jpg",
+			"C:/dev/rocket-engine/rocket-editor/assets/skybox/front.jpg",
+			"C:/dev/rocket-engine/rocket-editor/assets/skybox/back.jpg"
+		};
+
+		s_data.skyboxTexture = loadCubemap(faces);
+
+	}
+
+
+	void Renderer2D::applySkybox(const EditorCamera& camera, const glm::vec2& viewportSize) {
+		glDepthFunc(GL_LEQUAL);  // change depth function so depth test passes when values are equal to depth buffer's content
+
+		s_data.skyboxShader->bind();
+		s_data.skyboxShader->setInt("skybox", 0);
+		//glm::mat4 model = glm::mat4(1.0f);
+		glm::mat4 view = glm::mat4(glm::mat3(camera.getViewMatrix())); // remove translation from the view matrix
+		//glm::mat4 projection = glm::perspective(glm::radians(camera.getZoomLevel()), (float)viewportSize.x / (float)viewportSize.y, 0.1f, 100.0f);
+		//s_data.skyboxShader->setMat4("u_model", model);
+		s_data.skyboxShader->setMat4("u_view", view);
+		s_data.skyboxShader->setMat4("u_projection", camera.getProjection());
+
+		// skybox cube
+		glBindVertexArray(s_data.skyboxVAO);
+		glActiveTexture(GL_TEXTURE0);
+		glBindTexture(GL_TEXTURE_CUBE_MAP, s_data.skyboxTexture);
+		glDrawArrays(GL_TRIANGLES, 0, 36);
+		glBindVertexArray(0);
+		glDepthFunc(GL_LESS); // set depth function back to default
+	}
+
+
 	//temp ends here
 
 
@@ -136,6 +305,7 @@ namespace Rocket {
 		delete[] quadIndices;
 
 		s_data.quadShader = Shader::create("assets/shaders/Quad.glsl");
+		s_data.skyboxShader = Shader::create("assets/shaders/Skybox.glsl");
 		//s_data.lightingShader = Shader::create("assets/shaders/Lighting.glsl");
 		s_data.quadShader->bind();
 		s_data.defaultTexture = Texture2D::create("assets/textures/default.png");
@@ -153,6 +323,8 @@ namespace Rocket {
 		s_data.quadVertexPositions[1] = {  0.5f, -0.5f, 0.0f, 1.0f };
 		s_data.quadVertexPositions[2] = {  0.5f,  0.5f, 0.0f, 1.0f };
 		s_data.quadVertexPositions[3] = { -0.5f,  0.5f, 0.0f, 1.0f };
+
+		prepareSkybox();
 	}
 
 	void Renderer2D::shutdown() {
@@ -195,6 +367,7 @@ namespace Rocket {
 
 		glm::mat4 viewProj = camera.getViewProjection();
 
+		s_data.quadVA->bind();
 		s_data.quadShader->bind();
 		s_data.quadShader->setMat4("u_viewProjection", viewProj);
 	

@@ -25,8 +25,11 @@ namespace Rocket {
 		static void applyDirectionalLights(const std::vector<DirectionalLightComponent>& dirLights, const glm::vec3& viewPosition);
 		static void applyPointLights(const std::vector<PointLightComponent>& pointLights);
 		static void applySpotLights(const std::vector<SpotLightComponent>& spotLights);
+		static void prepareSkybox();
+		static void applySkybox(const EditorCamera& camera, const glm::vec2& viewportSize);
+		static unsigned int loadCubemap(std::vector<std::string> faces);
 		//static void uploadModelMatrix(const glm::mat4& modelMat);
-		static void uploadSpecularViewerPosition(const glm::vec3& position); // this one will most likely stay
+		static void uploadSpecularViewerPosition(const glm::vec3& position); // this one will most likely stay, UPD im not sure
 		//
 		static void endScene();
 		

@@ -162,7 +162,7 @@ namespace Rocket {
 		}
 	}
 
-	void Scene::onUpdateEditor(Timestep ts, EditorCamera& camera) {
+	void Scene::onUpdateEditor(Timestep ts, EditorCamera& camera, const glm::vec2& viewportSize) {
 		Renderer2D::beginScene(camera);
 
 		//Renderer2D::uploadDiffuseLight(diffuseColor, diffusePos);
@@ -192,15 +192,16 @@ namespace Rocket {
 		auto view = m_registry.view<TransformComponent, SpriteRendererComponent>(entt::exclude<DirectionalLightComponent>);
 
 		for (auto entity : view) {
-			
+
 			auto [sprite, transform] = view.get<SpriteRendererComponent, TransformComponent>(entity);
 			Renderer2D::drawSprite(transform.getTransform(), sprite, (int)entity);
-			
+
 			//Renderer2D::uploadModelMatrix(transform.getTransform()); very temporary
 			//Renderer2D::drawQuadWithViewMat(transform.getTransform(), sprite.color);
 		}
 
 		Renderer2D::endScene();
+		Renderer2D::applySkybox(camera, { m_viewportWidth, m_viewportHeight });
 	}
 
 	Entity Scene::getPrimaryCameraEntity() {

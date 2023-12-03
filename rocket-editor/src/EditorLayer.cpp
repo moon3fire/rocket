@@ -88,7 +88,7 @@ namespace Rocket {
 		{
 			RCKT_PROFILE_SCOPE("Scene render");
 			//updating scene
-			m_activeScene->onUpdateEditor(ts, m_editorCamera);
+			m_activeScene->onUpdateEditor(ts, m_editorCamera, m_viewportSize);
 
 			auto [mx, my] = ImGui::GetMousePos();
 			mx -= m_viewportBounds[0].x;

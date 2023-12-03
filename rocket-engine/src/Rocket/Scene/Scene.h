@@ -32,7 +32,7 @@ namespace Rocket {
 
 		void onViewportResize(uint32_t width, uint32_t height);
 		void onUpdateRuntime(Timestep ts);
-		void onUpdateEditor(Timestep ts, EditorCamera& camera);
+		void onUpdateEditor(Timestep ts, EditorCamera& camera, const glm::vec2& viewportSize);
 
 		Entity getPrimaryCameraEntity();
 	private:

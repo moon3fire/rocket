@@ -31,6 +31,7 @@ namespace Rocket {
 		const glm::vec3& getPosition() const { return m_position; }
 		glm::quat getOrientation() const;
 
+		float getZoomLevel() const { return m_distance / std::tan(glm::radians(0.5f * m_FOV)); }
 		float getPitch() const { return m_pitch; }
 		float getYaw() const { return m_yaw; }
 
