@@ -29,7 +29,11 @@ namespace Rocket {
 		static void setSkybox(const std::vector<std::string>& faces);
 		static void changeSkybox();
 		static void applySkybox(const EditorCamera& camera, const glm::vec2& viewportSize);
-		static unsigned int loadCubemap(std::vector<std::string> faces);
+
+		static void enableReflection(bool enabled);
+		static void enableRefraction(bool enabled);
+
+		//static unsigned int loadCubemap(std::vector<std::string> faces); moved to utils TODO:delete
 		//static void uploadModelMatrix(const glm::mat4& modelMat);
 		static void uploadSpecularViewerPosition(const glm::vec3& position); // this one will most likely stay, UPD im not sure
 		//

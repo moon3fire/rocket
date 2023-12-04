@@ -11,6 +11,8 @@ namespace Rocket {
 
 		virtual void resetSkybox(const std::vector<std::string>& faces) override;
 		virtual void drawSkybox() override;
+		virtual unsigned int getTexture() override;
+
 	private:
 		unsigned int m_vao = 0, m_vbo = 0, m_texture = 0;
 		std::string m_folderPath;

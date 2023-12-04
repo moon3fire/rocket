@@ -10,6 +10,7 @@ namespace Rocket {
 	public:
 		virtual ~Skybox() = default;
 
+		virtual unsigned int getTexture() = 0;
 		static Ref<Skybox> create(const std::vector<std::string>& faces);
 		virtual void resetSkybox(const std::vector<std::string>& faces) = 0;
 		virtual void drawSkybox() = 0;

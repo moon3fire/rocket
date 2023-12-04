@@ -209,6 +209,19 @@ namespace Rocket {
 				if (ImGui::Button("Change skybox"))
 					m_activeScene->changeSkybox();
 			}
+
+			if (m_isSkyboxEnabled) {
+				if (!m_isRefractionEnabled) {
+					if (ImGui::Checkbox("Enable reflection", &m_isReflectionEnabled)) {
+						m_activeScene->enableReflection(m_isReflectionEnabled);
+					}
+				}
+				if (!m_isReflectionEnabled) {
+					if (ImGui::Checkbox("Enable refraction", &m_isRefractionEnabled)) {
+						m_activeScene->enableRefraction(m_isRefractionEnabled);
+					}
+				}
+			}
 			
 			ImGui::End();
 		

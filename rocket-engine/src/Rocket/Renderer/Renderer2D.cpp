@@ -42,6 +42,9 @@ namespace Rocket {
 
 		//Ref<VertexArray> skyboxVA;
 		//Ref<VertexBuffer> skyboxVB;
+		Ref<Shader> reflectionShader, refractionShader;
+		bool reflectionEnabled = false, refractionEnabled = false;
+
 		Ref<Shader> skyboxShader;
 		Ref<Skybox> skybox;
 		std::string skyboxPath = "../rocket-editor/assets/skybox/";
@@ -137,6 +140,14 @@ namespace Rocket {
 		prepareSkybox();
 	}
 
+	void Renderer2D::enableReflection(bool enabled) {
+		s_data.reflectionEnabled = enabled;
+	}
+	
+	void Renderer2D::enableRefraction(bool enabled) {
+		s_data.refractionEnabled = enabled;
+	}
+
 	//temp ends here
 
 
@@ -185,7 +196,8 @@ namespace Rocket {
 
 		s_data.quadShader = Shader::create("assets/shaders/Quad.glsl");
 		s_data.skyboxShader = Shader::create("assets/shaders/Skybox.glsl");
-		//s_data.lightingShader = Shader::create("assets/shaders/Lighting.glsl");
+		s_data.reflectionShader = Shader::create("assets/shaders/Reflection.glsl");
+		s_data.refractionShader = Shader::create("assets/shaders/Refraction.glsl");
 		s_data.quadShader->bind();
 		s_data.defaultTexture = Texture2D::create("assets/textures/default.png");
 		
@@ -245,11 +257,24 @@ namespace Rocket {
 		RCKT_PROFILE_FUNCTION();
 
 		glm::mat4 viewProj = camera.getViewProjection();
-
 		s_data.quadVA->bind();
 		s_data.quadShader->bind();
 		s_data.quadShader->setMat4("u_viewProjection", viewProj);
-	
+
+		if (s_data.reflectionEnabled) {
+			s_data.reflectionShader->bind();
+			s_data.reflectionShader->setMat4("u_viewProjection", viewProj);
+			s_data.reflectionShader->setMat4("u_model", glm::mat4(1.0f));
+			s_data.reflectionShader->setFloat3("u_viewPosition", camera.getPosition());
+
+		}
+		else if (s_data.refractionEnabled) {
+			s_data.refractionShader->bind();
+			s_data.refractionShader->setMat4("u_viewProjection", viewProj);
+			s_data.refractionShader->setMat4("u_model", glm::mat4(1.0f));
+			s_data.refractionShader->setFloat3("u_viewPosition", camera.getPosition());
+		}
+
 		s_data.quadIndexCount = 0;
 		s_data.quadVertexBufferPtr = s_data.quadVertexBufferBase;
 		

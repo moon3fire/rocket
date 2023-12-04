@@ -32,6 +32,10 @@ namespace Rocket {
 
 		void enableSkybox(bool enabled);
 		void changeSkybox();
+	
+		void enableReflection(bool enabled);
+		void enableRefraction(bool enabled);
+		
 		void onViewportResize(uint32_t width, uint32_t height);
 		void onUpdateRuntime(Timestep ts);
 		void onUpdateEditor(Timestep ts, EditorCamera& camera, const glm::vec2& viewportSize);

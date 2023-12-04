@@ -118,6 +118,14 @@ namespace Rocket {
 		Renderer2D::changeSkybox();
 	}
 
+	void Scene::enableReflection(bool enabled) {
+		Renderer2D::enableReflection(enabled);
+	}
+
+	void Scene::enableRefraction(bool enabled) {
+		Renderer2D::enableRefraction(enabled);
+	}
+
 	void Scene::onUpdateRuntime(Timestep ts) {
 
 		// Update native scripts

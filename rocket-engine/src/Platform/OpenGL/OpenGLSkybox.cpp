@@ -88,4 +88,10 @@ namespace Rocket {
 		glDepthFunc(GL_LESS); // set depth function back to default
 	}
 
+	unsigned int OpenGLSkybox::getTexture()
+	{
+		//not implemented
+		return 0;
+	}
+
 } // namespace Rocket

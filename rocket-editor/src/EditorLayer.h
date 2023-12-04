@@ -54,7 +54,7 @@ namespace Rocket {
 		glm::vec2 m_viewportSize = { 0.0f, 0.0f };
 		glm::vec2 m_viewportBounds[2];
 		bool m_viewportFocused = false, m_viewportHovered = false;
-		bool m_isSkyboxEnabled = false;
+		bool m_isSkyboxEnabled = false, m_isReflectionEnabled = false, m_isRefractionEnabled = false;
 
 		int m_gizmosType = -1;
 	};
