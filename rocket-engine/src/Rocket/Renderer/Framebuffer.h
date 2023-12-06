@@ -7,6 +7,8 @@ namespace Rocket {
 
 		//Color
 		RGBA8,
+		RGBA_16F,
+		RGBA_32F,
 		RED_INTEGER,
 
 		//Depth/stencil

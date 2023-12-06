@@ -22,13 +22,18 @@ namespace Rocket {
 		}
 
 		static void attachColorTexture(uint32_t id, int samples, GLenum internalFormat, GLenum format, uint32_t width, uint32_t height, int index) {
+			glEnable(GL_MULTISAMPLE);
+
 			bool multisampled = samples > 1;
 
 			if (multisampled) {
-				glTexImage2DMultisample(GL_TEXTURE_2D_MULTISAMPLE, samples, internalFormat, width, height, GL_FALSE);
+				glTexImage2DMultisample(GL_TEXTURE_2D_MULTISAMPLE, samples, internalFormat, width, height, GL_FALSE); /*TODO: think about to set this true*/
 			}
 			else {
-				glTexImage2D(GL_TEXTURE_2D, 0, internalFormat, width, height, 0, format, GL_UNSIGNED_BYTE, nullptr);
+				if (internalFormat == GL_RGBA16F || internalFormat == GL_RGBA32F) /* TODO: convert this to function */
+					glTexImage2D(GL_TEXTURE_2D, 0, internalFormat, width, height, 0, format, GL_FLOAT, nullptr);
+				else
+					glTexImage2D(GL_TEXTURE_2D, 0, internalFormat, width, height, 0, format, GL_UNSIGNED_BYTE, nullptr);
 
 				glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
 				glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
@@ -70,10 +75,24 @@ namespace Rocket {
 		static GLenum RocketFBTextureFormatToGL(FramebufferTextureFormat format) {
 			switch (format) {
 				case FramebufferTextureFormat::RGBA8:		return GL_RGBA8;
+				case FramebufferTextureFormat::RGBA_16F:	return GL_RGBA16F;
+				case FramebufferTextureFormat::RGBA_32F:	return GL_RGBA32F;
 				case FramebufferTextureFormat::RED_INTEGER: return GL_RED_INTEGER;
 			}
 
 			RCKT_CORE_ASSERT(false, "Unknown framebuffer texture format");
+			return 0;
+		}
+
+		static GLenum RocketFBTextureFormatToGLType(FramebufferTextureFormat format) {
+			switch (format) {
+				case FramebufferTextureFormat::RGBA8:			return GL_INT;
+				case FramebufferTextureFormat::RGBA_16F:		return GL_FLOAT;
+				case FramebufferTextureFormat::RGBA_32F:		return GL_FLOAT;
+				case FramebufferTextureFormat::RED_INTEGER:		return GL_INT;
+			}
+
+			RCKT_CORE_ASSERT(false, "Unknown framebuffer texture format for getting the type!");
 			return 0;
 		}
 	
@@ -122,6 +141,12 @@ namespace Rocket {
 				switch (m_colorAttachmentSpecifications[i].textureFormat) {
 					case FramebufferTextureFormat::RGBA8:
 						Utils::attachColorTexture(m_colorAttachments[i], m_specification.samples, GL_RGBA8, GL_RGBA, m_specification.width, m_specification.height, i);
+						break;
+					case FramebufferTextureFormat::RGBA_16F:
+						Utils::attachColorTexture(m_colorAttachments[i], m_specification.samples, GL_RGBA16F, GL_RGBA, m_specification.width, m_specification.height, i);
+						break;
+					case FramebufferTextureFormat::RGBA_32F:
+						Utils::attachColorTexture(m_colorAttachments[i], m_specification.samples, GL_RGBA32F, GL_RGBA, m_specification.width, m_specification.height, i);
 						break;
 					case FramebufferTextureFormat::RED_INTEGER:
 						Utils::attachColorTexture(m_colorAttachments[i], m_specification.samples, GL_R32I, GL_RED_INTEGER, m_specification.width, m_specification.height, i);
@@ -189,7 +214,8 @@ namespace Rocket {
 		RCKT_CORE_ASSERT(attachmentIndex < m_colorAttachments.size(), "given attachment index is less than ");
 
 		auto& spec = m_colorAttachmentSpecifications[attachmentIndex];
-		glClearTexImage(m_colorAttachments[attachmentIndex], 0, Utils::RocketFBTextureFormatToGL(spec.textureFormat), GL_INT, &value);
+		glClearTexImage(m_colorAttachments[attachmentIndex], 0, Utils::RocketFBTextureFormatToGL(spec.textureFormat),
+																Utils::RocketFBTextureFormatToGLType(spec.textureFormat), &value);
 	}
 	
 } // namespace Rocket

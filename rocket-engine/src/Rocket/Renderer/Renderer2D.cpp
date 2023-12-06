@@ -260,6 +260,7 @@ namespace Rocket {
 		s_data.quadVA->bind();
 		s_data.quadShader->bind();
 		s_data.quadShader->setMat4("u_viewProjection", viewProj);
+		s_data.quadShader->setBool("u_isGammaCorrectionEnabled", true);
 
 		if (s_data.reflectionEnabled) {
 			s_data.reflectionShader->bind();

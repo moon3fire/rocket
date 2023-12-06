@@ -3,6 +3,7 @@
 #include "Rocket.h"
 
 #include "panels/SceneHierarchyPanel.h"
+#include "panels/ContentBrowserPanel.h"
 #include "Rocket/Renderer/EditorCamera.h"
 
 namespace Rocket {
@@ -31,6 +32,7 @@ namespace Rocket {
 	private:
 		//panels
 		SceneHierarchyPanel m_hierarchyPanel;
+		ContentBrowserPanel m_contentBrowserPanel;
 
 		OrthographicCameraController m_cameraController;
 

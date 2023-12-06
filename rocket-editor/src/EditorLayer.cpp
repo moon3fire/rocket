@@ -18,10 +18,13 @@ namespace Rocket {
 	void EditorLayer::onAttach() {
 		RCKT_PROFILE_FUNCTION();
 
-		Rocket::FramebufferSpecification frameBufferSpec;
-		frameBufferSpec.attachments = { FramebufferTextureFormat::RGBA8, FramebufferTextureFormat::RED_INTEGER, FramebufferTextureFormat::Depth };
+		FramebufferSpecification frameBufferSpec;
+		//frameBufferSpec.attachments = { FramebufferTextureFormat::RGBA8, FramebufferTextureFormat::RED_INTEGER, FramebufferTextureFormat::Depth };
+		//frameBufferSpec.attachments = { FramebufferTextureFormat::RGBA_16F, FramebufferTextureFormat::RED_INTEGER, FramebufferTextureFormat::Depth };
+		frameBufferSpec.attachments = { FramebufferTextureFormat::RGBA_32F, FramebufferTextureFormat::RED_INTEGER, FramebufferTextureFormat::Depth };
 		frameBufferSpec.width = 1280;
 		frameBufferSpec.height = 720;
+		frameBufferSpec.samples = 1;
 		m_framebuffer = Rocket::Framebuffer::create(frameBufferSpec);
 
 		m_cameraController.setZoomLevel(5.5f);
@@ -229,6 +232,7 @@ namespace Rocket {
 
 		{
 			m_hierarchyPanel.onImGuiRender();
+			m_contentBrowserPanel.onImGuiRender();
 		}
 		ImGui::End();
 

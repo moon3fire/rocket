@@ -91,6 +91,7 @@ struct SpotLight {
 uniform int u_directionalLightCount;
 uniform int u_pointLightCount;
 uniform int u_spotLightCount;
+uniform bool u_isGammaCorrectionEnabled;
 
 // ambient strenghts
 uniform float u_ambientStrenghtsDirectional[MAX_DIRECTIONAL_LIGHTS];
@@ -168,6 +169,9 @@ void main()
 	}
 
 	result = result * textureColor.xyz;
+	if (u_isGammaCorrectionEnabled) {
+		result = pow(result, vec3(1.0/2.2));
+	}
 
 	color = vec4(result, 1.0);	
 	entityID = v_entityID; // placeholder for entity ID
@@ -177,13 +181,15 @@ vec3 CalculateDirectionalLight(DirectionalLight light, vec3 normal, vec3 viewDir
 							   float ambientStrenght, float specularStrenght) {
 	// TODO: add materials
 	vec3 lightDir = normalize(-light.direction);
-	// diffuse shading
+
 	float diff = max(dot(normal, lightDir), 0.0);
-	// specular shading
-	vec3 reflectDir = reflect(-lightDir, normal);
-	// last parameter is shininess
-	float spec = pow(max(dot(viewDir, reflectDir), 0.0), 32);
-	//combine results
+
+	//vec3 reflectDir = reflect(-lightDir, normal); //PHONG
+	//float spec = pow(max(dot(viewDir, reflectDir), 0.0), 32); // PHONG
+	vec3 halfwayDir = normalize(lightDir + viewDir);
+
+	float spec = pow(max(dot(normal, halfwayDir), 0.0), 32); // BLINN
+
 	vec3 ambient = light.ambient * ambientStrenght;
 	vec3 diffuse = light.diffuse * diff;
 	vec3 specular = light.specular * spec * specularStrenght;
@@ -192,12 +198,16 @@ vec3 CalculateDirectionalLight(DirectionalLight light, vec3 normal, vec3 viewDir
 
 vec3 CalculatePointLights(PointLight light, vec3 normal, vec3 fragPos, vec3 viewDir, float ambientStrenght) {
     vec3 lightDir = normalize(light.position - fragPos);
-	// diffuse shading
+	
     float diff = max(dot(normal, lightDir), 0.0);
-	// specular shading
-    vec3 reflectDir = reflect(-lightDir, normal);
-    float spec = pow(max(dot(viewDir, reflectDir), 0.0), 32); // 32 is shininess
-	 // attenuation
+	
+	vec3 halfwayDir = normalize(lightDir + viewDir);
+	float spec = pow(max(dot(normal, halfwayDir), 0.0), 32); // BLINN
+
+	//vec3 reflectDir = reflect(-lightDir, normal);
+    //float spec = pow(max(dot(viewDir, reflectDir), 0.0), 32); // PHONG 32 is shininess
+	 
+	// attenuation
     float distance = length(light.position - fragPos);
     float attenuation = 1.0 / (light.constant + light.linear * distance + light.quadratic * (distance * distance));
 	 // combine results
@@ -213,8 +223,13 @@ vec3 CalculatePointLights(PointLight light, vec3 normal, vec3 fragPos, vec3 view
 vec3 CalculateSpotLights(SpotLight light, vec3 normal, vec3 fragPos, vec3 viewDir) {
 	vec3 lightDir = normalize(light.position - fragPos);
 	float diff = max(dot(normal, lightDir), 0.0);
-	vec3 reflectDir = reflect(-lightDir, normal);
-	float spec = pow(max(dot(viewDir, reflectDir), 0.0), 32);
+	
+	//vec3 reflectDir = reflect(-lightDir, normal); PHONG
+	//float spec = pow(max(dot(viewDir, reflectDir), 0.0), 32); PHONG
+
+	vec3 halfwayDir = normalize(lightDir + viewDir);
+	float spec = pow(max(dot(normal, halfwayDir), 0.0), 32); // BLINN
+	
 	float distance = length(light.position - fragPos);
 	float attenuation = 1.0 / (light.constant + light.linear * distance + light.quadratic * (distance * distance));
 	// spotlight intensity
