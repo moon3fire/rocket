@@ -40,15 +40,15 @@ cd scripts
 run Win-GenProjects.bat
 ```
 
-# Example usage
+# Usage
 run rocket.sln
 
-License
+# License
 This project is licensed under the Apache License 2.0 - see the LICENSE file for details.
 
-Acknowledgements
+# Acknowledgements
 This project is based on the architecture shown in game engine series of github.com/TheCherno
 I am grateful to him for the tutorial!
 
-Contact
+# Contact
 Email: arman.isajanyan18@gmail.com
