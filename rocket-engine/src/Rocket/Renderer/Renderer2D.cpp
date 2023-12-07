@@ -120,7 +120,7 @@ namespace Rocket {
 		s_data.skybox->resetSkybox(faces);
 	}
 
-	void Renderer2D::applySkybox(const EditorCamera& camera, const glm::vec2& viewportSize) {
+	void Renderer2D::applySkybox(const EditorCamera& camera) {
 		s_data.skyboxShader->bind();
 		s_data.skyboxShader->setInt("skybox", 0);
 		glm::mat4 view = glm::mat4(glm::mat3(camera.getViewMatrix())); // remove translation from the view matrix
@@ -280,6 +280,7 @@ namespace Rocket {
 
 		//calculating data size to be rendered in bytes
 		uint32_t dataSize = (uint8_t*)s_data.quadVertexBufferPtr - (uint8_t*)s_data.quadVertexBufferBase;
+		// dataSizeReflection = ...
 		s_data.quadVertexBuffer->setData(s_data.quadVertexBufferBase, dataSize);
 
 		flush();
@@ -292,7 +293,7 @@ namespace Rocket {
 		if (s_data.quadIndexCount == 0)
 			return;
 
-		s_data.quadShader->bind();
+		//s_data.quadShader->bind();
 		//bind textures
 		for (uint32_t i = 0; i < s_data.textureSlotIndex; i++) {
 			s_data.textureSlots[i]->bind(i);
@@ -484,18 +485,10 @@ namespace Rocket {
 
 		s_data.quadIndexCount += 6;
 		s_data.stats.quadCount++;
-
 	}
 
 	void Renderer2D::drawSprite(const glm::mat4& transform, SpriteRendererComponent& src, int entityID) {
-		if (src.texture == nullptr)
-			drawQuadWithViewMat(transform, src.color, entityID);
-		else
-			drawTexturedSpriteWithViewMat(transform ,src, entityID);
-	}
-
-	//no texture colored quads
-	void Renderer2D::drawQuadWithViewMat(const glm::mat4& transform, const glm::vec4& color, int entityID) {
+		//if (src.isReflected) to add reflections TODO: add reflection refracting batching functionality
 		RCKT_PROFILE_FUNCTION();
 
 		if (s_data.quadIndexCount >= Renderer2DStorage::maxIndices) {
@@ -504,40 +497,7 @@ namespace Rocket {
 
 		constexpr size_t quadVertexCount = 4;
 		constexpr glm::vec2 textureCoords[] = { { 0.0f, 0.0f }, { 1.0f, 0.0f }, { 1.0f, 1.0f }, { 0.0f, 1.0f } };
-		const float textureIndex = -1.0f; // no texture for simple quads
-		const float tilingFactor = 1.0f;
-
-		glm::vec3 edge1 = transform * (s_data.quadVertexPositions[2] - s_data.quadVertexPositions[1]);
-		glm::vec3 edge2 = transform * (s_data.quadVertexPositions[0] - s_data.quadVertexPositions[1]);
-
-		glm::vec3 normal = glm::cross(edge1, edge2);
-
-		for (size_t i = 0; i < quadVertexCount; i++) {
-			s_data.quadVertexBufferPtr->position = transform * s_data.quadVertexPositions[i];
-			s_data.quadVertexBufferPtr->color = color;
-			s_data.quadVertexBufferPtr->normal = normal;
-			s_data.quadVertexBufferPtr->texCoord = textureCoords[i];
-			s_data.quadVertexBufferPtr->texIndex = textureIndex;
-			s_data.quadVertexBufferPtr->tilingFactor = tilingFactor;
-			s_data.quadVertexBufferPtr->entityID = entityID;
-			s_data.quadVertexBufferPtr++;
-
-		}
-
-		s_data.quadIndexCount += 6;
-		s_data.stats.quadCount++;
-	}
-	// textured quads
-	void Renderer2D::drawTexturedSpriteWithViewMat(const glm::mat4& transform, SpriteRendererComponent& src, int entityID) {
-		RCKT_PROFILE_FUNCTION();
-
-		if (s_data.quadIndexCount >= Renderer2DStorage::maxIndices) {
-			flushAndReset();
-		}
-
-		constexpr size_t quadVertexCount = 4;
-		constexpr glm::vec2 textureCoords[] = { { 0.0f, 0.0f }, { 1.0f, 0.0f }, { 1.0f, 1.0f }, { 0.0f, 1.0f } };
-		float textureIndex = -1.0f; // being set in the next loop
+		float textureIndex = -1.0f; // being set if has a texture
 
 		glm::vec3 edge1 = transform * (s_data.quadVertexPositions[2] - s_data.quadVertexPositions[1]);
 		glm::vec3 edge2 = transform * (s_data.quadVertexPositions[0] - s_data.quadVertexPositions[1]);
@@ -573,6 +533,7 @@ namespace Rocket {
 		}
 		s_data.quadIndexCount += 6;
 		s_data.stats.quadCount++;
+			
 	}
 
 	Renderer2D::Statistics Renderer2D::getStats() {

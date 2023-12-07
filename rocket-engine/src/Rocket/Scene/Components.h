@@ -1,5 +1,9 @@
 #pragma once
 
+#define SCENE_MAX_DIRECTIONAL_LIGHTS_COUNT 10
+#define SCENE_MAX_POINT_LIGHTS_COUNT 100
+#define SCENE_MAX_SPOT_LIGHTS_COUNT 100
+
 #include <glm/glm.hpp>
 #include <glm/gtc/matrix_transform.hpp>
 
@@ -7,17 +11,19 @@
 #include <glm/gtx/quaternion.hpp>
 
 #include "SceneCamera.h"
-#include "ScriptableEntity.h"
+#include "Rocket/Core/UUID.h"
 #include "Rocket/Renderer/Texture.h"
 
 namespace Rocket {
 
 	struct TagComponent {
 		std::string tag;
+		UUID id;
 
 		TagComponent() = default;
 		TagComponent(const TagComponent&) = default;
 		TagComponent(const std::string& tag_) :tag(tag_) {}
+		TagComponent(const std::string& tag_, const UUID& uuid) :tag(tag_), id(uuid) {}
 	};
 
 	struct TransformComponent {
@@ -44,11 +50,18 @@ namespace Rocket {
 		glm::vec4 color = { 1.0f, 1.0f, 1.0f, 1.0f };
 		Ref<Texture2D> texture = nullptr;
 		float tilingFactor = 1.0f;
+		bool isReflected = false;
 
 		uint32_t getTextureID() const { 
 			if (texture == nullptr)
 				return -1;
 			return texture->getRendererID();
+		}
+
+		std::string getTexturePath() const {
+			if (texture == nullptr)
+				return "";
+			return texture->getTexturePath();
 		}
 
 		SpriteRendererComponent() = default;
@@ -119,6 +132,8 @@ namespace Rocket {
 		CameraComponent(const CameraComponent&) = default;
 	};
 
+	// forward declaration to avoid recursive include
+	class ScriptableEntity;
 	struct NativeScriptComponent {
 		ScriptableEntity* m_instance = nullptr;
 

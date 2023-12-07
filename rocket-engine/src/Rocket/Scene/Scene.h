@@ -1,11 +1,8 @@
 #pragma once
 
-#define SCENE_MAX_DIRECTIONAL_LIGHTS_COUNT 10
-#define SCENE_MAX_POINT_LIGHTS_COUNT 100
-#define SCENE_MAX_SPOT_LIGHTS_COUNT 100
-
 #include "Rocket/Renderer/EditorCamera.h"
 #include "Rocket/Core/Timestep.h"
+#include "Rocket/Core/UUID.h"
 
 #include <entt.hpp>
 
@@ -20,10 +17,10 @@ namespace Rocket {
 		Scene();
 		~Scene();
 
-		Entity createEntity(const std::string& name = std::string());
-		Entity createDirectionalLight();
-		Entity createPointLight();
-		Entity createSpotLight();
+		Entity createEntity(const std::string& name = "", const UUID& uuid = 0);
+		Entity createDirectionalLight(const UUID& uuid = 0);
+		Entity createPointLight(const UUID& uuid = 0);
+		Entity createSpotLight(const UUID& uuid = 0);
 		void destroyEntity(Entity entity);
 
 		//TODO: debug purposes, remove

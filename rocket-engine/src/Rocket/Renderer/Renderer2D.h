@@ -29,7 +29,7 @@ namespace Rocket {
 		static void prepareSkybox(/*const std::vector<std::string>& faces* @brief --- will implement later */);
 		static void setSkybox(const std::vector<std::string>& faces);
 		static void changeSkybox();
-		static void applySkybox(const EditorCamera& camera, const glm::vec2& viewportSize);
+		static void applySkybox(const EditorCamera& camera);
 
 		static void enableReflection(bool enabled);
 		static void enableRefraction(bool enabled);
@@ -52,8 +52,6 @@ namespace Rocket {
 		//components
 
 		static void drawSprite(const glm::mat4& transform, SpriteRendererComponent& src, int entityID = -1);
-		static void drawQuadWithViewMat(const glm::mat4& transform = glm::mat4{1.0f}, const glm::vec4& color = { 1.0f, 1.0f, 1.0f, 1.0f }, int entityID = -1);
-		static void drawTexturedSpriteWithViewMat(const glm::mat4& transform, SpriteRendererComponent& src, int entityID = -1);
 		//Stats
 
 		struct Statistics {

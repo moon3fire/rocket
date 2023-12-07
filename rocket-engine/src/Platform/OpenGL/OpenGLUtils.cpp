@@ -14,14 +14,9 @@ namespace Rocket {
 
 			int width, height, nrChannels;
 			stbi_set_flip_vertically_on_load(false);
-			
-			//glEnable(GL_FRAMEBUFFER_SRGB);
-			
+						
 			for (unsigned int i = 0; i < faces.size(); i++)
 			{
-				//if (i != 0)
-				//	stbi_set_flip_vertically_on_load(false);
-
 				unsigned char* data = stbi_load(faces[i].c_str(), &width, &height, &nrChannels, 0);
 				if (data)
 				{

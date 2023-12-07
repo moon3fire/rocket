@@ -1,9 +1,11 @@
 #pragma once
 
 #include "Scene.h"
+#include "Components.h"
+#include "Rocket/Core/UUID.h"
 
 #pragma warning(push, 0)
-#include "entt.hpp"
+#include <entt.hpp>
 #pragma warning(pop)
 
 namespace Rocket {
@@ -39,6 +41,8 @@ namespace Rocket {
 			RCKT_CORE_ASSERT(hasComponent<T>(), "Entity doesn't have specified component already!");
 			m_scene->m_registry.remove<T>(m_entityHandle);
 		}
+
+		UUID getUUID() { return getComponent<TagComponent>().id; }
 
 		//operators
 		bool operator==(const Entity& other) const {

@@ -14,6 +14,7 @@ namespace Rocket {
 
 		virtual void setData(void* data, uint32_t size) override;
 
+		virtual std::string getTexturePath() const override { return m_path; }
 		virtual uint32_t getRendererID() const override { return m_rendererID; }
 		virtual uint32_t getWidth() const override { return m_width; }
 		virtual uint32_t getHeight() const override { return m_height; }

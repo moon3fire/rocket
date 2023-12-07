@@ -4,6 +4,7 @@
 #include <glm/glm.hpp>
 
 #include "Entity.h"
+#include "ScriptableEntity.h"
 #include "Components.h"
 
 #include "Rocket/Renderer/Renderer2D.h"
@@ -17,7 +18,7 @@ namespace Rocket {
 
 	Scene::~Scene() {}
 
-	Entity Scene::createEntity(const std::string& name) {
+	Entity Scene::createEntity(const std::string& name, const UUID& uuid) {
 		Entity entity = { m_registry.create(), this }; 
 
 		entity.addComponent<TransformComponent>();
@@ -29,7 +30,7 @@ namespace Rocket {
 		return entity;
 	}
 
-	Entity Scene::createDirectionalLight() {
+	Entity Scene::createDirectionalLight(const UUID& uuid) {
 		Entity entity = { m_registry.create(), this };
 
 		entity.addComponent<TransformComponent>();
@@ -44,7 +45,7 @@ namespace Rocket {
 		return entity;
 	}
 
-	Entity Scene::createPointLight() {
+	Entity Scene::createPointLight(const UUID& uuid) {
 		Entity entity = { m_registry.create(), this };
 
 		entity.addComponent<TransformComponent>();
@@ -59,7 +60,7 @@ namespace Rocket {
 		return entity;
 	}
 
-	Entity Scene::createSpotLight()
+	Entity Scene::createSpotLight(const UUID& uuid)
 	{
 		Entity entity = { m_registry.create(), this };
 
@@ -218,7 +219,7 @@ namespace Rocket {
 
 		Renderer2D::endScene();
 		if (m_isSkyboxEnabled)
-			Renderer2D::applySkybox(camera, { m_viewportWidth, m_viewportHeight });
+			Renderer2D::applySkybox(camera);
 	}
 
 	Entity Scene::getPrimaryCameraEntity() {

@@ -76,8 +76,10 @@ namespace Rocket {
 	SceneSerializer::SceneSerializer(const Ref<Scene>& scene) :m_scene(scene) {}
 
 	static void serializeEntity(YAML::Emitter& out, Entity entity) {
+		RCKT_CORE_ASSERT(entity.hasComponent<TagComponent>(), "Couldn't serialize entity without unique identifier!");
+
 		out << YAML::BeginMap;
-		out << YAML::Key << "Entity" << YAML::Value << "1231814128"; // TODO: Entity ID goes here
+		out << YAML::Key << "Entity" << YAML::Value << entity.getUUID(); // TODO: Entity ID goes here
 
 		if (entity.hasComponent<TagComponent>()) {
 			out << YAML::Key << "TagComponent";
@@ -133,7 +135,7 @@ namespace Rocket {
 
 			auto& src = entity.getComponent<SpriteRendererComponent>();
 			out << YAML::Key << "Color" << YAML::Value << src.color;
-
+			out << YAML::Key << "Texture" << YAML::Value << src.getTexturePath();
 			out << YAML::EndMap;
 		}
 
@@ -269,6 +271,9 @@ namespace Rocket {
 				if (spriteRendererComponent) {
 					auto& src = deserializedEntity.addComponent<SpriteRendererComponent>();
 					src.color = spriteRendererComponent["Color"].as<glm::vec4>();
+					std::string texturePath = spriteRendererComponent["Texture"].as<std::string>();
+					if (texturePath != "")
+						src.texture = Texture2D::create(texturePath);
 				}
 
 				auto dlc = entity["DirectionalLightComponent"];
