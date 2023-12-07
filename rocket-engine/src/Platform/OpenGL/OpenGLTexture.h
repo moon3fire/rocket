@@ -21,7 +21,8 @@ namespace Rocket {
 		virtual void bind(uint32_t slot = 0) const override;
 
 		virtual bool operator==(const Texture& other) const override { 
-			return m_rendererID == ((OpenGLTexture2D&)other).m_rendererID;
+			//return m_rendererID == ((OpenGLTexture2D&)other).m_rendererID;
+			return m_path == ((OpenGLTexture2D&)other).m_path;
 		}
 	private:
 

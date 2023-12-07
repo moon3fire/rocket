@@ -111,7 +111,7 @@ namespace Rocket {
 
 	OpenGLFramebuffer::~OpenGLFramebuffer() {
 		glDeleteFramebuffers(1, &m_rendererID);
-		glDeleteTextures(m_colorAttachments.size(), m_colorAttachments.data());
+		glDeleteTextures((GLsizei)m_colorAttachments.size(), m_colorAttachments.data());
 		glDeleteTextures(1, &m_depthAttachment);
 	}
 
@@ -119,7 +119,7 @@ namespace Rocket {
 
 		if (m_rendererID) {
 			glDeleteFramebuffers(1, &m_rendererID);
-			glDeleteTextures(m_colorAttachments.size(), m_colorAttachments.data());
+			glDeleteTextures((GLsizei)m_colorAttachments.size(), m_colorAttachments.data());
 			glDeleteTextures(1, &m_depthAttachment);
 
 			m_colorAttachments.clear();
@@ -135,8 +135,8 @@ namespace Rocket {
 		if (m_colorAttachmentSpecifications.size()) {
 
 			m_colorAttachments.resize(m_colorAttachmentSpecifications.size());
-			Utils::createTextures(multisample, m_colorAttachments.data(), m_colorAttachments.size());
-			for (size_t i = 0; i < m_colorAttachments.size(); i++) {
+			Utils::createTextures(multisample, m_colorAttachments.data(), (uint32_t)m_colorAttachments.size());
+			for (int i = 0; i < m_colorAttachments.size(); i++) {
 				Utils::bindTexture(multisample, m_colorAttachments[i]);
 				switch (m_colorAttachmentSpecifications[i].textureFormat) {
 					case FramebufferTextureFormat::RGBA8:
@@ -167,7 +167,7 @@ namespace Rocket {
 		if (m_colorAttachments.size() > 1) {
 			RCKT_CORE_ASSERT(m_colorAttachments.size() <= 4, "Currently supported color attachments size is less than 5");
 			GLenum buffers[4] = { GL_COLOR_ATTACHMENT0, GL_COLOR_ATTACHMENT1 , GL_COLOR_ATTACHMENT2 , GL_COLOR_ATTACHMENT3 };
-			glDrawBuffers(m_colorAttachments.size(), buffers);
+			glDrawBuffers((GLsizei)m_colorAttachments.size(), buffers);
 		}
 		else if (m_colorAttachments.empty()) {
 			// only depth-pass

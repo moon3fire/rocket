@@ -25,20 +25,11 @@ namespace Rocket {
 				unsigned char* data = stbi_load(faces[i].c_str(), &width, &height, &nrChannels, 0);
 				if (data)
 				{
-					/*
-					size_t dataSize = static_cast<size_t>(width) * height * nrChannels;
-					float* imageData = new float[dataSize];
-					for (size_t i = 0; i < dataSize; ++i) {
-						imageData[i] = static_cast<float>(data[i]) / 255.0f;
-					}
-					delete[] imageData;
-					*/
-					glTexImage2D(GL_TEXTURE_CUBE_MAP_POSITIVE_X + i, 0, GL_RGBA32F, width, height, 0, GL_RGBA, GL_UNSIGNED_BYTE, data);
+					glTexImage2D(GL_TEXTURE_CUBE_MAP_POSITIVE_X + i, 0, GL_RGBA8, width, height, 0, GL_RGBA, GL_UNSIGNED_BYTE, data);
 					stbi_image_free(data);
 				}
 				else
 				{
-					RCKT_CORE_ERROR("Cubemap texture failed to load at path: {0}", faces[i]);
 					stbi_image_free(data);
 				}
 			}

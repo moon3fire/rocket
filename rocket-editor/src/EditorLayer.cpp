@@ -13,6 +13,8 @@
 
 namespace Rocket {
 
+	extern const std::filesystem::path g_assetsDir;
+
 	EditorLayer::EditorLayer() :Layer("EditorLayer"), m_cameraController(1280.0f / 720.0f, true) {}
 
 	void EditorLayer::onAttach() {
@@ -256,6 +258,15 @@ namespace Rocket {
 			uint32_t textureID = m_framebuffer->getColorAttachmentRendererID(0);
 			ImGui::Image(reinterpret_cast<void*>(textureID), ImVec2{ m_viewportSize.x, m_viewportSize.y }, ImVec2{ 0, 1 }, ImVec2{ 1, 0 });
 
+
+			if (ImGui::BeginDragDropTarget()) {
+				if (const ImGuiPayload* payload = ImGui::AcceptDragDropPayload("SCENE")) {
+					const wchar_t* path = (const wchar_t*)payload->Data;
+					openScene(std::filesystem::path(g_assetsDir) / path);
+				}
+				ImGui::EndDragDropTarget();
+			}
+
 			// Gizmos
 			Entity selectedEntity = m_hierarchyPanel.getSelectedEntity();
 			if (selectedEntity && m_gizmosType != -1) {
@@ -385,6 +396,16 @@ namespace Rocket {
 			serializer.deserialize(filepath);
 			m_isUsingFilesystem = false;
 		}
+	}
+
+	// this one is used for drag&dropping
+	void EditorLayer::openScene(const std::filesystem::path& filepath) {
+		m_activeScene = createRef<Scene>();
+		m_activeScene->onViewportResize((uint32_t)m_viewportSize.x, (uint32_t)m_viewportSize.y);
+		m_hierarchyPanel.setContext(m_activeScene);
+
+		SceneSerializer serializer(m_activeScene);
+		serializer.deserialize(filepath.string());
 	}
 
 	void EditorLayer::saveSceneAs() {

@@ -36,9 +36,6 @@ namespace Rocket {
 		Ref<VertexArray> quadVA;
 		Ref<VertexBuffer> quadVertexBuffer;
 		Ref<Shader> quadShader;
-		Ref<Texture2D> defaultTexture;
-		glm::vec2 defaultTextureScale;
-		glm::mat4 quadTransform;
 
 		//Ref<VertexArray> skyboxVA;
 		//Ref<VertexBuffer> skyboxVB;
@@ -63,7 +60,7 @@ namespace Rocket {
 		QuadVertex* quadVertexBufferPtr = nullptr; // TODO: Make an array of this to support multiple textures at once
 
 		std::array<Ref<Texture2D>, maxTextureSlots> textureSlots;
-		uint32_t textureSlotIndex = 1; // 0 default texture
+		uint32_t textureSlotIndex = 0; // no default texture
 		
 		glm::vec4 quadVertexPositions[4];
 
@@ -190,7 +187,6 @@ namespace Rocket {
 
 		//uploading to GPU
 		s_data.quadVA->setIndexBuffer(quadIB);
-
 		//uploaded, no more need
 		delete[] quadIndices;
 
@@ -199,16 +195,12 @@ namespace Rocket {
 		s_data.reflectionShader = Shader::create("assets/shaders/Reflection.glsl");
 		s_data.refractionShader = Shader::create("assets/shaders/Refraction.glsl");
 		s_data.quadShader->bind();
-		s_data.defaultTexture = Texture2D::create("assets/textures/default.png");
 		
 		int samplers[s_data.maxTextureSlots];
 		for (int i = 0; i < s_data.maxTextureSlots; i++)
 			samplers[i] = i;
 
 		s_data.quadShader->setIntArray("u_textures", samplers, s_data.maxTextureSlots);
-		
-		//binding default texture to set 0
-		s_data.textureSlots[0] = s_data.defaultTexture;
 
 		s_data.quadVertexPositions[0] = { -0.5f, -0.5f, 0.0f, 1.0f };
 		s_data.quadVertexPositions[1] = {  0.5f, -0.5f, 0.0f, 1.0f };
@@ -235,7 +227,7 @@ namespace Rocket {
 		s_data.quadVertexBufferPtr = s_data.quadVertexBufferBase;
 
 		//starting from slot 1 in each frame
-		s_data.textureSlotIndex = 1;
+		//s_data.textureSlotIndex = 0;
 	}
 
 	void Renderer2D::beginScene(const Camera& camera, const glm::mat4& transform) {
@@ -250,7 +242,7 @@ namespace Rocket {
 		s_data.quadVertexBufferPtr = s_data.quadVertexBufferBase;
 
 		//starting from slot 1 in each frame
-		s_data.textureSlotIndex = 1;
+		//s_data.textureSlotIndex = 0;
 	}
 
 	void Renderer2D::beginScene(const EditorCamera& camera) {
@@ -279,8 +271,8 @@ namespace Rocket {
 		s_data.quadIndexCount = 0;
 		s_data.quadVertexBufferPtr = s_data.quadVertexBufferBase;
 		
-		//starting from slot 1 in each frame
-		s_data.textureSlotIndex = 1;
+		//starting from slot 0 in each frame, no default texture anymore
+		//s_data.textureSlotIndex = 0;
 	}
 
 	void Renderer2D::endScene() {
@@ -300,11 +292,11 @@ namespace Rocket {
 		if (s_data.quadIndexCount == 0)
 			return;
 
+		s_data.quadShader->bind();
 		//bind textures
 		for (uint32_t i = 0; i < s_data.textureSlotIndex; i++) {
-			s_data.textureSlots[i]->bind();
+			s_data.textureSlots[i]->bind(i);
 		}
-
 		RenderCommand::drawIndexed(s_data.quadVA, s_data.quadIndexCount);
 		s_data.stats.drawCalls++;
 		s_data.quadShader->unbind();
@@ -321,6 +313,8 @@ namespace Rocket {
 			flushAndReset();
 		}
 
+		constexpr size_t quadVertexCount = 4;
+		constexpr glm::vec2 textureCoords[] = { { 0.0f, 0.0f }, { 1.0f, 0.0f }, { 1.0f, 1.0f }, { 0.0f, 1.0f } };
 		const float textureIndex = -1.0f; // no texture for simple quads
 		const float tilingFactor = 1.0f;
 
@@ -328,33 +322,21 @@ namespace Rocket {
 			* glm::rotate(glm::mat4(1.0f), glm::radians(rotation), { 0.0f, 0.0f, 1.0f })
 			* glm::scale(glm::mat4(1.0f), { size.x, size.y, 1.0f });
 
-		s_data.quadVertexBufferPtr->color = color;
-		s_data.quadVertexBufferPtr->position = transform * s_data.quadVertexPositions[0];
-		s_data.quadVertexBufferPtr->texCoord = { 0.0f, 0.0f };
-		s_data.quadVertexBufferPtr->texIndex = textureIndex;
-		s_data.quadVertexBufferPtr->tilingFactor = tilingFactor;
-		s_data.quadVertexBufferPtr++;
+		glm::vec3 edge1 = transform * (s_data.quadVertexPositions[2] - s_data.quadVertexPositions[1]);
+		glm::vec3 edge2 = transform * (s_data.quadVertexPositions[0] - s_data.quadVertexPositions[1]);
+		glm::vec3 normal = glm::cross(edge1, edge2);
 
-		s_data.quadVertexBufferPtr->color = color;
-		s_data.quadVertexBufferPtr->position = transform * s_data.quadVertexPositions[1];
-		s_data.quadVertexBufferPtr->texCoord = { 1.0f, 0.0f };
-		s_data.quadVertexBufferPtr->texIndex = textureIndex;
-		s_data.quadVertexBufferPtr->tilingFactor = tilingFactor;
-		s_data.quadVertexBufferPtr++;
+		for (size_t i = 0; i < quadVertexCount; i++) {
+			s_data.quadVertexBufferPtr->position = transform * s_data.quadVertexPositions[i];
+			s_data.quadVertexBufferPtr->color = color;
+			s_data.quadVertexBufferPtr->normal = normal;
+			s_data.quadVertexBufferPtr->texCoord = textureCoords[i];
+			s_data.quadVertexBufferPtr->texIndex = textureIndex;
+			s_data.quadVertexBufferPtr->tilingFactor = tilingFactor;
+			s_data.quadVertexBufferPtr->entityID = -1; // (TODO: add or remove this function either entity ID)
+			s_data.quadVertexBufferPtr++;
 
-		s_data.quadVertexBufferPtr->color = color;
-		s_data.quadVertexBufferPtr->position = transform * s_data.quadVertexPositions[2];
-		s_data.quadVertexBufferPtr->texCoord = { 1.0f, 1.0f };
-		s_data.quadVertexBufferPtr->texIndex = textureIndex;
-		s_data.quadVertexBufferPtr->tilingFactor = tilingFactor;
-		s_data.quadVertexBufferPtr++;
-
-		s_data.quadVertexBufferPtr->color = color;
-		s_data.quadVertexBufferPtr->position = transform * s_data.quadVertexPositions[3];
-		s_data.quadVertexBufferPtr->texCoord = { 0.0f, 1.0f };
-		s_data.quadVertexBufferPtr->texIndex = textureIndex;
-		s_data.quadVertexBufferPtr->tilingFactor = tilingFactor;
-		s_data.quadVertexBufferPtr++;
+		}
 
 		s_data.quadIndexCount += 6;
 		s_data.stats.quadCount++;
@@ -387,7 +369,7 @@ namespace Rocket {
 			* glm::scale(glm::mat4(1.0f), { size.x, size.y, 1.0f });
 
 		if (texture != nullptr) {
-			for (uint32_t i = 1; i < s_data.textureSlotIndex; i++) {
+			for (uint32_t i = 0; i < s_data.textureSlotIndex; i++) {
 				if (*s_data.textureSlots[i].get() == *texture.get()) {
 					textureIndex = (float)i;
 					break;
@@ -453,7 +435,7 @@ namespace Rocket {
 		const Ref<Texture2D> texture = subtexture->getTexture();
 
 		if (texture != nullptr) {
-			for (uint32_t i = 1; i < s_data.textureSlotIndex; i++) {
+			for (uint32_t i = 0; i < s_data.textureSlotIndex; i++) {
 				if (*s_data.textureSlots[i].get() == *texture.get()) {
 					textureIndex = (float)i;
 					break;
@@ -506,9 +488,13 @@ namespace Rocket {
 	}
 
 	void Renderer2D::drawSprite(const glm::mat4& transform, SpriteRendererComponent& src, int entityID) {
-		drawQuadWithViewMat(transform, src.color, entityID);
+		if (src.texture == nullptr)
+			drawQuadWithViewMat(transform, src.color, entityID);
+		else
+			drawTexturedSpriteWithViewMat(transform ,src, entityID);
 	}
 
+	//no texture colored quads
 	void Renderer2D::drawQuadWithViewMat(const glm::mat4& transform, const glm::vec4& color, int entityID) {
 		RCKT_PROFILE_FUNCTION();
 
@@ -541,6 +527,53 @@ namespace Rocket {
 		s_data.quadIndexCount += 6;
 		s_data.stats.quadCount++;
 	}
+	// textured quads
+	void Renderer2D::drawTexturedSpriteWithViewMat(const glm::mat4& transform, SpriteRendererComponent& src, int entityID) {
+		RCKT_PROFILE_FUNCTION();
+
+		if (s_data.quadIndexCount >= Renderer2DStorage::maxIndices) {
+			flushAndReset();
+		}
+
+		constexpr size_t quadVertexCount = 4;
+		constexpr glm::vec2 textureCoords[] = { { 0.0f, 0.0f }, { 1.0f, 0.0f }, { 1.0f, 1.0f }, { 0.0f, 1.0f } };
+		float textureIndex = -1.0f; // being set in the next loop
+
+		glm::vec3 edge1 = transform * (s_data.quadVertexPositions[2] - s_data.quadVertexPositions[1]);
+		glm::vec3 edge2 = transform * (s_data.quadVertexPositions[0] - s_data.quadVertexPositions[1]);
+		glm::vec3 normal = glm::cross(edge1, edge2);
+
+		// setting an existing texture or adding new one
+
+		if (src.texture != nullptr) {
+			for (uint32_t i = 0; i < s_data.textureSlotIndex; i++) {
+				if (*s_data.textureSlots[i].get() == *src.texture.get()) {
+					textureIndex = (float)i;
+					break;
+				}
+			}
+
+			if (textureIndex == -1.0f) {
+				textureIndex = (float)s_data.textureSlotIndex;
+				s_data.textureSlots[s_data.textureSlotIndex] = src.texture;
+				s_data.textureSlotIndex++;
+			}
+		}
+
+		for (size_t i = 0; i < quadVertexCount; i++) {
+			s_data.quadVertexBufferPtr->position = transform * s_data.quadVertexPositions[i];
+			s_data.quadVertexBufferPtr->color = src.color;
+			s_data.quadVertexBufferPtr->normal = normal;
+			s_data.quadVertexBufferPtr->texCoord = textureCoords[i];
+			s_data.quadVertexBufferPtr->texIndex = textureIndex;
+			s_data.quadVertexBufferPtr->tilingFactor = src.tilingFactor;
+			s_data.quadVertexBufferPtr->entityID = entityID;
+			s_data.quadVertexBufferPtr++;
+
+		}
+		s_data.quadIndexCount += 6;
+		s_data.stats.quadCount++;
+	}
 
 	Renderer2D::Statistics Renderer2D::getStats() {
 		return s_data.stats;
@@ -556,7 +589,7 @@ namespace Rocket {
 		s_data.quadIndexCount = 0;
 		s_data.quadVertexBufferPtr = s_data.quadVertexBufferBase;
 
-		s_data.textureSlotIndex = 1;
+		//s_data.textureSlotIndex = 0; // ?
 	}
 
 

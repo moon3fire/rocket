@@ -36,7 +36,7 @@ namespace Rocket {
 	};
 
 	struct FramebufferSpecification {
-		uint32_t width, height;
+		uint32_t width = 0, height = 0;
 		FramebufferAttachmentSpecification attachments;
 		uint32_t samples = 1;
 

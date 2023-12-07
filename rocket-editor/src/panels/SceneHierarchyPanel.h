@@ -4,12 +4,13 @@
 #include "Rocket/Core/Log.h"
 #include "Rocket/Scene/Entity.h"
 #include "Rocket/Core/Core.h"
+#include "Rocket/Renderer/Texture.h"
 
 namespace Rocket {
 
 	class SceneHierarchyPanel {
 	public:
-		SceneHierarchyPanel() = default;
+		SceneHierarchyPanel();
 		SceneHierarchyPanel(const Ref<Scene>& scene);
 
 		void setContext(const Ref<Scene>& scene);
@@ -22,6 +23,7 @@ namespace Rocket {
 		void drawEntityNode(Entity entity);
 		void drawProperties(Entity entity);
 	private:
+		Ref<Texture2D> m_defaultTexture;
 		Ref<Scene> m_context;
 		Entity m_selectionContext;
 	};

@@ -8,6 +8,7 @@
 
 #include "SceneCamera.h"
 #include "ScriptableEntity.h"
+#include "Rocket/Renderer/Texture.h"
 
 namespace Rocket {
 
@@ -41,10 +42,19 @@ namespace Rocket {
 
 	struct SpriteRendererComponent {
 		glm::vec4 color = { 1.0f, 1.0f, 1.0f, 1.0f };
+		Ref<Texture2D> texture = nullptr;
+		float tilingFactor = 1.0f;
+
+		uint32_t getTextureID() const { 
+			if (texture == nullptr)
+				return -1;
+			return texture->getRendererID();
+		}
 
 		SpriteRendererComponent() = default;
 		SpriteRendererComponent(const SpriteRendererComponent&) = default;
 		SpriteRendererComponent(const glm::vec4& color_) :color(color_) {}
+		SpriteRendererComponent(const glm::vec4& color_, const Ref<Texture2D>& texture_) :color(color_), texture(texture_) {}
 	};
 
 	struct DirectionalLightComponent {

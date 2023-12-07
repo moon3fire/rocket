@@ -58,7 +58,7 @@ namespace Rocket {
 		glm::vec3 m_position = { 0.0f, 0.0f, 0.0f };
 		glm::vec3 m_focalPoint = { 0.0f, 0.0f, 0.0f };
 
-		glm::vec2 m_initialMousePosition;
+		glm::vec2 m_initialMousePosition = { 0.0f, 0.0f };
 
 		float m_distance = 10.0f;
 		float m_pitch = 0.0f, m_yaw = 0.0f;

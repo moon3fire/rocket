@@ -2,7 +2,9 @@
 
 #include "Scene.h"
 
+#pragma warning(push, 0)
 #include "entt.hpp"
+#pragma warning(pop)
 
 namespace Rocket {
 

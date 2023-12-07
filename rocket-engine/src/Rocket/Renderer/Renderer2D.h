@@ -19,6 +19,7 @@ namespace Rocket {
 		static void beginScene(const OrthographicCamera2D& camera); // TODO: Remove
 		static void beginScene(const Camera& camera, const glm::mat4& transform);
 		static void beginScene(const EditorCamera& camera);
+		
 		// temp
 		static void setEntityID(uint32_t id);
 		static void uploadDiffuseLight(const glm::vec3& color = glm::vec3(1.0f), const glm::vec3& pos = glm::vec3(0.0f));
@@ -49,9 +50,10 @@ namespace Rocket {
 		static void drawQuad3DWithSubTexture(const glm::vec3& position = { 0.0f, 0.0f, 0.0f }, const glm::vec2& size = { 1.0f, 1.0f }, const glm::vec4& color = { 1.0f, 1.0f, 1.0f, 1.0f }, const Ref<SubTexture2D>& subtexture = nullptr, float rotation = 0.0f);
 
 		//components
-		static void drawQuadWithViewMat(const glm::mat4& transform = glm::mat4{1.0f}, const glm::vec4& color = { 1.0f, 1.0f, 1.0f, 1.0f }, int entityID = -1);
 
-		static void drawSprite(const glm::mat4& transform, SpriteRendererComponent& src, int entityID);
+		static void drawSprite(const glm::mat4& transform, SpriteRendererComponent& src, int entityID = -1);
+		static void drawQuadWithViewMat(const glm::mat4& transform = glm::mat4{1.0f}, const glm::vec4& color = { 1.0f, 1.0f, 1.0f, 1.0f }, int entityID = -1);
+		static void drawTexturedSpriteWithViewMat(const glm::mat4& transform, SpriteRendererComponent& src, int entityID = -1);
 		//Stats
 
 		struct Statistics {

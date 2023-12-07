@@ -202,7 +202,15 @@ namespace Rocket {
 		std::stringstream strStream;
 		strStream << stream.rdbuf();
 
-		std::vector<YAML::Node> data = YAML::LoadAllFromFile(filepath);
+		std::vector<YAML::Node> data;
+		try
+		{
+			data = YAML::LoadAllFromFile(filepath);
+		}
+		catch(YAML::ParserException e)
+		{
+			return false;
+		}
 
 		if (!data[0]["Scene"]) {
 			RCKT_CORE_WARN("Can't found a scene inside file");

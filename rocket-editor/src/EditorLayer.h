@@ -27,6 +27,7 @@ namespace Rocket {
 
 		void createNewScene();
 		void openScene();
+		void openScene(const std::filesystem::path& filepath);
 		void saveSceneAs();
 	
 	private:

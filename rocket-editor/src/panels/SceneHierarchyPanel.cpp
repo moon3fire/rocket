@@ -7,9 +7,19 @@
 
 #include "Rocket/Scene/Components.h"
 
+#include <filesystem>
+
 namespace Rocket {
 
+	extern const std::filesystem::path g_assetsDir;
+	
+	SceneHierarchyPanel::SceneHierarchyPanel() {
+		m_defaultTexture = Texture2D::create("resources/icons/hierarchy/default.png");
+	}
+
+
 	SceneHierarchyPanel::SceneHierarchyPanel(const Ref<Scene>& scene) {
+		m_defaultTexture = Texture2D::create("resources/icons/hierarchy/default.png");
 		setContext(scene);
 	}
 
@@ -19,7 +29,6 @@ namespace Rocket {
 	}
 
 	void SceneHierarchyPanel::onImGuiRender() {
-		
 		{
 			ImGui::Begin("Hierarchy");
 
@@ -260,8 +269,22 @@ namespace Rocket {
 			component.rotation = glm::radians(rotation);
 			});
 
-		drawComponent<SpriteRendererComponent>("Sprite Renderer", entity, [](auto& component) {
+		drawComponent<SpriteRendererComponent>("Sprite Renderer", entity, [this](auto& component) {
 			ImGui::ColorEdit4("Color", glm::value_ptr(component.color));
+			ImGui::DragFloat("Tiling Factor", &component.tilingFactor, 0.1f, 0.0f, 100.0f);
+			
+			if (component.getTextureID() == -1)
+				ImGui::Image((ImTextureID)(this->m_defaultTexture->getRendererID()), ImVec2{64, 64}, ImVec2{0, 1}, ImVec2{1, 0});
+			else
+				ImGui::Image((ImTextureID)component.getTextureID(), ImVec2{64, 64}, ImVec2{0, 1}, ImVec2{1, 0});
+			if (ImGui::BeginDragDropTarget()) {
+				if (const ImGuiPayload* payload = ImGui::AcceptDragDropPayload("TEXTURE")) {
+					const wchar_t* path = (const wchar_t*)payload->Data;
+					std::filesystem::path texturePath = std::filesystem::path(g_assetsDir) / path;
+					component.texture = Texture2D::create(texturePath.string());
+				}
+				ImGui::EndDragDropTarget();
+			}
 		});
 
 		drawComponent<DirectionalLightComponent>("Directional Light", entity, [](auto& component) {
