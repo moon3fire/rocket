@@ -27,7 +27,7 @@ Rocket currently support these features:
 - OpenGL API implementation(VAOs, VBOs, EBOs, Framebuffers, Cubemaps(Skyboxes))
 - Lighting(Forward rendering, directional lights, point lights, spotlights)
 - Textures, Subtextures.
-- Feature 3
+- Pleasant GUI full of functionality.
 
 ## Installation
 
