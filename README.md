@@ -38,6 +38,7 @@ Provide step-by-step instructions on how to install your project. Include any de
 git clone https://github.com/moon3fire/rocket.git --recursive
 cd scripts
 run Win-GenProjects.bat
+```
 
 # Example usage
 run rocket.sln
@@ -46,8 +47,8 @@ License
 This project is licensed under the Apache License 2.0 - see the LICENSE file for details.
 
 Acknowledgements
-This project is based on the architecture shown in game engine series of @TheCherno. 
+This project is based on the architecture shown in game engine series of github.com/TheCherno
+I am grateful to him for the tutorial!
 
 Contact
-
 Email: arman.isajanyan18@gmail.com
