@@ -25,8 +25,19 @@ jobs:
         cd ..
 
     - name: Build Rocket Engine
-      run: msbuild /p:Configuration=Release /m /p:Platform=x64 /p:ProjectName=rocket-engine
+      run: |
+        cd rocket-engine
+        & "${env:ProgramFiles(x86)}\Microsoft Visual Studio\2022\Community\MSBuild\17.0\Bin\amd64\MSBuild.exe" /p:Configuration=Release /p:Platform=x64 /p:PlatformToolset=v143 rocket-engine.vcxproj
+        cd ..
 
     - name: Build Rocket Editor
-      run: msbuild /p:Configuration=Release /m /p:Platform=x64 /p:ProjectName=rocket-editor
+      run: |
+        cd rocket-editor
+        & "${env:ProgramFiles(x86)}\Microsoft Visual Studio\2022\Community\MSBuild\17.0\Bin\amd64\MSBuild.exe" /p:Configuration=Release /p:Platform=x64 /p:PlatformToolset=v143 rocket-editor.vcxproj
+        cd ..
 
+    - name: Build Sandbox
+      run: |
+        cd Sandbox
+        & "${env:ProgramFiles(x86)}\Microsoft Visual Studio\2022\Community\MSBuild\17.0\Bin\amd64\MSBuild.exe" /p:Configuration=Release /p:Platform=x64 /p:PlatformToolset=v143 Sandbox.vcxproj
+        cd ..
