@@ -16,13 +16,12 @@ jobs:
     - name: Install Premake
       run: |
         Invoke-WebRequest -Uri https://github.com/premake/premake-core/releases/download/v5.0.0-alpha15/premake-5.0.0-alpha15-windows.zip -OutFile premake.zip
-        Expand-Archive -Path premake.zip -DestinationPath $env:USERPROFILE\premake5
-        $env:PATH += ";$env:USERPROFILE\premake5"
+        Expand-Archive -Path premake.zip -DestinationPath vendors/premake/bin/
 
     - name: Run Premake Script
       run: |
         cd scripts
-        call Win-GenProjects.bat
+        .\Win-GenProjects.bat
         cd ..
 
     - name: Build Rocket Engine
@@ -30,7 +29,4 @@ jobs:
 
     - name: Build Rocket Editor
       run: msbuild /p:Configuration=Release /m /p:Platform=x64 /p:ProjectName=rocket-editor
-
-    - name: Build Sandbox
-      run: msbuild /p:Configuration=Release /m /p:Platform=x64 /p:ProjectName=Sandbox
 
