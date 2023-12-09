@@ -1,9 +1,6 @@
 [submodule "rocket-engine/vendors/spdlog"]
 	path = rocket-engine/vendors/spdlog
 	url = https://github.com/gabime/spdlog
-[submodule "rocket-engine/vendors/GLFW"]
-	path = rocket-engine/vendors/GLFW
-	url = https://github.com/TheCherno/GLFW
 [submodule "rocket-engine/vendors/imgui"]
 	path = rocket-engine/vendors/imgui
 	url = https://github.com/moon3fire/imgui
@@ -16,3 +13,6 @@
 [submodule "rocket-engine/vendors/ImGuizmo"]
 	path = rocket-engine/vendors/ImGuizmo
 	url = https://github.com/moon3fire/ImGuizmo
+[submodule "rocket-engine/vendors/GLFW"]
+	path = rocket-engine/vendors/GLFW
+	url = https://github.com/moon3fire/glfw
