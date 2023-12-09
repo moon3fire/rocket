@@ -149,7 +149,6 @@ namespace Rocket {
 		// renderer 2D
 		Entity mainCameraEntity = getPrimaryCameraEntity();
 		if (!mainCameraEntity) {
-			Renderer2D::endScene();
 			return;
 		}
 		Camera* mainCamera = &mainCameraEntity.getComponent<CameraComponent>().camera;

@@ -6,7 +6,7 @@
 	url = https://github.com/TheCherno/GLFW
 [submodule "rocket-engine/vendors/imgui"]
 	path = rocket-engine/vendors/imgui
-	url = https://github.com/TheCherno/imgui
+	url = https://github.com/moon3fire/imgui
 [submodule "rocket-engine/vendors/glm"]
 	path = rocket-engine/vendors/glm
 	url = https://github.com/g-truc/glm
