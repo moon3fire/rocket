@@ -24,6 +24,9 @@ namespace Rocket {
 
 		//Editor only
 		int entityID;
+		QuadVertex() {
+
+		}
 	};
 
 	//entire renderer2D data storage
@@ -58,6 +61,8 @@ namespace Rocket {
 		uint32_t quadIndexCount = 0;
 		QuadVertex* quadVertexBufferBase = nullptr;
 		QuadVertex* quadVertexBufferPtr = nullptr; // TODO: Make an array of this to support multiple textures at once
+
+		// TODO: move these ones to vector, 
 
 		std::array<Ref<Texture2D>, maxTextureSlots> textureSlots;
 		uint32_t textureSlotIndex = 0; // no default texture

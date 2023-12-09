@@ -21,9 +21,7 @@ namespace Rocket {
 		RCKT_PROFILE_FUNCTION();
 
 		FramebufferSpecification frameBufferSpec;
-		//frameBufferSpec.attachments = { FramebufferTextureFormat::RGBA8, FramebufferTextureFormat::RED_INTEGER, FramebufferTextureFormat::Depth };
-		//frameBufferSpec.attachments = { FramebufferTextureFormat::RGBA_16F, FramebufferTextureFormat::RED_INTEGER, FramebufferTextureFormat::Depth };
-		frameBufferSpec.attachments = { FramebufferTextureFormat::RGBA_32F, FramebufferTextureFormat::RED_INTEGER, FramebufferTextureFormat::Depth };
+		frameBufferSpec.attachments = { FramebufferTextureFormat::RGBA8, FramebufferTextureFormat::RED_INTEGER, FramebufferTextureFormat::Depth };
 		frameBufferSpec.width = 1280;
 		frameBufferSpec.height = 720;
 		frameBufferSpec.samples = 1;
@@ -36,30 +34,14 @@ namespace Rocket {
 
 		m_activeScene = createRef<Scene>();
 
-		/*
-		auto square = m_activeScene->createEntity("MYSQUARE");
-		square.addComponent<SpriteRendererComponent>(glm::vec4(0.0f, 1.0f, 0.0f, 1.0f));
-		m_squareEntity = square;
-
-		auto square2 = m_activeScene->createEntity("MYSQUARE2");
-		square2.addComponent<SpriteRendererComponent>(glm::vec4(0.0f, 0.0f, 1.0f, 1.0f));
-		m_squareEntity2 = square2;
-
-		m_cameraEntity1 = m_activeScene->createEntity("Main camera");
-		auto& mainCam = m_cameraEntity1.addComponent<CameraComponent>();
-		mainCam.primary = true;
-
-		m_cameraEntity2 = m_activeScene->createEntity("Second camera");
-		// already has m_cameraEntity2.addComponent<TagComponent>("THIS IS A TAG");
-		auto& second = m_cameraEntity2.addComponent<CameraComponent>();
-		second.primary = false;
-		*/
+		// UI TOOLBAR
+		m_playIcon = Texture2D::create("resources/icons/editor/play.png");
+		m_stopIcon = Texture2D::create("resources/icons/editor/stop.png");
 
 		//m_cameraEntity2.addComponent<NativeScriptComponent>().bind<CameraController>();
 		//m_cameraEntity1.addComponent<NativeScriptComponent>().bind<CameraController>();
 
 		m_hierarchyPanel.setContext(m_activeScene);
-
 	}
 
 	void EditorLayer::onDetach() {
@@ -69,17 +51,17 @@ namespace Rocket {
 	void EditorLayer::onUpdate(Rocket::Timestep ts) {
 		RCKT_PROFILE_FUNCTION();
 
-		//resize framebuffer
+		//resize framebuffer if needed
 		resizeFramebuffer();
 
 		//update
 		if (m_viewportFocused) {
-			//m_cameraController.onUpdate(ts);
+			//m_cameraController.onUpdate(ts); old version, TODO: delete
 			m_editorCamera.onUpdate(ts);
 		}
+
 		//render
 		Renderer2D::resetStats();
-
 		{
 			RCKT_PROFILE_SCOPE("Clear color set:");
 			m_framebuffer->bind();
@@ -93,7 +75,18 @@ namespace Rocket {
 		{
 			RCKT_PROFILE_SCOPE("Scene render");
 			//updating scene
-			m_activeScene->onUpdateEditor(ts, m_editorCamera, m_viewportSize);
+
+			switch (m_sceneState) {
+				case SceneState::Edit: {
+					m_activeScene->onUpdateEditor(ts, m_editorCamera, m_viewportSize);
+					break;
+				}
+				case SceneState::Play: {
+					m_activeScene->onUpdateRuntime(ts);
+					break;
+				}
+			}
+
 
 			auto [mx, my] = ImGui::GetMousePos();
 			mx -= m_viewportBounds[0].x;
@@ -110,7 +103,6 @@ namespace Rocket {
 		}
 		
 		m_framebuffer->unbind();
-		
 	}
 
 	void EditorLayer::onImGuiRender() {
@@ -236,6 +228,11 @@ namespace Rocket {
 			m_hierarchyPanel.onImGuiRender();
 			m_contentBrowserPanel.onImGuiRender();
 		}
+
+		// UI
+		{
+			UI_Toolbar();
+		}
 		ImGui::End();
 
 		{
@@ -325,6 +322,38 @@ namespace Rocket {
 		EventDispatcher dispatcher(event);
 		dispatcher.dispatch<KeyPressedEvent>(RCKT_BIND_EVENT_FUNC(EditorLayer::onKeyPressed));
 		dispatcher.dispatch<MouseButtonPressedEvent>(RCKT_BIND_EVENT_FUNC(EditorLayer::onMouseButtonPressed));
+	}
+
+	void EditorLayer::UI_Toolbar() {
+		ImGui::PushStyleVar(ImGuiStyleVar_WindowPadding, ImVec2(0, 2));
+		ImGui::PushStyleVar(ImGuiStyleVar_ItemInnerSpacing, ImVec2(0, 0));
+		ImGui::PushStyleColor(ImGuiCol_Button, ImVec4(0, 0, 0, 0));
+		ImGui::PushStyleColor(ImGuiCol_Button, ImVec4(0.3f, 0.305f, 0.31f, 0.5f));
+		ImGui::PushStyleColor(ImGuiCol_Button, ImVec4(0.3f, 0.305f, 0.31f, 0.5f));
+
+		ImGui::Begin("##toolbar", nullptr, ImGuiWindowFlags_NoDecoration | ImGuiWindowFlags_NoScrollbar | ImGuiWindowFlags_NoScrollWithMouse);
+		
+		float size = ImGui::GetWindowHeight() * 0.5f;
+		Ref<Texture2D> icon = m_sceneState == SceneState::Edit ? m_playIcon : m_stopIcon;
+		ImGui::SameLine((ImGui::GetWindowContentRegionMax().x * 0.5f) - (size * 0.5f));
+		if (ImGui::ImageButton((ImTextureID)icon->getRendererID(), ImVec2{ size + 6.5f, size + 7.0f })) {
+			if (m_sceneState == SceneState::Edit)
+				onScenePlay();
+			else if (m_sceneState == SceneState::Play)
+				onSceneStop();
+			// TODO: pause, simulate
+		}
+		ImGui::PopStyleVar(2);
+		ImGui::PopStyleColor(3);
+		ImGui::End();
+	}
+
+	void EditorLayer::onScenePlay() {
+		m_sceneState = SceneState::Play;
+	}
+
+	void EditorLayer::onSceneStop() {
+		m_sceneState = SceneState::Edit;
 	}
 
 	bool EditorLayer::onKeyPressed(KeyPressedEvent& event)

@@ -21,6 +21,12 @@ namespace Rocket {
 		void onEvent(Event& event) override;
 
 		void resizeFramebuffer();
+
+		void onScenePlay(); // being controlled by UI_Toolbar function
+		void onSceneStop(); // being controlled by UI_Toolbar function
+		//UI
+		void UI_Toolbar();
+
 	private:
 		bool onKeyPressed(KeyPressedEvent& event);
 		bool onMouseButtonPressed(MouseButtonPressedEvent& event);
@@ -35,7 +41,7 @@ namespace Rocket {
 		SceneHierarchyPanel m_hierarchyPanel;
 		ContentBrowserPanel m_contentBrowserPanel;
 
-		OrthographicCameraController m_cameraController;
+		OrthographicCameraController m_cameraController; //TODO: delete or refactor
 
 		//scene
 		Ref<Scene> m_activeScene;
@@ -45,7 +51,6 @@ namespace Rocket {
 
 		EditorCamera m_editorCamera;
 
-		Entity m_hoveredEntity;
 
 		//temp, diffuse lighting test
 		//glm::vec3 m_diffuseColor = { 1.0f, 1.0f, 1.0f };
@@ -59,7 +64,16 @@ namespace Rocket {
 		bool m_viewportFocused = false, m_viewportHovered = false;
 		bool m_isSkyboxEnabled = false, m_isReflectionEnabled = false, m_isRefractionEnabled = false;
 
-		int m_gizmosType = -1;
+		Entity m_hoveredEntity; // this is related to gizmos functionality so I put it here
+		int m_gizmosType = -1; // TODO: make enum from this
+
+		// Scene management UI controll stuff
+		enum class SceneState {
+			Edit = 0, Play = 1, Paused = 2, Simulate = 3
+		};
+		SceneState m_sceneState = SceneState::Edit;
+		Ref<Texture2D> m_playIcon, m_stopIcon;
+
 	};
 
 } // namespace Rocket

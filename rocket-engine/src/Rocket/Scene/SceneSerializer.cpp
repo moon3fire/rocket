@@ -136,6 +136,7 @@ namespace Rocket {
 			auto& src = entity.getComponent<SpriteRendererComponent>();
 			out << YAML::Key << "Color" << YAML::Value << src.color;
 			out << YAML::Key << "Texture" << YAML::Value << src.getTexturePath();
+			out << YAML::Key << "TilingFactor" << YAML::Value << src.tilingFactor;
 			out << YAML::EndMap;
 		}
 
@@ -274,6 +275,7 @@ namespace Rocket {
 					std::string texturePath = spriteRendererComponent["Texture"].as<std::string>();
 					if (texturePath != "")
 						src.texture = Texture2D::create(texturePath);
+					src.tilingFactor = spriteRendererComponent["TilingFactor"].as<float>();
 				}
 
 				auto dlc = entity["DirectionalLightComponent"];

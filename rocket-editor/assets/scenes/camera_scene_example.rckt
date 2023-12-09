@@ -1,0 +1,45 @@
+Scene: Untitled
+---
+Entities:
+  - Entity: 704197403927621532
+    TagComponent:
+      Tag: camera
+    TransformComponent:
+      Position: [0, -0.0261864662, 5.36122894]
+      Scale: [1, 1, 1]
+      Rotation: [0, 0, 0]
+    CameraComponent:
+      Camera:
+        ProjectionType: 0
+        PerspectiveFOV: 0.785398185
+        PerspectiveNear: 0.00999999978
+        PerspectiveFar: 1000
+        OrthographicSize: 10
+        OrthographicNear: -1
+        OrthographicFar: 1
+      Primary: true
+      FixedAspectRatio: false
+  - Entity: 1255113967133798396
+    TagComponent:
+      Tag: sprite
+    TransformComponent:
+      Position: [0, 0, 0]
+      Scale: [5.13050795, 2.7026124, 1]
+      Rotation: [0, 0, 0]
+    SpriteRendererComponent:
+      Color: [1, 1, 1, 1]
+      Texture: ""
+      TilingFactor: 1
+  - Entity: 16109239231835961763
+    TagComponent:
+      Tag: Directional Light 0
+    TransformComponent:
+      Position: [0, 0, 0]
+      Scale: [1, 1, 1]
+      Rotation: [0, 0, 0]
+    DirectionalLightComponent:
+      Ambient: [1, 1, 1]
+      AmbientStrenght: 0
+      Diffuse: [1, 1, 1]
+      Direction: [0.100000001, 0, -0.100000001]
+      Specular: [1, 1, 1]

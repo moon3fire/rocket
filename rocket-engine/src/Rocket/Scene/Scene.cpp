@@ -128,7 +128,8 @@ namespace Rocket {
 	}
 
 	void Scene::onUpdateRuntime(Timestep ts) {
-
+		// native script handling, will be used later
+		/* 
 		// Update native scripts
 		{
 			m_registry.view<NativeScriptComponent>().each([=](auto entity, auto& nsc) {
@@ -144,24 +145,15 @@ namespace Rocket {
 			});
 
 		}
-
+		*/
 		// renderer 2D
-
-		Camera* mainCamera = nullptr;
-		glm::mat4 cameraTransform;
-		
-		auto view = m_registry.view<TransformComponent, CameraComponent>();
-
-		for (auto entity : view) {
-			auto [foundTransform, foundCamera] = view.get<TransformComponent, CameraComponent>(entity);
-
-			if (foundCamera.primary) {
-				mainCamera = &foundCamera.camera;
-				cameraTransform = foundTransform.getTransform();
-
-				break;
-			}
+		Entity mainCameraEntity = getPrimaryCameraEntity();
+		if (!mainCameraEntity) {
+			Renderer2D::endScene();
+			return;
 		}
+		Camera* mainCamera = &mainCameraEntity.getComponent<CameraComponent>().camera;
+		glm::mat4 cameraTransform = mainCameraEntity.getComponent<TransformComponent>().getTransform();
 
 		if (mainCamera) {
 			Renderer2D::beginScene(mainCamera->getProjection(), cameraTransform);
@@ -170,9 +162,7 @@ namespace Rocket {
 
 			for (auto entity : group) {
 				auto [transform, sprite] = group.get<TransformComponent, SpriteRendererComponent>(entity);
-				//Renderer2D::drawSprite(transform.getTransform(), sprite, (int)entity);
-				//Renderer2D::drawQuadWithViewMat(transform.getTransform(), sprite.color);
-				//Renderer2D::drawQuad2D({ 1.0f, 1.0f }, { 2.0f, 2.0f }, { 0.2f, 0.3f, 0.8f, 1.0f });
+				Renderer2D::drawSprite(transform.getTransform(), sprite, (int)entity);
 			}
 
 			Renderer2D::endScene();
@@ -181,30 +171,43 @@ namespace Rocket {
 
 	void Scene::onUpdateEditor(Timestep ts, EditorCamera& camera, const glm::vec2& viewportSize) {
 		Renderer2D::beginScene(camera);
+		
+		// lights calculation
+		{
+			std::vector<DirectionalLightComponent> directionalLights;
+			//getting directional lights
+			{
+				auto directionalGroup = m_registry.group<DirectionalLightComponent>(entt::get<TransformComponent>);
+				for (auto light : directionalGroup) {
+					directionalLights.push_back(directionalGroup.get<DirectionalLightComponent>(light));
+				}
+			}
 
-		//Renderer2D::uploadDiffuseLight(diffuseColor, diffusePos);
+			std::vector<PointLightComponent> pointLights;
+			//getting point lights
+			{
+				auto pointLightGroup = m_registry.group<PointLightComponent>(entt::get<TransformComponent>);
+				for (auto light : pointLightGroup) {
+					pointLights.push_back(pointLightGroup.get<PointLightComponent>(light));
+				}
+			}
 
-		auto directionalGroup = m_registry.group<DirectionalLightComponent>(entt::get<TransformComponent>);
-		std::vector<DirectionalLightComponent> directionalLights;
-		for (auto light : directionalGroup) {
-			directionalLights.push_back(directionalGroup.get<DirectionalLightComponent>(light));
+			std::vector<SpotLightComponent> spotLights;
+			//getting spot lights
+			{
+				auto spotLightGroup = m_registry.group<SpotLightComponent>(entt::get<TransformComponent>);
+				for (auto light : spotLightGroup) {
+					spotLights.push_back(spotLightGroup.get<SpotLightComponent>(light));
+				}
+			}
+			//applying lights
+			{
+				Renderer2D::applyDirectionalLights(directionalLights, camera.getPosition());
+				Renderer2D::applyPointLights(pointLights);
+				Renderer2D::applySpotLights(spotLights);
+			}
 		}
 
-		auto pointLightGroup = m_registry.group<PointLightComponent>(entt::get<TransformComponent>);
-		std::vector<PointLightComponent> pointLights;
-		for (auto light : pointLightGroup) {
-			pointLights.push_back(pointLightGroup.get<PointLightComponent>(light));
-		}
-
-		auto spotLightGroup = m_registry.group<SpotLightComponent>(entt::get<TransformComponent>);
-		std::vector<SpotLightComponent> spotLights;
-		for (auto light : spotLightGroup) {
-			spotLights.push_back(spotLightGroup.get<SpotLightComponent>(light));
-		}
-
-		Renderer2D::applyDirectionalLights(directionalLights, camera.getPosition());
-		Renderer2D::applyPointLights(pointLights);
-		Renderer2D::applySpotLights(spotLights);
 		// Note: View is read only, group is rw
 		auto view = m_registry.view<TransformComponent, SpriteRendererComponent>(entt::exclude<DirectionalLightComponent>);
 
@@ -212,9 +215,6 @@ namespace Rocket {
 
 			auto [sprite, transform] = view.get<SpriteRendererComponent, TransformComponent>(entity);
 			Renderer2D::drawSprite(transform.getTransform(), sprite, (int)entity);
-
-			//Renderer2D::uploadModelMatrix(transform.getTransform()); very temporary
-			//Renderer2D::drawQuadWithViewMat(transform.getTransform(), sprite.color);
 		}
 
 		Renderer2D::endScene();
@@ -233,7 +233,7 @@ namespace Rocket {
 		return {};
 	}
 
-	//TEMP TO DELETE
+	//TEMP TO DELETE, this is used for controlling the cameras directly
 	void Scene::addCameraController(Entity& entity) { entity.addComponent<NativeScriptComponent>().bind<CameraController>(); }
 
 	template <typename T>
