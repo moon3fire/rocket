@@ -97,13 +97,15 @@ namespace Rocket {
 			m_directionalLightCount--;
 		else if (entity.hasComponent<PointLightComponent>())
 			m_pointLightCount--;
-		m_registry.destroy(entity);
+		m_registry.destroy(entity); // ???
 	}
 
 	void Scene::clear() {
-		m_registry.each([&](auto entity) {
-			m_registry.destroy(entity);
-		});
+		auto group = m_registry.group<TransformComponent>();
+		for (auto& e : group) {
+			Entity entity = { e, this };
+			m_registry.destroy(entity); 
+		}
 	}
 
 	//for debugging purposes

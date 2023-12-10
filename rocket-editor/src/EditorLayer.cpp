@@ -418,10 +418,7 @@ namespace Rocket {
 	void EditorLayer::openScene() {
 		std::string filepath = FileDialogs::openFile("Rocket Scene (*.rkct)\0*.rckt\0");
 		if (!filepath.empty()) {
-			m_activeScene->clear();
-			m_activeScene = createRef<Scene>();
-			m_activeScene->onViewportResize((uint32_t)m_viewportSize.x, (uint32_t)m_viewportSize.y);
-			m_hierarchyPanel.setContext(m_activeScene);
+			createNewScene();
 
 			SceneSerializer serializer(m_activeScene);
 			serializer.deserialize(filepath);
