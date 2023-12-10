@@ -227,33 +227,60 @@ namespace Rocket {
 
 		if (ImGui::BeginPopup("AddComponent")) {
 
-			if (ImGui::MenuItem("Camera")) {
-				m_selectionContext.addComponent<CameraComponent>();
-				ImGui::CloseCurrentPopup();
+			if (!m_selectionContext.hasComponent<CameraComponent>()) {
+				if (ImGui::MenuItem("Camera")) {
+					m_selectionContext.addComponent<CameraComponent>();
+					ImGui::CloseCurrentPopup();
+				}
 			}
 
-			if (ImGui::MenuItem("Sprite Renderer")) {
-				m_selectionContext.addComponent<SpriteRendererComponent>();
-				ImGui::CloseCurrentPopup();
+			if (!m_selectionContext.hasComponent<SpriteRendererComponent>()) {
+				if (ImGui::MenuItem("Sprite Renderer")) {
+					m_selectionContext.addComponent<SpriteRendererComponent>();
+					ImGui::CloseCurrentPopup();
+				}
 			}
-			/* NATIVE SCRIPTING
+
+			//NATIVE SCRIPTING
+			/* 
 			if (ImGui::MenuItem("Camera Controller")) {
 				m_context->addCameraController(m_selectionContext);
 			}
 			*/
-			if (ImGui::MenuItem("Directional Light")) {
-				m_selectionContext.addComponent<DirectionalLightComponent>();
-				ImGui::CloseCurrentPopup();
+
+			if (!m_selectionContext.hasComponent<DirectionalLightComponent>()) {
+				if (ImGui::MenuItem("Directional Light")) {
+					m_selectionContext.addComponent<DirectionalLightComponent>();
+					ImGui::CloseCurrentPopup();
+				}
 			}
 
-			if (ImGui::MenuItem("Point Light")) {
-				m_selectionContext.addComponent<PointLightComponent>();
-				ImGui::CloseCurrentPopup();
+			if (!m_selectionContext.hasComponent<PointLightComponent>()) {
+				if (ImGui::MenuItem("Point Light")) {
+					m_selectionContext.addComponent<PointLightComponent>();
+					ImGui::CloseCurrentPopup();
+				}
 			}
 
-			if (ImGui::MenuItem("Spot Light")) {
-				m_selectionContext.addComponent<SpotLightComponent>();
-				ImGui::CloseCurrentPopup();
+			if (!m_selectionContext.hasComponent<SpotLightComponent>()) {
+				if (ImGui::MenuItem("Spot Light")) {
+					m_selectionContext.addComponent<SpotLightComponent>();
+					ImGui::CloseCurrentPopup();
+				}
+			}
+
+			if (!m_selectionContext.hasComponent<RigidBody2DComponent>()) {
+				if (ImGui::MenuItem("Rigid Body 2D")) {
+					m_selectionContext.addComponent<RigidBody2DComponent>();
+					ImGui::CloseCurrentPopup();
+				}
+			}
+
+			if (!m_selectionContext.hasComponent<BoxCollider2DComponent>()) {
+				if (ImGui::MenuItem("Box Collider 2D")) {
+					m_selectionContext.addComponent<BoxCollider2DComponent>();
+					ImGui::CloseCurrentPopup();
+				}
 			}
 
 			ImGui::EndPopup();
@@ -274,7 +301,7 @@ namespace Rocket {
 			ImGui::DragFloat("Tiling Factor", &component.tilingFactor, 0.1f, 0.0f, 100.0f);
 			
 			if (component.getTextureID() == -1)
-				ImGui::Image((ImTextureID)(this->m_defaultTexture->getRendererID()), ImVec2{64, 64}, ImVec2{0, 1}, ImVec2{1, 0});
+				ImGui::Image((ImTextureID)(m_defaultTexture->getRendererID()), ImVec2{64, 64}, ImVec2{0, 1}, ImVec2{1, 0});
 			else
 				ImGui::Image((ImTextureID)component.getTextureID(), ImVec2{64, 64}, ImVec2{0, 1}, ImVec2{1, 0});
 			if (ImGui::BeginDragDropTarget()) {
@@ -285,6 +312,34 @@ namespace Rocket {
 				}
 				ImGui::EndDragDropTarget();
 			}
+		});
+
+		drawComponent<RigidBody2DComponent>("Rigid Body 2D", entity, [](auto& component) {
+			const char* bodyTypes[] = { "Static", "Dynamic", "Kinematic" };
+			const char* currentBodyType = bodyTypes[(int)component.type];
+			if (ImGui::BeginCombo("Body Type", currentBodyType)) {
+				for (int i = 0; i < 2; i++) {
+					bool isSelected = currentBodyType == bodyTypes[i];
+					if (ImGui::Selectable(bodyTypes[i], isSelected)) {
+						currentBodyType = bodyTypes[i];
+						component.type = (RigidBody2DComponent::BodyType)i;
+					}
+
+					if (isSelected)
+						ImGui::SetItemDefaultFocus();
+				}
+				ImGui::EndCombo();
+			}
+			ImGui::Checkbox("Fixed Rotation", &component.fixedRotation);
+		});
+
+		drawComponent<BoxCollider2DComponent>("Box Collider 2D", entity, [](auto& component) {
+			ImGui::DragFloat2("Offset", glm::value_ptr(component.offset));
+			ImGui::DragFloat2("Size", glm::value_ptr(component.size));
+			ImGui::DragFloat("Density", &component.density, 0.01f, 0.0f, 1.0f);
+			ImGui::DragFloat("Friction", &component.friction, 0.01f, 0.0f, 1.0f);
+			ImGui::DragFloat("Restitution", &component.restitution, 0.01f, 0.0f, 1.0f);
+			ImGui::DragFloat("Restitution Threshold", &component.restitutionThreshold, 0.01f, 0.0f);
 		});
 
 		drawComponent<DirectionalLightComponent>("Directional Light", entity, [](auto& component) {

@@ -6,6 +6,8 @@
 
 #include <entt.hpp>
 
+class b2World;
+
 namespace Rocket {
 
 	class Entity;
@@ -34,6 +36,10 @@ namespace Rocket {
 		void enableRefraction(bool enabled);
 		
 		void onViewportResize(uint32_t width, uint32_t height);
+
+		void onRuntimeStart();
+		void onRuntimeStop();
+
 		void onUpdateRuntime(Timestep ts);
 		void onUpdateEditor(Timestep ts, EditorCamera& camera, const glm::vec2& viewportSize);
 
@@ -46,6 +52,7 @@ namespace Rocket {
 		static void addCameraController(Entity& entity);
 	private:
 		entt::registry m_registry;
+		b2World* m_physicsWorld = nullptr;
 
 		uint32_t m_viewportWidth = 0, m_viewportHeight = 0;
 		

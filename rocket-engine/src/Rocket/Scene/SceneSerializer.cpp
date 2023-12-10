@@ -11,6 +11,27 @@
 namespace YAML {
 
 	template<>
+	struct convert<glm::vec2> {
+
+		static Node encode(const glm::vec2& rhs) {
+			Node node;
+			node.push_back(rhs.x);
+			node.push_back(rhs.y);
+			return node;
+		}
+
+		static bool decode(const Node& node, glm::vec2& rhs) {
+			if (!node.IsSequence() || node.size() != 2)
+				return false;
+
+			rhs.x = node[0].as<float>();
+			rhs.y = node[1].as<float>();
+			return true;
+		}
+
+	};
+
+	template<>
 	struct convert<glm::vec3> {
 
 		static Node encode(const glm::vec3& rhs) {
@@ -60,6 +81,31 @@ namespace YAML {
 } // namespace YAML
 
 namespace Rocket {
+
+	static std::string RigidBody2DTypeToString(RigidBody2DComponent::BodyType type) {
+		switch (type) {
+			case RigidBody2DComponent::BodyType::Static: return "Static";
+			case RigidBody2DComponent::BodyType::Dynamic: return "Dynamic";
+			case RigidBody2DComponent::BodyType::Kinematic: return "Kinematic";
+		}
+		RCKT_CORE_ASSERT(false, "Unknown rigid body 2D type!");
+		return "Static";
+	}
+
+	static RigidBody2DComponent::BodyType StringToRigidBody2DType(const std::string& typeStr) {
+		if (typeStr == "Static") return RigidBody2DComponent::BodyType::Static;
+		if (typeStr == "Dynamic") return RigidBody2DComponent::BodyType::Dynamic;
+		if (typeStr == "Kinematic") return RigidBody2DComponent::BodyType::Kinematic;
+
+		RCKT_CORE_ASSERT(false, "Unknown type of rigid body 2D!");
+		return RigidBody2DComponent::BodyType::Static;
+	}
+
+	YAML::Emitter& operator<<(YAML::Emitter& out, const glm::vec2 v) {
+		out << YAML::Flow;
+		out << YAML::BeginSeq << v.x << v.y << YAML::EndSeq;
+		return out;
+	}
 
 	YAML::Emitter& operator<<(YAML::Emitter& out, const glm::vec3 v) {
 		out << YAML::Flow;
@@ -170,6 +216,35 @@ namespace Rocket {
 
 			out << YAML::EndMap;
 		}
+
+		if (entity.hasComponent<RigidBody2DComponent>()) {
+			out << YAML::Key << "RigidBody2DComponent";
+			out << YAML::BeginMap;
+
+			auto& rb2d = entity.getComponent<RigidBody2DComponent>();
+
+			out << YAML::Key << "BodyType" << YAML::Value << RigidBody2DTypeToString(rb2d.type);
+			out << YAML::Key << "FixedRotation" << YAML::Value << rb2d.fixedRotation;
+
+			out << YAML::EndMap;
+		}
+
+		if (entity.hasComponent<BoxCollider2DComponent>()) {
+			out << YAML::Key << "BoxCollider2DComponent";
+			out << YAML::BeginMap;
+
+			auto& bc2d = entity.getComponent<BoxCollider2DComponent>();
+
+			out << YAML::Key << "Offset" << YAML::Value << bc2d.offset;
+			out << YAML::Key << "Size" << YAML::Value << bc2d.size;
+			out << YAML::Key << "Density" << YAML::Value << bc2d.density;
+			out << YAML::Key << "Friction" << YAML::Value << bc2d.friction;
+			out << YAML::Key << "Restitution" << YAML::Value << bc2d.restitution;
+			out << YAML::Key << "RestitutionThreshold" << YAML::Value << bc2d.restitutionThreshold;
+
+			out << YAML::EndMap;
+		}
+
 		out << YAML::EndMap;
 	}
 
@@ -300,6 +375,24 @@ namespace Rocket {
 					pointLightComponent.linear			= plc["Linear"].as<float>();
 					pointLightComponent.quadratic		= plc["Quadratic"].as<float>();
 					pointLightComponent.ambientStrenght = plc["AmbientStrenght"].as<float>();
+				}
+
+				auto rb2d = entity["RigidBody2DComponent"];
+				if (rb2d) {
+					auto& rigidBody2DComponent = deserializedEntity.addComponent<RigidBody2DComponent>();
+					rigidBody2DComponent.type = StringToRigidBody2DType(rb2d["BodyType"].as<std::string>());
+					rigidBody2DComponent.fixedRotation = rb2d["FixedRotation"].as<bool>();
+				}
+
+				auto bc2d = entity["BoxCollider2DComponent"];
+				if (bc2d) {
+					auto& boxCollider2DComponent = deserializedEntity.addComponent<BoxCollider2DComponent>();
+					boxCollider2DComponent.offset				= bc2d["Offset"].as<glm::vec2>();
+					boxCollider2DComponent.size					= bc2d["Size"].as<glm::vec2>();
+					boxCollider2DComponent.density				= bc2d["Density"].as<float>();
+					boxCollider2DComponent.friction				= bc2d["Friction"].as<float>();
+					boxCollider2DComponent.restitution			= bc2d["Restitution"].as<float>();
+					boxCollider2DComponent.restitutionThreshold = bc2d["RestitutionThreshold"].as<float>();
 				}
 			}
 		}

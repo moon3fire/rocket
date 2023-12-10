@@ -16,3 +16,6 @@
 [submodule "rocket-engine/vendors/GLFW"]
 	path = rocket-engine/vendors/GLFW
 	url = https://github.com/moon3fire/glfw
+[submodule "rocket-engine/vendors/Box2D"]
+	path = rocket-engine/vendors/Box2D
+	url = https://github.com/moon3fire/box2d

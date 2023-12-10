@@ -3,6 +3,11 @@
 
 #include <glm/glm.hpp>
 
+#include <box2d/b2_world.h>
+#include <box2d/b2_body.h>
+#include <box2d/b2_fixture.h>
+#include <box2d/b2_polygon_shape.h>
+
 #include "Entity.h"
 #include "ScriptableEntity.h"
 #include "Components.h"
@@ -13,6 +18,17 @@
 #include "Controller.h"
 
 namespace Rocket {
+	
+	static b2BodyType RocketRBTypeToB2Type(RigidBody2DComponent::BodyType type) {
+		switch (type) {
+			case RigidBody2DComponent::BodyType::Static:		return b2_staticBody;
+			case RigidBody2DComponent::BodyType::Dynamic:		return b2_dynamicBody;
+			case RigidBody2DComponent::BodyType::Kinematic:		return b2_kinematicBody;
+		}
+
+		RCKT_CORE_ASSERT(false, "Unknown rigid body 2D type!");
+		return b2_staticBody;
+	}
 	
 	Scene::Scene() {}
 
@@ -111,6 +127,45 @@ namespace Rocket {
 		}
 	}
 
+	void Scene::onRuntimeStart() {
+		m_physicsWorld = new b2World({ 0.0f, -9.8f });
+
+		auto view = m_registry.view<RigidBody2DComponent>();
+		for (auto e : view) {
+			Entity entity = { e, this };
+			auto& tc = entity.getComponent<TransformComponent>();
+			auto& rb2d = entity.getComponent<RigidBody2DComponent>();
+			
+			b2BodyDef bodyDef;
+			bodyDef.type = RocketRBTypeToB2Type(rb2d.type);
+			bodyDef.position.Set(tc.position.x, tc.position.y);
+			bodyDef.angle = tc.rotation.z;
+			b2Body* body = m_physicsWorld->CreateBody(&bodyDef);
+			body->SetFixedRotation(rb2d.fixedRotation);
+			rb2d.runtimeBody = body;
+
+			if (entity.hasComponent<BoxCollider2DComponent>()) {
+				auto& bc2d = entity.getComponent<BoxCollider2DComponent>();
+
+				b2PolygonShape box;
+				box.SetAsBox(bc2d.size.x * tc.scale.x, bc2d.size.y * tc.scale.y);
+
+				b2FixtureDef fixture;
+				fixture.shape = &box;
+				fixture.density = bc2d.density;
+				fixture.friction = bc2d.friction;
+				fixture.restitution = bc2d.restitution;
+				fixture.restitutionThreshold = bc2d.restitutionThreshold;
+				body->CreateFixture(&fixture);
+			}
+		}
+	}
+
+	void Scene::onRuntimeStop() {
+		delete m_physicsWorld;
+		m_physicsWorld = nullptr;
+	}
+
 	void Scene::enableSkybox(bool enabled) {
 		m_isSkyboxEnabled = enabled;
 	}
@@ -129,6 +184,7 @@ namespace Rocket {
 
 	void Scene::onUpdateRuntime(Timestep ts) {
 		// native script handling, will be used later
+		
 		/* 
 		// Update native scripts
 		{
@@ -147,10 +203,32 @@ namespace Rocket {
 		}
 		*/
 		// renderer 2D
+
 		Entity mainCameraEntity = getPrimaryCameraEntity();
 		if (!mainCameraEntity) {
-			return;
+			return; // return if there are no cameras in the scene
 		}
+
+		//physics
+		{
+			const int32_t velocityIterations = 6;
+			const int32_t positionIterations = 2;
+			m_physicsWorld->Step(ts, velocityIterations, positionIterations);
+
+			auto view = m_registry.view<RigidBody2DComponent>();
+			for (auto e : view) {
+				Entity entity = { e, this };
+				auto& tc = entity.getComponent<TransformComponent>();
+				auto& rb2d = entity.getComponent<RigidBody2DComponent>();
+
+				b2Body* body = (b2Body*)rb2d.runtimeBody;
+				const auto& position = body->GetPosition();
+				tc.position.x = position.x;
+				tc.position.y = position.y;
+				tc.rotation.z = body->GetAngle();
+			}
+		}
+
 		Camera* mainCamera = &mainCameraEntity.getComponent<CameraComponent>().camera;
 		glm::mat4 cameraTransform = mainCameraEntity.getComponent<TransformComponent>().getTransform();
 
@@ -271,5 +349,11 @@ namespace Rocket {
 
 	template<>
 	void Scene::onComponentAdded<NativeScriptComponent>(Entity entity, NativeScriptComponent& component) {}
+
+	template<>
+	void Scene::onComponentAdded<RigidBody2DComponent>(Entity entity, RigidBody2DComponent& component) {}
+
+	template<>
+	void Scene::onComponentAdded<BoxCollider2DComponent>(Entity entity, BoxCollider2DComponent& component) {}
 
 } // namespace Rocket

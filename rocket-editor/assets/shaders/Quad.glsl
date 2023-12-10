@@ -151,6 +151,10 @@ void main()
 		case 31: textureColor *= texture(u_textures[31], v_textureCoord * v_tilingFactor); break;
 	}
 
+	if (textureColor.w == 0) {
+		discard;
+	}
+
 	float specularStrenght = 0.6; // TODO: move all hard code variables to uniforms/UBOs/SSBOs UPD maybe not ;)
 	vec3 result = vec3(0.0, 0.0, 0.0);
 	for (int i = 0; i < u_directionalLightCount; i++) {
