@@ -74,89 +74,49 @@ namespace Rocket {
 
 	static Renderer2DStorage s_data;
 
-	//TODO: remove this one, temporary stuff
-	void Renderer2D::setEntityID(uint32_t id) {
-		s_data.quadShader->setInt("currentEntityID", id);
-	}
-
-	void Renderer2D::uploadDiffuseLight(const glm::vec3& color, const glm::vec3& pos) {
-		//s_data.diffuseLightColor = color;
-		//s_data.diffuseLightPosition = pos;
-
-		s_data.quadShader->setFloat3("u_diffusePosition", pos);
-		s_data.quadShader->setFloat3("u_diffuseColor", color);
-	}
-	/*
-	void Renderer2D::uploadModelMatrix(const glm::mat4& modelMat) {
-		//s_data.quadShader->setMat4("u_model", modelMat);
-	}
-	*/
-	void Renderer2D::uploadSpecularViewerPosition(const glm::vec3& position) {
-		s_data.quadShader->setFloat3("u_viewPosition", position);
-	}
-
-	void Renderer2D::applyDirectionalLights(const std::vector<DirectionalLightComponent>& dirLights, const glm::vec3& viewPosition) {
-		uploadSpecularViewerPosition(viewPosition);
-		s_data.quadShader->setDirectionalLights(dirLights);
-	}
-
-	void Renderer2D::applyPointLights(const std::vector<PointLightComponent>& pointLights) {
-		s_data.quadShader->setPointLights(pointLights);
-	}
-
-	void Renderer2D::applySpotLights(const std::vector<SpotLightComponent>& spotLights) {
-		s_data.quadShader->setSpotLights(spotLights);
-	}
-
-	void Renderer2D::prepareSkybox() {
-		s_data.skyboxFaces = {
-		s_data.skyboxPath + std::to_string(s_data.skyboxIndex) + "/right.png",
-		s_data.skyboxPath + std::to_string(s_data.skyboxIndex) + "/left.png",
-		s_data.skyboxPath + std::to_string(s_data.skyboxIndex) + "/top.png",
-		s_data.skyboxPath + std::to_string(s_data.skyboxIndex) + "/bottom.png",
-		s_data.skyboxPath + std::to_string(s_data.skyboxIndex) + "/front.png",
-		s_data.skyboxPath + std::to_string(s_data.skyboxIndex) + "/back.png"
-		};
-
-		s_data.skybox = Skybox::create(s_data.skyboxFaces);
-	}
-
-	void Renderer2D::setSkybox(const std::vector<std::string>& faces) {
-		s_data.skybox->resetSkybox(faces);
-	}
-
-	void Renderer2D::applySkybox(const EditorCamera& camera) {
-		s_data.skyboxShader->bind();
-		s_data.skyboxShader->setInt("skybox", 0);
-		glm::mat4 view = glm::mat4(glm::mat3(camera.getViewMatrix())); // remove translation from the view matrix
-		s_data.skyboxShader->setMat4("u_view", view);
-		s_data.skyboxShader->setMat4("u_projection", camera.getProjection());
-		s_data.skybox->drawSkybox();
-		s_data.skyboxShader->unbind();
-	}
-
-	void Renderer2D::changeSkybox() {
-		s_data.skyboxIndex++;
-		if (s_data.skyboxIndex > 4)
-			s_data.skyboxIndex = 1;
-		prepareSkybox();
-	}
-
-	void Renderer2D::enableReflection(bool enabled) {
-		s_data.reflectionEnabled = enabled;
-	}
-	
-	void Renderer2D::enableRefraction(bool enabled) {
-		s_data.refractionEnabled = enabled;
-	}
-
-	//temp ends here
-
 
 	void Renderer2D::init() {
 		RCKT_PROFILE_FUNCTION();
-		//VA stuff
 		s_data.quadVA = VertexArray::create();
+		initVB();
+		initIB();
+		s_data.quadShader = Shader::create("assets/shaders/Quad.glsl");
+		s_data.skyboxShader = Shader::create("assets/shaders/Skybox.glsl");
+		s_data.reflectionShader = Shader::create("assets/shaders/Reflection.glsl");
+		s_data.refractionShader = Shader::create("assets/shaders/Refraction.glsl");
+		s_data.quadShader->bind();
+
+		int samplers[s_data.maxTextureSlots];
+		for (int i = 0; i < s_data.maxTextureSlots; i++)
+			samplers[i] = i;
+		s_data.quadShader->setIntArray("u_textures", samplers, s_data.maxTextureSlots);
+
+		s_data.quadVertexPositions[0] = { -0.5f, -0.5f, 0.0f, 1.0f };
+		s_data.quadVertexPositions[1] = { 0.5f, -0.5f, 0.0f, 1.0f };
+		s_data.quadVertexPositions[2] = { 0.5f,  0.5f, 0.0f, 1.0f };
+		s_data.quadVertexPositions[3] = { -0.5f,  0.5f, 0.0f, 1.0f };
+
+		prepareSkybox();
+	}
+
+	void Renderer2D::reset() {
+		RCKT_PROFILE_FUNCTION();
+		s_data.quadVA.reset();
+		delete[] s_data.quadVertexBufferBase;
+		s_data.quadVertexBufferBase = new QuadVertex[s_data.maxVertices];
+		s_data.quadIndexCount = 0;
+		initVB();
+		initIB();
+	}
+
+	void Renderer2D::shutdown() {
+		RCKT_PROFILE_FUNCTION();
+
+		delete[] s_data.quadVertexBufferBase;
+	}
+
+	void Renderer2D::initVB() {
+		s_data.quadVertexBuffer.reset();
 		s_data.quadVertexBuffer = VertexBuffer::create(s_data.maxVertices * sizeof(QuadVertex));
 		s_data.quadVertexBuffer->setLayout(
 			{
@@ -169,11 +129,12 @@ namespace Rocket {
 				{ ShaderDataType::Int,    "a_entityID"     }, // color attachment 2
 			});
 		s_data.quadVA->addVertexBuffer(s_data.quadVertexBuffer);
-		
-		//batching part
+	}
+
+
+	void Renderer2D::initIB() {
 		s_data.quadVertexBufferBase = new QuadVertex[s_data.maxVertices];
 		uint32_t* quadIndices = new uint32_t[s_data.maxIndices];
-
 		uint32_t offset = 0;
 		for (uint32_t i = 0; i < s_data.maxIndices; i += 6) {
 			quadIndices[i + 0] = offset + 0;
@@ -186,50 +147,12 @@ namespace Rocket {
 
 			offset += 4;
 		}
-
 		Ref<Rocket::IndexBuffer> quadIB;
 		quadIB = IndexBuffer::create(quadIndices, s_data.maxIndices);
-
-		//uploading to GPU
 		s_data.quadVA->setIndexBuffer(quadIB);
-		//uploaded, no more need
 		delete[] quadIndices;
-
-		s_data.quadShader = Shader::create("assets/shaders/Quad.glsl");
-		s_data.skyboxShader = Shader::create("assets/shaders/Skybox.glsl");
-		s_data.reflectionShader = Shader::create("assets/shaders/Reflection.glsl");
-		s_data.refractionShader = Shader::create("assets/shaders/Refraction.glsl");
-		s_data.quadShader->bind();
-		
-		int samplers[s_data.maxTextureSlots];
-		for (int i = 0; i < s_data.maxTextureSlots; i++)
-			samplers[i] = i;
-
-		s_data.quadShader->setIntArray("u_textures", samplers, s_data.maxTextureSlots);
-
-		s_data.quadVertexPositions[0] = { -0.5f, -0.5f, 0.0f, 1.0f };
-		s_data.quadVertexPositions[1] = {  0.5f, -0.5f, 0.0f, 1.0f };
-		s_data.quadVertexPositions[2] = {  0.5f,  0.5f, 0.0f, 1.0f };
-		s_data.quadVertexPositions[3] = { -0.5f,  0.5f, 0.0f, 1.0f };
-
-		prepareSkybox();
 	}
-
-	void Renderer2D::shutdown() {
-		RCKT_PROFILE_FUNCTION();
-
-		delete[] s_data.quadVertexBufferBase;
-	}
-
-	void Renderer2D::reset() {
-		RCKT_PROFILE_FUNCTION();
-
-		delete[] s_data.quadVertexBufferBase;
-		s_data.quadVertexBufferBase = new QuadVertex[s_data.maxVertices];
-		s_data.quadIndexCount = 0;
-	}
-
-
+	
 	void Renderer2D::beginScene(const OrthographicCamera2D& camera) {
 		RCKT_PROFILE_FUNCTION();
 
@@ -254,9 +177,6 @@ namespace Rocket {
 
 		s_data.quadIndexCount = 0;
 		s_data.quadVertexBufferPtr = s_data.quadVertexBufferBase;
-
-		//starting from slot 1 in each frame
-		//s_data.textureSlotIndex = 0;
 	}
 
 	void Renderer2D::beginScene(const EditorCamera& camera) {
@@ -284,18 +204,84 @@ namespace Rocket {
 
 		s_data.quadIndexCount = 0;
 		s_data.quadVertexBufferPtr = s_data.quadVertexBufferBase;
-		
-		//starting from slot 0 in each frame, no default texture anymore
-		//s_data.textureSlotIndex = 0;
 	}
+
+
+	//TODO: remove this one, temporary stuff
+	void Renderer2D::setEntityID(uint32_t id) {
+		s_data.quadShader->setInt("currentEntityID", id);
+	}
+
+	void Renderer2D::uploadView(const glm::vec3& position) {
+		s_data.quadShader->setFloat3("u_viewPosition", position);
+	}
+
+	void Renderer2D::applyDirectionalLights(const std::vector<DirectionalLightComponent>& dirLights, const glm::vec3& viewPosition) {
+		uploadView(viewPosition);
+		s_data.quadShader->setDirectionalLights(dirLights);
+	}
+	
+	void Renderer2D::applyPointLights(const std::vector<PointLightComponent>& pointLights) {
+		s_data.quadShader->setPointLights(pointLights);
+	}
+	
+	void Renderer2D::applySpotLights(const std::vector<SpotLightComponent>& spotLights) {
+		s_data.quadShader->setSpotLights(spotLights);
+	}
+	
+	void Renderer2D::prepareSkybox() {
+		s_data.skyboxFaces = {
+		s_data.skyboxPath + std::to_string(s_data.skyboxIndex) + "/right.png",
+		s_data.skyboxPath + std::to_string(s_data.skyboxIndex) + "/left.png",
+		s_data.skyboxPath + std::to_string(s_data.skyboxIndex) + "/top.png",
+		s_data.skyboxPath + std::to_string(s_data.skyboxIndex) + "/bottom.png",
+		s_data.skyboxPath + std::to_string(s_data.skyboxIndex) + "/front.png",
+		s_data.skyboxPath + std::to_string(s_data.skyboxIndex) + "/back.png"
+		};
+
+		s_data.skybox = Skybox::create(s_data.skyboxFaces);
+	}
+
+	void Renderer2D::setSkybox(const std::vector<std::string>& faces) {
+		s_data.skybox->resetSkybox(faces);
+	}
+
+	void Renderer2D::changeSkybox() {
+		s_data.skyboxIndex++;
+		if (s_data.skyboxIndex > 4)
+			s_data.skyboxIndex = 1;
+		prepareSkybox();
+	}
+
+	void Renderer2D::applySkybox(const EditorCamera& camera) {
+		s_data.skyboxShader->bind();
+		s_data.skyboxShader->setInt("skybox", 0);
+		glm::mat4 view = glm::mat4(glm::mat3(camera.getViewMatrix())); // remove translation from the view matrix
+		s_data.skyboxShader->setMat4("u_view", view);
+		s_data.skyboxShader->setMat4("u_projection", camera.getProjection());
+		s_data.skybox->drawSkybox();
+		s_data.skyboxShader->unbind();
+	}
+
+	void Renderer2D::enableReflection(bool enabled) {
+		s_data.reflectionEnabled = enabled;
+	}
+
+	void Renderer2D::enableRefraction(bool enabled) {
+		s_data.refractionEnabled = enabled;
+	}
+
 
 	void Renderer2D::endScene() {
 		RCKT_PROFILE_FUNCTION();
 
+		if (s_data.quadIndexCount == 0)
+			return;
 		//calculating data size to be rendered in bytes
 		uint32_t dataSize = (uint8_t*)s_data.quadVertexBufferPtr - (uint8_t*)s_data.quadVertexBufferBase;
-		// dataSizeReflection = ...
 		s_data.quadVertexBuffer->setData(s_data.quadVertexBufferBase, dataSize);
+		RCKT_CORE_INFO("{0}", dataSize);
+		// dataSizeReflection = ...
 
 		flush();
 	}
@@ -307,7 +293,6 @@ namespace Rocket {
 		if (s_data.quadIndexCount == 0)
 			return;
 
-		//s_data.quadShader->bind();
 		//bind textures
 		for (uint32_t i = 0; i < s_data.textureSlotIndex; i++) {
 			s_data.textureSlots[i]->bind(i);
@@ -567,7 +552,7 @@ namespace Rocket {
 		s_data.quadIndexCount = 0;
 		s_data.quadVertexBufferPtr = s_data.quadVertexBufferBase;
 
-		//s_data.textureSlotIndex = 0; // ?
+		s_data.textureSlotIndex = 0; // ?
 	}
 
 

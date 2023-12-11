@@ -161,8 +161,19 @@ namespace Rocket {
 		auto group = m_registry.group<TransformComponent>();
 		for (auto& e : group) {
 			Entity entity = { e, this };
+			if (entity.hasComponent<RigidBody2DComponent>()) {
+				auto& body = entity.getComponent<RigidBody2DComponent>().runtimeBody;
+				delete body;
+				entity.removeComponent<RigidBody2DComponent>();
+			}
+			if (entity.hasComponent<BoxCollider2DComponent>()) {
+				auto& fixture = entity.getComponent<BoxCollider2DComponent>().runtimeFixture;
+				delete fixture;
+				entity.removeComponent<BoxCollider2DComponent>();
+			}
 			m_registry.destroy(entity); 
 		}
+		m_registry.clear();
 		Renderer2D::reset();
 	}
 

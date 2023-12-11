@@ -159,6 +159,7 @@ namespace Rocket {
 
 		RigidBody2DComponent() = default;
 		RigidBody2DComponent(const RigidBody2DComponent&) = default;
+		~RigidBody2DComponent() { }
 	};
 
 	struct BoxCollider2DComponent {
@@ -174,6 +175,7 @@ namespace Rocket {
 
 		BoxCollider2DComponent() = default;
 		BoxCollider2DComponent(const BoxCollider2DComponent&) = default;
+		~BoxCollider2DComponent() { }
 	};
 
 } // namespace Rocket

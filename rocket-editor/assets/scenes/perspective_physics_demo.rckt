@@ -1,0 +1,139 @@
+Scene: Untitled
+---
+Entities:
+  - Entity: 16715583465102444286
+    TagComponent:
+      Tag: ground
+    TransformComponent:
+      Position: [1.49011612e-08, -1.97517586, 4.65661287e-10]
+      Scale: [18.3038502, 0.50999999, 1]
+      Rotation: [0, 0, 0]
+    SpriteRendererComponent:
+      Color: [1, 1, 1, 1]
+      Texture: ""
+      TilingFactor: 1
+    RigidBody2DComponent:
+      BodyType: Static
+      FixedRotation: false
+    BoxCollider2DComponent:
+      Offset: [0, 0]
+      Size: [0.5, 0.5]
+      Density: 1
+      Friction: 0.5
+      Restitution: 0
+      RestitutionThreshold: 0.5
+  - Entity: 4323782973217064211
+    TagComponent:
+      Tag: Directional Light 0
+    TransformComponent:
+      Position: [0, 0, 0]
+      Scale: [1, 1, 1]
+      Rotation: [0, 0, 0]
+    DirectionalLightComponent:
+      Ambient: [1, 1, 1]
+      AmbientStrenght: 0
+      Diffuse: [1, 1, 1]
+      Direction: [0.100000001, 0, -0.200000003]
+      Specular: [0, 0, 0]
+  - Entity: 14838143176652040256
+    TagComponent:
+      Tag: left wall
+    TransformComponent:
+      Position: [-8.64054775, 2.94229078, 0]
+      Scale: [1, 10.2617254, 1]
+      Rotation: [0, 0, 0]
+    SpriteRendererComponent:
+      Color: [1, 1, 1, 1]
+      Texture: ""
+      TilingFactor: 1
+    RigidBody2DComponent:
+      BodyType: Static
+      FixedRotation: false
+    BoxCollider2DComponent:
+      Offset: [0, 0]
+      Size: [0.5, 0.5]
+      Density: 1
+      Friction: 0.5
+      Restitution: 0
+      RestitutionThreshold: 0.5
+  - Entity: 16483568492321334087
+    TagComponent:
+      Tag: right wall
+    TransformComponent:
+      Position: [8.65336895, 2.78725696, 0]
+      Scale: [1, 10.0592957, 1]
+      Rotation: [0, 0, 0]
+    SpriteRendererComponent:
+      Color: [1, 1, 1, 1]
+      Texture: ""
+      TilingFactor: 1
+    RigidBody2DComponent:
+      BodyType: Static
+      FixedRotation: false
+    BoxCollider2DComponent:
+      Offset: [0, 0]
+      Size: [0.5, 0.5]
+      Density: 1
+      Friction: 0.5
+      Restitution: 0
+      RestitutionThreshold: 0.5
+  - Entity: 366690267476750226
+    TagComponent:
+      Tag: camera
+    TransformComponent:
+      Position: [0, 2.8488853, 26.8999996]
+      Scale: [1, 1, 1]
+      Rotation: [0, 0, 0]
+    CameraComponent:
+      Camera:
+        ProjectionType: 0
+        PerspectiveFOV: 0.785398185
+        PerspectiveNear: 0.00999999978
+        PerspectiveFar: 1000
+        OrthographicSize: 10
+        OrthographicNear: -1
+        OrthographicFar: 1
+      Primary: true
+      FixedAspectRatio: false
+  - Entity: 115338753750048581
+    TagComponent:
+      Tag: box1
+    TransformComponent:
+      Position: [-3.97568083, 10.5975914, 0]
+      Scale: [1.99999988, 1.99999988, 1]
+      Rotation: [0, 0, -0.747000992]
+    SpriteRendererComponent:
+      Color: [1, 1, 1, 1]
+      Texture: assets\textures\wood.png
+      TilingFactor: 1
+    RigidBody2DComponent:
+      BodyType: Dynamic
+      FixedRotation: false
+    BoxCollider2DComponent:
+      Offset: [0, 0]
+      Size: [0.5, 0.5]
+      Density: 1
+      Friction: 0.5
+      Restitution: 0.330000013
+      RestitutionThreshold: 0.5
+  - Entity: 16848151312819118807
+    TagComponent:
+      Tag: box2
+    TransformComponent:
+      Position: [-0.111868612, 10.4947071, 0.00374030694]
+      Scale: [1.00001097, 1.00001097, 0.999999881]
+      Rotation: [0, 0, -3.13971186]
+    SpriteRendererComponent:
+      Color: [1, 1, 1, 1]
+      Texture: ""
+      TilingFactor: 1
+    RigidBody2DComponent:
+      BodyType: Dynamic
+      FixedRotation: false
+    BoxCollider2DComponent:
+      Offset: [0, 0]
+      Size: [0.5, 0.5]
+      Density: 1
+      Friction: 0.600000024
+      Restitution: 0.330000013
+      RestitutionThreshold: 0.289999992

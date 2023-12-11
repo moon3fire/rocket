@@ -331,7 +331,7 @@ namespace Rocket {
 					auto& cc = deserializedEntity.addComponent<CameraComponent>();
 					auto cameraProps = cameraComponent["Camera"];
 
-					cc.camera.setProjectionType((SceneCamera::ProjectionType)cameraProps["ProjectionType"].as<int>());
+					SceneCamera::ProjectionType type = (SceneCamera::ProjectionType)cameraProps["ProjectionType"].as<int>();
 
 					cc.camera.setPerspectiveVerticalFOV(cameraProps["PerspectiveFOV"].as<float>());
 					cc.camera.setPerspectiveNearClip(cameraProps["PerspectiveNear"].as<float>());
@@ -343,6 +343,7 @@ namespace Rocket {
 
 					cc.primary = cameraComponent["Primary"].as<bool>();
 					cc.fixedAspectRatio = cameraComponent["FixedAspectRatio"].as<bool>();
+					cc.camera.setProjectionType(type);
 				}
 
 				auto spriteRendererComponent = entity["SpriteRendererComponent"];

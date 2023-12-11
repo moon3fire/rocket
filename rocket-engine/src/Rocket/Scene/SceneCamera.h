@@ -33,7 +33,7 @@ namespace Rocket {
 		void setViewportSize(uint32_t width, uint32_t height);
 	
 		ProjectionType getProjectionType() const { return m_projectionType; }
-		void setProjectionType(ProjectionType type) { m_projectionType = type; recalculateProjection(); }
+		void setProjectionType(ProjectionType type) { m_projectionType = type; }
 	
 	private:
 		void recalculateProjection();
