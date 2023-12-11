@@ -221,6 +221,15 @@ namespace Rocket {
 		delete[] s_data.quadVertexBufferBase;
 	}
 
+	void Renderer2D::reset() {
+		RCKT_PROFILE_FUNCTION();
+
+		delete[] s_data.quadVertexBufferBase;
+		s_data.quadVertexBufferBase = new QuadVertex[s_data.maxVertices];
+		s_data.quadIndexCount = 0;
+	}
+
+
 	void Renderer2D::beginScene(const OrthographicCamera2D& camera) {
 		RCKT_PROFILE_FUNCTION();
 
@@ -303,6 +312,9 @@ namespace Rocket {
 		for (uint32_t i = 0; i < s_data.textureSlotIndex; i++) {
 			s_data.textureSlots[i]->bind(i);
 		}
+		
+		//RCKT_CORE_INFO("Index Count to render: {0}", s_data.quadIndexCount);
+		
 		RenderCommand::drawIndexed(s_data.quadVA, s_data.quadIndexCount);
 		s_data.stats.drawCalls++;
 		s_data.quadShader->unbind();

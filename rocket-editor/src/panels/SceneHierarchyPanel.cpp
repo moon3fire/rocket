@@ -32,6 +32,11 @@ namespace Rocket {
 		{
 			ImGui::Begin("Hierarchy");
 
+			if (!m_context) {
+				ImGui::End();
+				return;
+			}
+
 			m_context->m_registry.each([&](auto entityID) {
 				Entity entity{ entityID, m_context.get() };
 				drawEntityNode(entity);

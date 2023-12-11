@@ -131,8 +131,9 @@ namespace Rocket {
 			out << YAML::Key << "TagComponent";
 			out << YAML::BeginMap;
 
-			auto& tag = entity.getComponent<TagComponent>().tag;
-			out << YAML::Key << "Tag" << YAML::Value << tag;
+			auto& tc = entity.getComponent<TagComponent>();
+
+			out << YAML::Key << "Tag" << YAML::Value << tc.tag;
 
 			out << YAML::EndMap;
 		}
@@ -287,11 +288,12 @@ namespace Rocket {
 		}
 		catch(YAML::ParserException e)
 		{
+			RCKT_CORE_ERROR("{0}", e.what());
 			return false;
 		}
 
 		if (!data[0]["Scene"]) {
-			RCKT_CORE_WARN("Can't found a scene inside file");
+			RCKT_CORE_WARN("Can't find a scene inside file");
 			return false;
 		}
 		RCKT_CORE_INFO("Found scene: {0}", data[0].begin()->second.Scalar());
@@ -310,7 +312,7 @@ namespace Rocket {
 
 				RCKT_CORE_TRACE("Deserialized entity with ID = {0}, name = {1}", uuid, name);
 
-				Entity deserializedEntity = m_scene->createEntity(name);
+				Entity deserializedEntity = m_scene->createEntity(name, uuid);
 				
 				auto transformComponent = entity["TransformComponent"];
 				if (transformComponent) {

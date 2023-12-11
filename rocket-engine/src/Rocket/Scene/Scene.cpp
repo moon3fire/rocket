@@ -32,7 +32,57 @@ namespace Rocket {
 	
 	Scene::Scene() {}
 
-	Scene::~Scene() {}
+	Scene::~Scene() {
+		m_registry.clear();
+	}
+
+	template <typename Component>
+	static void CopyComponent(entt::registry& dst, entt::registry& src,const std::unordered_map<UUID, entt::entity>& enttMap) {
+		
+		auto view = src.view<Component>();
+		for (auto e : view) {
+			UUID uuid = src.get<TagComponent>(e).id;
+			
+			RCKT_CORE_ASSERT(enttMap.find(uuid) != enttMap.end(), "");
+			
+			entt::entity dstEnttID = enttMap.at(uuid);
+
+			auto& component = src.get<Component>(e);
+			dst.emplace_or_replace<Component>(dstEnttID, component);
+		}
+	}
+
+	Ref<Scene> Scene::Copy(Ref<Scene> other) {
+
+		Ref<Scene> newScene = createRef<Scene>();
+
+		newScene->m_viewportWidth = other->m_viewportWidth;
+		newScene->m_viewportHeight = other->m_viewportHeight;
+
+		std::unordered_map<UUID, entt::entity> enttMap;
+
+		auto& srcSceneRegistry = other->m_registry;
+		auto& dstSceneRegistry = newScene->m_registry;
+		auto view = srcSceneRegistry.view<TagComponent>();
+
+		for (auto e : view) {
+			auto& tc = srcSceneRegistry.get<TagComponent>(e);
+			Entity entity = newScene->createEntity(tc.tag, tc.id);
+			enttMap[tc.id] = (entt::entity)entity;
+		}
+
+		CopyComponent<TransformComponent>(dstSceneRegistry, srcSceneRegistry, enttMap);
+		CopyComponent<SpriteRendererComponent>(dstSceneRegistry, srcSceneRegistry, enttMap);
+		CopyComponent<DirectionalLightComponent>(dstSceneRegistry, srcSceneRegistry, enttMap);
+		CopyComponent<PointLightComponent>(dstSceneRegistry, srcSceneRegistry, enttMap);
+		CopyComponent<SpotLightComponent>(dstSceneRegistry, srcSceneRegistry, enttMap); // ?
+		CopyComponent<CameraComponent>(dstSceneRegistry, srcSceneRegistry, enttMap);
+		CopyComponent<NativeScriptComponent>(dstSceneRegistry, srcSceneRegistry, enttMap);
+		CopyComponent<RigidBody2DComponent>(dstSceneRegistry, srcSceneRegistry, enttMap);
+		CopyComponent<BoxCollider2DComponent>(dstSceneRegistry, srcSceneRegistry, enttMap);
+
+		return newScene;
+	}
 
 	Entity Scene::createEntity(const std::string& name, const UUID& uuid) {
 		Entity entity = { m_registry.create(), this }; 
@@ -41,6 +91,7 @@ namespace Rocket {
 		entity.addComponent<TagComponent>(name);
 		auto& entityTag = entity.getComponent<TagComponent>();
 		entityTag.tag = name.empty() ? "Unnamed" : name;
+		entityTag.id = uuid;
 		m_entityCount++;
 		RCKT_CORE_WARN("Entity count {0}", m_entityCount);
 		return entity;
@@ -52,7 +103,9 @@ namespace Rocket {
 		entity.addComponent<TransformComponent>();
 		entity.addComponent<TagComponent>("Directional Light " + std::to_string(m_directionalLightCount));
 		entity.addComponent<DirectionalLightComponent>();
-		
+		auto& entityTag = entity.getComponent<TagComponent>();
+		entityTag.id = uuid;
+
 		m_entityCount++;
 		m_directionalLightCount++;
 
@@ -68,6 +121,8 @@ namespace Rocket {
 		entity.addComponent<TagComponent>("Point Light " + std::to_string(m_pointLightCount));
 		auto& plc = entity.addComponent<PointLightComponent>();
 		plc.position = &(entity.getComponent<TransformComponent>().position);
+		auto& entityTag = entity.getComponent<TagComponent>();
+		entityTag.id = uuid;
 
 		m_entityCount++;
 
@@ -84,6 +139,8 @@ namespace Rocket {
 		entity.addComponent<TagComponent>("Spot Light " + std::to_string(m_spotLightCount));
 		auto& slc = entity.addComponent<SpotLightComponent>();
 		slc.position = &(entity.getComponent<TransformComponent>().position);
+		auto& entityTag = entity.getComponent<TagComponent>();
+		entityTag.id = uuid;
 
 		m_entityCount++;
 
@@ -106,6 +163,7 @@ namespace Rocket {
 			Entity entity = { e, this };
 			m_registry.destroy(entity); 
 		}
+		Renderer2D::reset();
 	}
 
 	//for debugging purposes

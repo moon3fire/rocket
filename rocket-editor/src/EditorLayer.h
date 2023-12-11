@@ -45,17 +45,12 @@ namespace Rocket {
 
 		//scene
 		Ref<Scene> m_activeScene;
+		Ref<Scene> m_editorScene, m_runtimeScene;
 
 		bool m_primaryCamera = true;
 		bool m_isUsingFilesystem = false;
 
 		EditorCamera m_editorCamera;
-
-
-		//temp, diffuse lighting test
-		//glm::vec3 m_diffuseColor = { 1.0f, 1.0f, 1.0f };
-		//glm::vec3 m_diffusePos = { 0.0f, 0.0f, 0.0f };
-		//
 
 		Ref<Framebuffer> m_framebuffer;
 		FramebufferSpecification m_specification;

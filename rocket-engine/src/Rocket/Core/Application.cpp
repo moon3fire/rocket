@@ -88,9 +88,6 @@ namespace Rocket {
 					m_imguiLayer->end();
 				}
 			}
-
-			
-			
 			m_window->onUpdate();
 		}
 	}

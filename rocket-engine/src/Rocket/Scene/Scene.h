@@ -19,6 +19,8 @@ namespace Rocket {
 		Scene();
 		~Scene();
 
+		static Ref<Scene> Copy(Ref<Scene> other);
+
 		Entity createEntity(const std::string& name = "", const UUID& uuid = 0);
 		Entity createDirectionalLight(const UUID& uuid = 0);
 		Entity createPointLight(const UUID& uuid = 0);

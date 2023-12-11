@@ -16,6 +16,8 @@ namespace Rocket {
 		static void init();
 		static void shutdown();
 
+		static void reset();
+
 		static void beginScene(const OrthographicCamera2D& camera); // TODO: Remove
 		static void beginScene(const Camera& camera, const glm::mat4& transform);
 		static void beginScene(const EditorCamera& camera);

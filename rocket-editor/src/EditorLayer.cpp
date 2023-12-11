@@ -33,7 +33,7 @@ namespace Rocket {
 		m_editorCamera = EditorCamera(30.0f, 1778.0f, 0.1f, 1000.0f);
 
 		m_activeScene = createRef<Scene>();
-
+		m_editorScene = m_activeScene;
 		// UI TOOLBAR
 		m_playIcon = Texture2D::create("resources/icons/editor/play.png");
 		m_stopIcon = Texture2D::create("resources/icons/editor/stop.png");
@@ -71,20 +71,20 @@ namespace Rocket {
 			// clear entity ID attachment to -1's
 			m_framebuffer->clearAttachment(1, -1);
 		}
-		
+
 		{
 			RCKT_PROFILE_SCOPE("Scene render");
 			//updating scene
 
 			switch (m_sceneState) {
-				case SceneState::Edit: {
-					m_activeScene->onUpdateEditor(ts, m_editorCamera, m_viewportSize);
-					break;
-				}
-				case SceneState::Play: {
-					m_activeScene->onUpdateRuntime(ts);
-					break;
-				}
+			case SceneState::Edit: {
+				m_activeScene->onUpdateEditor(ts, m_editorCamera, m_viewportSize);
+				break;
+			}
+			case SceneState::Play: {
+				m_activeScene->onUpdateRuntime(ts);
+				break;
+			}
 			}
 
 
@@ -101,7 +101,7 @@ namespace Rocket {
 				m_hoveredEntity = pixelData == -1 ? Entity() : Entity((entt::entity)pixelData, m_activeScene.get());
 			}
 		}
-		
+
 		m_framebuffer->unbind();
 	}
 
@@ -201,7 +201,7 @@ namespace Rocket {
 
 			if (ImGui::Checkbox("Enable skybox", &m_isSkyboxEnabled))
 				m_activeScene->enableSkybox(m_isSkyboxEnabled);
-			
+
 			if (m_isSkyboxEnabled) {
 				if (ImGui::Button("Change skybox"))
 					m_activeScene->changeSkybox();
@@ -219,9 +219,9 @@ namespace Rocket {
 					}
 				}
 			}
-			
+
 			ImGui::End();
-		
+
 		}
 
 		{
@@ -247,9 +247,9 @@ namespace Rocket {
 			m_viewportFocused = ImGui::IsWindowFocused();
 			m_viewportHovered = ImGui::IsWindowHovered();
 			Application::get().getImGuiLayer()->blockEvents(!m_viewportFocused && !m_viewportHovered);
-		
+
 			ImVec2 viewportPanelSize = ImGui::GetContentRegionAvail();
-		
+
 			m_viewportSize = { viewportPanelSize.x, viewportPanelSize.y };
 
 			uint32_t textureID = m_framebuffer->getColorAttachmentRendererID(0);
@@ -270,15 +270,15 @@ namespace Rocket {
 				ImGuizmo::SetOrthographic(false);
 				ImGuizmo::SetDrawlist();
 				ImGuizmo::SetRect(m_viewportBounds[0].x, m_viewportBounds[0].y, m_viewportBounds[1].x - m_viewportBounds[0].x, m_viewportBounds[1].y - m_viewportBounds[0].y);
-					//?
-				/* Runtime Camera */
+				//?
+			/* Runtime Camera */
 
-				//auto cameraEntity = m_activeScene->getPrimaryCameraEntity();
-				//const auto& camera = cameraEntity.getComponent<CameraComponent>().camera;
-				//const glm::mat4& cameraProjection = camera.getProjection();
-				//glm::mat4 cameraView = glm::inverse(cameraEntity.getComponent<TransformComponent>().getTransform());
+			//auto cameraEntity = m_activeScene->getPrimaryCameraEntity();
+			//const auto& camera = cameraEntity.getComponent<CameraComponent>().camera;
+			//const glm::mat4& cameraProjection = camera.getProjection();
+			//glm::mat4 cameraView = glm::inverse(cameraEntity.getComponent<TransformComponent>().getTransform());
 
-				// Editor camera
+			// Editor camera
 				const glm::mat4& cameraProjection = m_editorCamera.getProjection();
 				glm::mat4 cameraView = m_editorCamera.getViewMatrix();
 
@@ -295,11 +295,11 @@ namespace Rocket {
 				float snapValues[3] = { snapValue, snapValue, snapValue };
 
 				ImGuizmo::Manipulate(glm::value_ptr(cameraView), glm::value_ptr(cameraProjection), (ImGuizmo::OPERATION)m_gizmosType,
-									 ImGuizmo::LOCAL, glm::value_ptr(transform), nullptr, snap ? snapValues : nullptr);
+					ImGuizmo::LOCAL, glm::value_ptr(transform), nullptr, snap ? snapValues : nullptr);
 
 				if (ImGuizmo::IsUsing()) {
 					glm::vec3 position = { 0.0f, 0.0f, 0.0f }, scale = { 0.0f, 0.0f, 0.0f }, rotation = { 0.0f, 0.0f, 0.0f };
-					
+
 					Math::DecomposeTransform(transform, position, scale, rotation); // rotation x-z isn't correct
 
 					glm::vec3 deltaRotation = rotation - transformComponent.rotation;
@@ -332,7 +332,7 @@ namespace Rocket {
 		ImGui::PushStyleColor(ImGuiCol_Button, ImVec4(0.3f, 0.305f, 0.31f, 0.5f));
 
 		ImGui::Begin("##toolbar", nullptr, ImGuiWindowFlags_NoDecoration | ImGuiWindowFlags_NoScrollbar | ImGuiWindowFlags_NoScrollWithMouse);
-		
+
 		float size = ImGui::GetWindowHeight() * 0.5f;
 		Ref<Texture2D> icon = m_sceneState == SceneState::Edit ? m_playIcon : m_stopIcon;
 		ImGui::SameLine((ImGui::GetWindowContentRegionMax().x * 0.5f) - (size * 0.5f));
@@ -349,13 +349,21 @@ namespace Rocket {
 	}
 
 	void EditorLayer::onScenePlay() {
+
 		m_sceneState = SceneState::Play;
+
+		m_activeScene = Scene::Copy(m_editorScene);
 		m_activeScene->onRuntimeStart();
+
+		m_hierarchyPanel.setContext(m_activeScene);
 	}
 
 	void EditorLayer::onSceneStop() {
 		m_sceneState = SceneState::Edit;
 		m_activeScene->onRuntimeStop();
+		m_activeScene = m_editorScene;
+
+		m_hierarchyPanel.setContext(m_activeScene);
 	}
 
 	bool EditorLayer::onKeyPressed(KeyPressedEvent& event)
@@ -363,35 +371,35 @@ namespace Rocket {
 		//Shortcuts handling
 		if (event.getRepeatCount() > 0)
 			return false;
-			
+
 		bool isControlPressed = Input::isKeyPressed(RCKT_KEY_LEFT_CONTROL) || Input::isKeyPressed(RCKT_KEY_RIGHT_CONTROL);
 		bool isShiftPressed = Input::isKeyPressed(RCKT_KEY_LEFT_SHIFT) || Input::isKeyPressed(RCKT_KEY_RIGHT_SHIFT);
 
 		switch (event.getKeyCode()) {
-			
-			case RCKT_KEY_N: {
-				if (isControlPressed)
-					createNewScene();
-				break;
-			}
 
-			case RCKT_KEY_O: {
-				if (isControlPressed)
-					openScene();
-				break;
-			}
+		case RCKT_KEY_N: {
+			if (isControlPressed)
+				createNewScene();
+			break;
+		}
 
-			case RCKT_KEY_S: {
-				if (isControlPressed && isShiftPressed)
-					saveSceneAs();
-				break;
-			}
+		case RCKT_KEY_O: {
+			if (isControlPressed)
+				openScene();
+			break;
+		}
 
-			// gizmos
-			case RCKT_KEY_Q: {
-				m_gizmosType++;
-				if (m_gizmosType > 2) m_gizmosType = 0;
-			}
+		case RCKT_KEY_S: {
+			if (isControlPressed && isShiftPressed)
+				saveSceneAs();
+			break;
+		}
+
+					   // gizmos
+		case RCKT_KEY_Q: {
+			m_gizmosType++;
+			if (m_gizmosType > 2) m_gizmosType = 0;
+		}
 
 		}
 
@@ -408,32 +416,60 @@ namespace Rocket {
 	}
 
 	void EditorLayer::createNewScene() {
-		m_activeScene->clear();
+
 		m_activeScene = createRef<Scene>();
 		m_activeScene->onViewportResize((uint32_t)m_viewportSize.x, (uint32_t)m_viewportSize.y);
 		m_hierarchyPanel.setContext(m_activeScene);
+		/*
+		m_activeScene->clear();
+		Ref<Scene> newScene = createRef<Scene>();
+
+		m_hierarchyPanel.setContext(m_activeScene);
 		m_isUsingFilesystem = false;
+		m_activeScene = newScene;
+		*/
 	}
 
 	void EditorLayer::openScene() {
 		std::string filepath = FileDialogs::openFile("Rocket Scene (*.rkct)\0*.rckt\0");
+		if (!filepath.empty())
+			openScene(filepath);
+		/*
 		if (!filepath.empty()) {
-			createNewScene();
 
-			SceneSerializer serializer(m_activeScene);
+			Ref<Scene> newScene = createRef<Scene>();
+			SceneSerializer serializer(newScene);
 			serializer.deserialize(filepath);
+
+			m_editorScene = newScene;
+			m_editorScene->onViewportResize((uint32_t)m_viewportSize.x, (uint32_t)m_viewportSize.y);
+			m_hierarchyPanel.setContext(m_editorScene);
+
 			m_isUsingFilesystem = false;
+			m_activeScene = m_editorScene;
 		}
+		*/
 	}
 
 	// this one is used for drag&dropping
 	void EditorLayer::openScene(const std::filesystem::path& filepath) {
-		m_activeScene = createRef<Scene>();
-		m_activeScene->onViewportResize((uint32_t)m_viewportSize.x, (uint32_t)m_viewportSize.y);
-		m_hierarchyPanel.setContext(m_activeScene);
+		if (m_sceneState != SceneState::Edit)
+			onSceneStop();
 
-		SceneSerializer serializer(m_activeScene);
-		serializer.deserialize(filepath.string());
+		if (filepath.extension().string() != ".rckt") {
+			RCKT_CORE_WARN("Could not load {0} - is not a scene file!", filepath.string());
+			return;
+		}
+
+		Ref<Scene> newScene = createRef<Scene>();
+		SceneSerializer serializer(newScene);
+		if (serializer.deserialize(filepath.string())) {
+			m_editorScene = newScene;
+			m_editorScene->onViewportResize((uint32_t)m_viewportSize.x, (uint32_t)m_viewportSize.y);
+			m_hierarchyPanel.setContext(m_editorScene);
+			m_activeScene = m_editorScene;
+
+		}
 	}
 
 	void EditorLayer::saveSceneAs() {
