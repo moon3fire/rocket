@@ -17,7 +17,8 @@ namespace Rocket {
 		static void reset();
 		static void shutdown();
 
-		static void initVB();
+		static void initQuadVB();
+		static void initCircleVB();
 		static void initIB();
 
 		static void beginScene(const OrthographicCamera2D& camera); // TODO: Remove
@@ -51,7 +52,7 @@ namespace Rocket {
 		static void drawQuad3DWithSubTexture(const glm::vec3& position = { 0.0f, 0.0f, 0.0f }, const glm::vec2& size = { 1.0f, 1.0f }, const glm::vec4& color = { 1.0f, 1.0f, 1.0f, 1.0f }, const Ref<SubTexture2D>& subtexture = nullptr, float rotation = 0.0f);
 
 		static void drawSprite(const glm::mat4& transform, SpriteRendererComponent& src, int entityID = -1);
-
+		static void drawCircle(const glm::mat4& transform, CircleRendererComponent& crc, int entityID = -1);
 		//Stats
 
 		struct Statistics {

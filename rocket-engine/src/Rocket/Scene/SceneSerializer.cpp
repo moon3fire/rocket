@@ -184,6 +184,19 @@ namespace Rocket {
 			out << YAML::Key << "Color" << YAML::Value << src.color;
 			out << YAML::Key << "Texture" << YAML::Value << src.getTexturePath();
 			out << YAML::Key << "TilingFactor" << YAML::Value << src.tilingFactor;
+			
+			out << YAML::EndMap;
+		}
+
+		if (entity.hasComponent<CircleRendererComponent>()) {
+			out << YAML::Key << "CircleRendererComponent";
+			out << YAML::BeginMap;
+
+			auto& crc = entity.getComponent<CircleRendererComponent>();
+			out << YAML::Key << "Color" << YAML::Value << crc.color;
+			out << YAML::Key << "Thickness" << YAML::Value << crc.thickness;
+			out << YAML::Key << "Fade" << YAML::Value << crc.fade;
+
 			out << YAML::EndMap;
 		}
 
@@ -343,7 +356,7 @@ namespace Rocket {
 
 					cc.primary = cameraComponent["Primary"].as<bool>();
 					cc.fixedAspectRatio = cameraComponent["FixedAspectRatio"].as<bool>();
-					cc.camera.setProjectionType(type);
+					cc.camera.setOnlyProjectionType(type);
 				}
 
 				auto spriteRendererComponent = entity["SpriteRendererComponent"];
@@ -354,6 +367,14 @@ namespace Rocket {
 					if (texturePath != "")
 						src.texture = Texture2D::create(texturePath);
 					src.tilingFactor = spriteRendererComponent["TilingFactor"].as<float>();
+				}
+
+				auto circleRendererComponent = entity["CircleRendererComponent"];
+				if (circleRendererComponent) {
+					auto& crc = deserializedEntity.addComponent<CircleRendererComponent>();
+					crc.color = circleRendererComponent["Color"].as<glm::vec4>();
+					crc.thickness = circleRendererComponent["Thickness"].as<float>();
+					crc.fade = circleRendererComponent["Fade"].as<float>();
 				}
 
 				auto dlc = entity["DirectionalLightComponent"];

@@ -49,7 +49,7 @@ namespace Rocket {
 			// Right-Click on blank space
 			if (ImGui::BeginPopupContextWindow(0, 1 | ImGuiPopupFlags_NoOpenOverItems)) {
 				if (ImGui::MenuItem("Create Empty")) {
-					m_context->createEntity("Empty");
+					m_context->createEntity("Empty", UUID::UUID());
 				}
 
 				if (ImGui::MenuItem("Create Directional Light")) {
@@ -246,6 +246,13 @@ namespace Rocket {
 				}
 			}
 
+			if (!m_selectionContext.hasComponent<CircleRendererComponent>()) {
+				if (ImGui::MenuItem("Circle Renderer")) {
+					m_selectionContext.addComponent<CircleRendererComponent>();
+					ImGui::CloseCurrentPopup();
+				}
+			}
+
 			//NATIVE SCRIPTING
 			/* 
 			if (ImGui::MenuItem("Camera Controller")) {
@@ -317,6 +324,12 @@ namespace Rocket {
 				}
 				ImGui::EndDragDropTarget();
 			}
+		});
+
+		drawComponent<CircleRendererComponent>("Circle Renderer", entity, [this](auto& component) {
+			ImGui::ColorEdit4("Color", glm::value_ptr(component.color));
+			ImGui::DragFloat("Thickness", &component.thickness, 0.025f, 0.0f, 1.0f);
+			ImGui::DragFloat("Fade", &component.fade, 0.00025f, 0.0f, 1.0f);
 		});
 
 		drawComponent<RigidBody2DComponent>("Rigid Body 2D", entity, [](auto& component) {

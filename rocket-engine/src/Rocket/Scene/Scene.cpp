@@ -42,7 +42,7 @@ namespace Rocket {
 		auto view = src.view<Component>();
 		for (auto e : view) {
 			UUID uuid = src.get<TagComponent>(e).id;
-			
+
 			RCKT_CORE_ASSERT(enttMap.find(uuid) != enttMap.end(), "");
 			
 			entt::entity dstEnttID = enttMap.at(uuid);
@@ -73,6 +73,7 @@ namespace Rocket {
 
 		CopyComponent<TransformComponent>(dstSceneRegistry, srcSceneRegistry, enttMap);
 		CopyComponent<SpriteRendererComponent>(dstSceneRegistry, srcSceneRegistry, enttMap);
+		CopyComponent<CircleRendererComponent>(dstSceneRegistry, srcSceneRegistry, enttMap);
 		CopyComponent<DirectionalLightComponent>(dstSceneRegistry, srcSceneRegistry, enttMap);
 		CopyComponent<PointLightComponent>(dstSceneRegistry, srcSceneRegistry, enttMap);
 		CopyComponent<SpotLightComponent>(dstSceneRegistry, srcSceneRegistry, enttMap); // ?
@@ -93,7 +94,7 @@ namespace Rocket {
 		entityTag.tag = name.empty() ? "Unnamed" : name;
 		entityTag.id = uuid;
 		m_entityCount++;
-		RCKT_CORE_WARN("Entity count {0}", m_entityCount);
+		RCKT_CORE_TRACE("Entity count {0}, current Entity UUID: {1}", m_entityCount, uuid);
 		return entity;
 	}
 
@@ -302,15 +303,32 @@ namespace Rocket {
 
 		Camera* mainCamera = &mainCameraEntity.getComponent<CameraComponent>().camera;
 		glm::mat4 cameraTransform = mainCameraEntity.getComponent<TransformComponent>().getTransform();
+		
 
 		if (mainCamera) {
 			Renderer2D::beginScene(mainCamera->getProjection(), cameraTransform);
 
 			auto group = m_registry.group<TransformComponent>(entt::get<SpriteRendererComponent>);
 
-			for (auto entity : group) {
-				auto [transform, sprite] = group.get<TransformComponent, SpriteRendererComponent>(entity);
-				Renderer2D::drawSprite(transform.getTransform(), sprite, (int)entity);
+			// draw squares
+			{
+				auto view = m_registry.view<SpriteRendererComponent, TransformComponent>();
+
+				for (auto entity : view) {
+
+					auto [sprite, transform] = view.get<SpriteRendererComponent, TransformComponent>(entity);
+					Renderer2D::drawSprite(transform.getTransform(), sprite, (int)entity);
+				}
+			}
+			// draw circles
+			{
+				auto view = m_registry.view<CircleRendererComponent, TransformComponent>();
+
+				for (auto entity : view) {
+
+					auto [circle, transform] = view.get<CircleRendererComponent, TransformComponent>(entity);
+					Renderer2D::drawCircle(transform.getTransform(), circle, (int)entity);
+				}
 			}
 
 			Renderer2D::endScene();
@@ -319,7 +337,7 @@ namespace Rocket {
 
 	void Scene::onUpdateEditor(Timestep ts, EditorCamera& camera, const glm::vec2& viewportSize) {
 		Renderer2D::beginScene(camera);
-		
+		/*
 		// lights calculation
 		{
 			std::vector<DirectionalLightComponent> directionalLights;
@@ -355,14 +373,28 @@ namespace Rocket {
 				Renderer2D::applySpotLights(spotLights);
 			}
 		}
-
+		*/
+		
 		// Note: View is read only, group is rw
-		auto view = m_registry.view<TransformComponent, SpriteRendererComponent>(entt::exclude<DirectionalLightComponent>);
+		// draw squares
+		{
+			auto view = m_registry.view<SpriteRendererComponent, TransformComponent>();
 
-		for (auto entity : view) {
+			for (auto entity : view) {
 
-			auto [sprite, transform] = view.get<SpriteRendererComponent, TransformComponent>(entity);
-			Renderer2D::drawSprite(transform.getTransform(), sprite, (int)entity);
+				auto [sprite, transform] = view.get<SpriteRendererComponent, TransformComponent>(entity);
+				Renderer2D::drawSprite(transform.getTransform(), sprite, (int)entity);
+			}
+		}
+		// draw circles
+		{
+			auto view = m_registry.view<CircleRendererComponent, TransformComponent>();
+
+			for (auto entity : view) {
+
+				auto [circle, transform] = view.get<CircleRendererComponent, TransformComponent>(entity);
+				Renderer2D::drawCircle(transform.getTransform(), circle, (int)entity);
+			}
 		}
 
 		Renderer2D::endScene();
@@ -399,6 +431,9 @@ namespace Rocket {
 
 	template<>
 	void Scene::onComponentAdded<SpriteRendererComponent>(Entity entity, SpriteRendererComponent& component) {}
+
+	template<>
+	void Scene::onComponentAdded<CircleRendererComponent>(Entity entity, CircleRendererComponent& component) {}
 
 	template<>
 	void Scene::onComponentAdded<TagComponent>(Entity entity, TagComponent& component) {}

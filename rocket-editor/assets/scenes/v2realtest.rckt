@@ -1,0 +1,84 @@
+Scene: Untitled
+---
+Entities:
+  - Entity: 1684078308834459934
+    TagComponent:
+      Tag: camera
+    TransformComponent:
+      Position: [0, 0, 18.2000008]
+      Scale: [1, 1, 1]
+      Rotation: [0, 0, 0]
+    CameraComponent:
+      Camera:
+        ProjectionType: 0
+        PerspectiveFOV: 0.785398185
+        PerspectiveNear: 0.00999999978
+        PerspectiveFar: 1000
+        OrthographicSize: 10
+        OrthographicNear: -1
+        OrthographicFar: 1
+      Primary: true
+      FixedAspectRatio: false
+  - Entity: 14978774268803195153
+    TagComponent:
+      Tag: Empty
+    TransformComponent:
+      Position: [-1.1920929e-07, 7.79959583, 0]
+      Scale: [3, 3, 1]
+      Rotation: [0, 0, 0]
+    SpriteRendererComponent:
+      Color: [1, 1, 1, 1]
+      Texture: assets\textures\default.png
+      TilingFactor: 2.29999995
+    RigidBody2DComponent:
+      BodyType: Dynamic
+      FixedRotation: false
+    BoxCollider2DComponent:
+      Offset: [0, 0]
+      Size: [0.5, 0.5]
+      Density: 1
+      Friction: 0.25999999
+      Restitution: 0.670000017
+      RestitutionThreshold: 0.25
+  - Entity: 7244534167485392892
+    TagComponent:
+      Tag: Empty
+    TransformComponent:
+      Position: [8.53909492, -2.86456823, 0]
+      Scale: [11.7957582, 1, 1]
+      Rotation: [0, 0, -2.55167127]
+    SpriteRendererComponent:
+      Color: [1, 1, 1, 1]
+      Texture: assets\textures\wood.png
+      TilingFactor: 2
+    RigidBody2DComponent:
+      BodyType: Static
+      FixedRotation: false
+    BoxCollider2DComponent:
+      Offset: [0, 0]
+      Size: [0.5, 0.5]
+      Density: 1
+      Friction: 0.5
+      Restitution: 0
+      RestitutionThreshold: 0.5
+  - Entity: 3685803697775530118
+    TagComponent:
+      Tag: Empty
+    TransformComponent:
+      Position: [-4.19036198, -1.15272999, 0]
+      Scale: [18.3609333, 1, 1]
+      Rotation: [0, 0, -0.392692983]
+    SpriteRendererComponent:
+      Color: [1, 1, 1, 1]
+      Texture: assets\textures\wood.png
+      TilingFactor: 2
+    RigidBody2DComponent:
+      BodyType: Static
+      FixedRotation: false
+    BoxCollider2DComponent:
+      Offset: [0, 0]
+      Size: [0.5, 0.5]
+      Density: 1
+      Friction: 0.5
+      Restitution: 0
+      RestitutionThreshold: 0.5

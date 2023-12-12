@@ -420,39 +420,17 @@ namespace Rocket {
 		m_activeScene = createRef<Scene>();
 		m_activeScene->onViewportResize((uint32_t)m_viewportSize.x, (uint32_t)m_viewportSize.y);
 		m_hierarchyPanel.setContext(m_activeScene);
-		/*
-		m_activeScene->clear();
-		Ref<Scene> newScene = createRef<Scene>();
-
-		m_hierarchyPanel.setContext(m_activeScene);
-		m_isUsingFilesystem = false;
-		m_activeScene = newScene;
-		*/
 	}
 
 	void EditorLayer::openScene() {
 		std::string filepath = FileDialogs::openFile("Rocket Scene (*.rkct)\0*.rckt\0");
 		if (!filepath.empty())
 			openScene(filepath);
-		/*
-		if (!filepath.empty()) {
-
-			Ref<Scene> newScene = createRef<Scene>();
-			SceneSerializer serializer(newScene);
-			serializer.deserialize(filepath);
-
-			m_editorScene = newScene;
-			m_editorScene->onViewportResize((uint32_t)m_viewportSize.x, (uint32_t)m_viewportSize.y);
-			m_hierarchyPanel.setContext(m_editorScene);
-
-			m_isUsingFilesystem = false;
-			m_activeScene = m_editorScene;
-		}
-		*/
 	}
 
 	// this one is used for drag&dropping
 	void EditorLayer::openScene(const std::filesystem::path& filepath) {
+		m_activeScene->clear();
 		if (m_sceneState != SceneState::Edit)
 			onSceneStop();
 

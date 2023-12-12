@@ -70,6 +70,16 @@ namespace Rocket {
 		SpriteRendererComponent(const glm::vec4& color_, const Ref<Texture2D>& texture_) :color(color_), texture(texture_) {}
 	};
 
+	struct CircleRendererComponent {
+		glm::vec4 color = { 1.0f, 1.0f, 1.0f, 1.0f };
+		//float radius = 0.5f;
+		float thickness = 1.0f;
+		float fade = 0.005f;
+
+		CircleRendererComponent() = default;
+		CircleRendererComponent(const CircleRendererComponent&) = default;
+	};
+
 	struct DirectionalLightComponent {
 		// NOTE: order matters, UPD, maybe not
 		glm::vec3 direction = { 0.0f, 0.0f, 0.0f };

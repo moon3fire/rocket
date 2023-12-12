@@ -1,0 +1,43 @@
+Scene: Untitled
+---
+Entities:
+  - Entity: 10995562274628549637
+    TagComponent:
+      Tag: Empty
+    TransformComponent:
+      Position: [0, 0, 0]
+      Scale: [1, 1, 1]
+      Rotation: [0, 0, 0]
+    CameraComponent:
+      Camera:
+        ProjectionType: 1
+        PerspectiveFOV: 0.785398185
+        PerspectiveNear: 0.00999999978
+        PerspectiveFar: 1000
+        OrthographicSize: 10
+        OrthographicNear: -1
+        OrthographicFar: 1
+      Primary: true
+      FixedAspectRatio: false
+  - Entity: 907286139929742152
+    TagComponent:
+      Tag: circle
+    TransformComponent:
+      Position: [-1.1933558, -0.484734952, 0.164168775]
+      Scale: [2, 2, 1]
+      Rotation: [0, 0, 0]
+    CircleRendererComponent:
+      Color: [0.996078432, 0.529411793, 0, 0.490196079]
+      Thickness: 1
+      Fade: 0.00499999989
+  - Entity: 5459946047003740045
+    TagComponent:
+      Tag: white square
+    TransformComponent:
+      Position: [-1.1399014, -0.4311364, 0.0151273012]
+      Scale: [1, 1, 1]
+      Rotation: [0, 0, 0]
+    SpriteRendererComponent:
+      Color: [1, 1, 1, 1]
+      Texture: ""
+      TilingFactor: 1
