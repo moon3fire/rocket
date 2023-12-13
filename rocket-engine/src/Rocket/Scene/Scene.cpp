@@ -317,7 +317,8 @@ namespace Rocket {
 				for (auto entity : view) {
 
 					auto [sprite, transform] = view.get<SpriteRendererComponent, TransformComponent>(entity);
-					Renderer2D::drawSprite(transform.getTransform(), sprite, (int)entity);
+					//Renderer2D::drawSprite(transform.getTransform(), sprite, (int)entity);
+					Renderer2D::drawQuadShape(transform.getTransform(), sprite.color, (int)entity);
 				}
 			}
 			// draw circles

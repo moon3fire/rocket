@@ -265,50 +265,57 @@ namespace Rocket {
 			}
 
 			// Gizmos
+
+
 			Entity selectedEntity = m_hierarchyPanel.getSelectedEntity();
-			if (selectedEntity && m_gizmosType != -1) {
-				ImGuizmo::SetOrthographic(false);
-				ImGuizmo::SetDrawlist();
-				ImGuizmo::SetRect(m_viewportBounds[0].x, m_viewportBounds[0].y, m_viewportBounds[1].x - m_viewportBounds[0].x, m_viewportBounds[1].y - m_viewportBounds[0].y);
-				//?
-			/* Runtime Camera */
+			glm::mat4 projection = m_editorCamera.getProjection();
+			glm::mat4 view = m_editorCamera.getViewMatrix();
 
-			//auto cameraEntity = m_activeScene->getPrimaryCameraEntity();
-			//const auto& camera = cameraEntity.getComponent<CameraComponent>().camera;
-			//const glm::mat4& cameraProjection = camera.getProjection();
-			//glm::mat4 cameraView = glm::inverse(cameraEntity.getComponent<TransformComponent>().getTransform());
+			if (!Input::isKeyPressed(RCKT_KEY_LEFT_ALT)) {
+				if (selectedEntity && m_gizmosType != -1) {
+					ImGuizmo::SetOrthographic(false);
+					ImGuizmo::SetDrawlist();
+					ImGuizmo::SetRect(m_viewportBounds[0].x, m_viewportBounds[0].y, m_viewportBounds[1].x - m_viewportBounds[0].x, m_viewportBounds[1].y - m_viewportBounds[0].y);
 
-			// Editor camera
-				const glm::mat4& cameraProjection = m_editorCamera.getProjection();
-				glm::mat4 cameraView = m_editorCamera.getViewMatrix();
+					if (m_sceneState == SceneState::Play) {
+						auto cameraEntity = m_activeScene->getPrimaryCameraEntity();
+						const auto& camera = cameraEntity.getComponent<CameraComponent>().camera;
 
-				//entity transform
-				auto& transformComponent = selectedEntity.getComponent<TransformComponent>();
-				glm::mat4 transform = transformComponent.getTransform();
+						RCKT_CORE_ASSERT(cameraEntity, "Trying to use gizmo in non camera running scene!");
 
-				// snapping
-				bool snap = Input::isKeyPressed(RCKT_KEY_LEFT_SHIFT);
-				float snapValue = 0.5f;
-				if (m_gizmosType == ImGuizmo::OPERATION::ROTATE)
-					snapValue = 10.0f;
+						if (camera.getProjectionType() == SceneCamera::ProjectionType::Orthographic)
+							ImGuizmo::SetOrthographic(true);
+						projection = camera.getProjection();
+						view = glm::inverse(cameraEntity.getComponent<TransformComponent>().getTransform());
+					}
 
-				float snapValues[3] = { snapValue, snapValue, snapValue };
+					//entity transform
+					auto& transformComponent = selectedEntity.getComponent<TransformComponent>();
+					glm::mat4 transform = transformComponent.getTransform();
 
-				ImGuizmo::Manipulate(glm::value_ptr(cameraView), glm::value_ptr(cameraProjection), (ImGuizmo::OPERATION)m_gizmosType,
-					ImGuizmo::LOCAL, glm::value_ptr(transform), nullptr, snap ? snapValues : nullptr);
+					// snapping
+					bool snap = Input::isKeyPressed(RCKT_KEY_LEFT_SHIFT);
+					float snapValue = 0.5f;
+					if (m_gizmosType == ImGuizmo::OPERATION::ROTATE)
+						snapValue = 10.0f;
 
-				if (ImGuizmo::IsUsing()) {
-					glm::vec3 position = { 0.0f, 0.0f, 0.0f }, scale = { 0.0f, 0.0f, 0.0f }, rotation = { 0.0f, 0.0f, 0.0f };
+					float snapValues[3] = { snapValue, snapValue, snapValue };
 
-					Math::DecomposeTransform(transform, position, scale, rotation); // rotation x-z isn't correct
+					ImGuizmo::Manipulate(glm::value_ptr(view), glm::value_ptr(projection), (ImGuizmo::OPERATION)m_gizmosType,
+						ImGuizmo::LOCAL, glm::value_ptr(transform), nullptr, snap ? snapValues : nullptr);
 
-					glm::vec3 deltaRotation = rotation - transformComponent.rotation;
-					transformComponent.position = position;
-					transformComponent.scale = scale;
-					transformComponent.rotation += deltaRotation;
+					if (ImGuizmo::IsUsing()) {
+						glm::vec3 position = { 0.0f, 0.0f, 0.0f }, scale = { 0.0f, 0.0f, 0.0f }, rotation = { 0.0f, 0.0f, 0.0f };
+
+						Math::DecomposeTransform(transform, position, scale, rotation); // rotation x-z isn't correct
+
+						glm::vec3 deltaRotation = rotation - transformComponent.rotation;
+						transformComponent.position = position;
+						transformComponent.scale = scale;
+						transformComponent.rotation += deltaRotation;
+					}
 				}
 			}
-
 			ImGui::End();
 			ImGui::PopStyleVar();
 		}
@@ -377,29 +384,29 @@ namespace Rocket {
 
 		switch (event.getKeyCode()) {
 
-		case RCKT_KEY_N: {
-			if (isControlPressed)
-				createNewScene();
-			break;
-		}
+			case RCKT_KEY_N: {
+				if (isControlPressed)
+					createNewScene();
+				break;
+			}
 
-		case RCKT_KEY_O: {
-			if (isControlPressed)
-				openScene();
-			break;
-		}
+			case RCKT_KEY_O: {
+				if (isControlPressed)
+					openScene();
+				break;
+			}
 
-		case RCKT_KEY_S: {
-			if (isControlPressed && isShiftPressed)
-				saveSceneAs();
-			break;
-		}
+			case RCKT_KEY_S: {
+				if (isControlPressed && isShiftPressed)
+					saveSceneAs();
+				break;
+			}
 
-					   // gizmos
-		case RCKT_KEY_Q: {
-			m_gizmosType++;
-			if (m_gizmosType > 2) m_gizmosType = 0;
-		}
+			 // gizmos
+			case RCKT_KEY_Q: {
+				m_gizmosType++;
+				if (m_gizmosType > 2) m_gizmosType = 0;
+			}
 
 		}
 

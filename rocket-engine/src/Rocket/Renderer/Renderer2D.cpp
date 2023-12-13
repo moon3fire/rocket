@@ -19,22 +19,30 @@ namespace Rocket {
 		glm::vec2 texCoord = { 0.0f, 0.0f };
 		glm::vec4 color = { 0.0f, 0.0f, 0.0f, 0.0f };
 	//	glm::vec3 normal = { 0.0f, 0.0f, 0.0f };
-		float texIndex;
-		float tilingFactor;
+		float texIndex = 0.0f;
+		float tilingFactor = 0.0f;
 
 		//Editor only
-		int entityID;
+		int entityID = 0;
 	};
 
 	struct CircleVertex {
 		glm::vec3 worldPosition = { 0.0f, 0.0f, 0.0f };
 		glm::vec3 localPosition = { 0.0f, 0.0f, 0.0f };
 		glm::vec4 color = { 0.0f, 0.0f, 0.0f, 0.0f };
-		float thickness;
-		float fade;
+		float thickness = 0.0f;
+		float fade = 0.0f;
 
 		//Editor only
-		int entityID;
+		int entityID = 0;
+	};
+
+	struct LineVertex {
+		glm::vec3 position = { 0.0f, 0.0f, 0.0f };
+		glm::vec4 color = { 1.0f, 1.0f, 1.0f, 1.0f };
+
+		//Editor only
+		int entityID = 0;
 	};
 
 	//entire renderer2D data storage
@@ -42,11 +50,15 @@ namespace Rocket {
 		static const uint32_t maxQuads = 1000;
 		static const uint32_t maxQuadVertices = maxQuads * 4;
 		static const uint32_t maxQuadIndices = maxQuads * 6;
+		
 		static const uint32_t maxCircles = 1000;
 		static const uint32_t maxCircleVertices = maxCircles * 4;
 		static const uint32_t maxCircleIndices = maxCircles * 6;
-		static const uint32_t maxTextureSlots = 32; // TODO: RenderCaps
+		
+		static const uint32_t maxLines = 4000;
+		static const uint32_t maxLineVertices = maxLines * 4;
 
+		static const uint32_t maxTextureSlots = 32; // TODO: RenderCaps
 
 
 		Ref<VertexArray> quadVA;
@@ -56,6 +68,11 @@ namespace Rocket {
 		Ref<VertexArray> circleVA;
 		Ref<VertexBuffer> circleVertexBuffer;
 		Ref<Shader> circleShader;
+
+		Ref<VertexArray> lineVA;
+		Ref<VertexBuffer> lineVertexBuffer;
+		Ref<Shader> lineShader;
+		float linesThickness = 1.0f;
 
 		//Ref<VertexArray> skyboxVA;
 		//Ref<VertexBuffer> skyboxVB;
@@ -83,6 +100,11 @@ namespace Rocket {
 		CircleVertex* circleVertexBufferBase = nullptr;
 		CircleVertex* circleVertexBufferPtr = nullptr;
 
+		uint32_t lineVertexCount = 0;
+		LineVertex* lineVertexBufferBase = nullptr;
+		LineVertex* lineVertexBufferPtr = nullptr;
+
+
 		// TODO: move these ones to vector, 
 
 		std::array<Ref<Texture2D>, maxTextureSlots> textureSlots;
@@ -100,22 +122,27 @@ namespace Rocket {
 		RCKT_PROFILE_FUNCTION();
 		s_data.quadVA = VertexArray::create();
 		s_data.circleVA = VertexArray::create();
+		s_data.lineVA = VertexArray::create();
 		initQuadVB();
 		initCircleVB();
+		initLineVB();
 		initIB();
 		s_data.quadShader = Shader::create("assets/shaders/Quad.glsl");
 		s_data.circleShader = Shader::create("assets/shaders/Circle.glsl");
+		s_data.lineShader = Shader::create("assets/shaders/Line.glsl");
+		s_data.linesThickness = 1.3f;
 		s_data.skyboxShader = Shader::create("assets/shaders/Skybox.glsl");
 		s_data.reflectionShader = Shader::create("assets/shaders/Reflection.glsl");
 		s_data.refractionShader = Shader::create("assets/shaders/Refraction.glsl");
-		s_data.quadShader->bind();
 
 		s_data.quadVertexBufferBase = new QuadVertex[s_data.maxQuadVertices];
 		s_data.circleVertexBufferBase = new CircleVertex[s_data.maxCircleVertices];
+		s_data.lineVertexBufferBase = new LineVertex[s_data.maxLineVertices];
 
 		int samplers[s_data.maxTextureSlots];
 		for (int i = 0; i < s_data.maxTextureSlots; i++)
 			samplers[i] = i;
+		s_data.quadShader->bind();
 		s_data.quadShader->setIntArray("u_textures", samplers, s_data.maxTextureSlots);
 
 		s_data.quadVertexPositions[0] = { -0.5f, -0.5f, 0.0f, 1.0f };
@@ -177,6 +204,17 @@ namespace Rocket {
 		s_data.circleVA->addVertexBuffer(s_data.circleVertexBuffer);
 	}
 
+	void Renderer2D::initLineVB() {
+		s_data.lineVertexBuffer.reset();
+		s_data.lineVertexBuffer = VertexBuffer::create(s_data.maxLineVertices * sizeof(LineVertex));
+		s_data.lineVertexBuffer->setLayout({
+			{ ShaderDataType::Float3, "a_position"		},
+			{ ShaderDataType::Float4, "a_color"         },
+			{ ShaderDataType::Float,  "a_entityID"		},
+		});
+		s_data.lineVA->addVertexBuffer(s_data.lineVertexBuffer);
+	}
+
 	void Renderer2D::initIB() {
 		s_data.quadVertexBufferBase = new QuadVertex[s_data.maxQuadVertices];
 		uint32_t* quadIndices = new uint32_t[s_data.maxQuadIndices];
@@ -212,6 +250,8 @@ namespace Rocket {
 
 		s_data.circleIndexCount = 0;
 		s_data.circleVertexBufferPtr = s_data.circleVertexBufferBase;
+
+		RenderCommand::setLineThickness(s_data.linesThickness);
 	}
 
 	void Renderer2D::beginScene(const Camera& camera, const glm::mat4& transform) {
@@ -223,12 +263,19 @@ namespace Rocket {
 		s_data.quadShader->setMat4("u_viewProjection", viewProjection);
 		s_data.circleShader->bind();
 		s_data.circleShader->setMat4("u_viewProjection", viewProjection);
+		s_data.lineShader->bind();
+		s_data.lineShader->setMat4("u_viewProjection", viewProjection);
 
 		s_data.quadIndexCount = 0;
 		s_data.quadVertexBufferPtr = s_data.quadVertexBufferBase;
 
 		s_data.circleIndexCount = 0;
 		s_data.circleVertexBufferPtr = s_data.circleVertexBufferBase;
+
+		s_data.lineVertexCount = 0;
+		s_data.lineVertexBufferPtr = s_data.lineVertexBufferBase;
+
+		RenderCommand::setLineThickness(s_data.linesThickness);
 	}
 
 	void Renderer2D::beginScene(const EditorCamera& camera) {
@@ -239,6 +286,8 @@ namespace Rocket {
 		s_data.quadShader->setMat4("u_viewProjection", viewProjection);
 		s_data.circleShader->bind();
 		s_data.circleShader->setMat4("u_viewProjection", viewProjection);
+		s_data.lineShader->bind();
+		s_data.lineShader->setMat4("u_viewProjection", viewProjection);
 
 		s_data.quadIndexCount = 0;
 		s_data.quadVertexBufferPtr = s_data.quadVertexBufferBase;
@@ -246,6 +295,10 @@ namespace Rocket {
 		s_data.circleIndexCount = 0;
 		s_data.circleVertexBufferPtr = s_data.circleVertexBufferBase;
 
+		s_data.lineVertexCount = 0;
+		s_data.lineVertexBufferPtr = s_data.lineVertexBufferBase;
+
+		RenderCommand::setLineThickness(s_data.linesThickness);
 		/*
 		if (s_data.reflectionEnabled) {
 			s_data.reflectionShader->bind();
@@ -363,6 +416,15 @@ namespace Rocket {
 			s_data.stats.drawCalls++;
 		}
 
+		if (s_data.lineVertexCount > 0) {
+
+			uint32_t dataSize = (uint8_t*)s_data.lineVertexBufferPtr - (uint8_t*)s_data.lineVertexBufferBase;
+			s_data.lineVertexBuffer->setData(s_data.lineVertexBufferBase, dataSize);
+
+			s_data.lineShader->bind();
+			RenderCommand::drawLines(s_data.lineVA, s_data.lineVertexCount);
+			s_data.stats.drawCalls++;
+		}
 	}
 
 	void Renderer2D::drawQuad2D(const glm::vec2& position, const glm::vec2& size, const glm::vec4& color, float rotation) {
@@ -609,6 +671,46 @@ namespace Rocket {
 		//s_data.circleCount++;
 	}
 
+	void Renderer2D::drawLine(const glm::vec3& lineStartPoint, const glm::vec3& likeEndPoint, const glm::vec4& color, int entityID) {
+		
+		RCKT_PROFILE_FUNCTION();
+
+		s_data.lineVertexBufferPtr->position = lineStartPoint;
+		s_data.lineVertexBufferPtr->color = color;
+		s_data.lineVertexBufferPtr->entityID = entityID;
+		s_data.lineVertexBufferPtr++;
+
+		s_data.lineVertexBufferPtr->position = likeEndPoint;
+		s_data.lineVertexBufferPtr->color = color;
+		s_data.lineVertexBufferPtr->entityID = entityID;
+		s_data.lineVertexBufferPtr++;
+
+		s_data.lineVertexCount += 2;
+	}
+
+	void Renderer2D::drawQuadShape(const glm::vec3& position, const glm::vec2& size, const glm::vec4& color, int entityID) {
+		glm::vec3 p0 = glm::vec3(position.x - size.x * 0.5f, position.y - size.y * 0.5f, position.z);
+		glm::vec3 p1 = glm::vec3(position.x + size.x * 0.5f, position.y - size.y * 0.5f, position.z);
+		glm::vec3 p2 = glm::vec3(position.x + size.x * 0.5f, position.y + size.y * 0.5f, position.z);
+		glm::vec3 p3 = glm::vec3(position.x - size.x * 0.5f, position.y + size.y * 0.5f, position.z);
+
+		drawLine(p0, p1, color);
+		drawLine(p1, p2, color);
+		drawLine(p2, p3, color);
+		drawLine(p3, p0, color);
+	}
+
+
+	void Renderer2D::drawQuadShape(const glm::mat4& transform, const glm::vec4& color, int entityID) {
+		glm::vec3 lineVertices[4];
+		for (size_t i = 0; i < 4; i++)
+			lineVertices[i] = transform * s_data.quadVertexPositions[i];
+
+		drawLine(lineVertices[0], lineVertices[1], color);
+		drawLine(lineVertices[1], lineVertices[2], color);
+		drawLine(lineVertices[2], lineVertices[3], color);
+		drawLine(lineVertices[3], lineVertices[0], color);
+	}
 
 
 	Renderer2D::Statistics Renderer2D::getStats() {
@@ -627,6 +729,7 @@ namespace Rocket {
 
 		s_data.textureSlotIndex = 0; // ?
 	}
+
 
 
 } // namespace Rocket

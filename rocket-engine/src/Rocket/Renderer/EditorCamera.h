@@ -64,6 +64,7 @@ namespace Rocket {
 		float m_pitch = 0.0f, m_yaw = 0.0f;
 
 		float m_viewportWidth = 1280.0f, m_viewportHeight = 720.0f;
+		bool m_isMoving = false;
 	};
 
 } // namespace Rocket

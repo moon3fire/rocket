@@ -16,6 +16,10 @@ namespace Rocket {
 		virtual void setClearColor(const glm::vec4& color) override;
 		virtual void clear() override;
 
+
+		virtual void setLineThickness(float thickness) override;
+		virtual void drawLines(const Ref<VertexArray>& vertexArray, uint32_t vertexCount) override;
+		
 		virtual void drawIndexed(const Ref<VertexArray>& vertexArray, uint32_t indexCount = 0) override;
 
 	private:

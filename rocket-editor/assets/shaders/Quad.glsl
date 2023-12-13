@@ -16,8 +16,7 @@ out float v_texIndex;
 out float v_tilingFactor;
 out flat int v_entityID;
 
-void main()
-{
+void main() {
 	v_color = a_color;
 	v_texCoord = a_texCoord;
 	v_tilingFactor = a_tilingFactor;

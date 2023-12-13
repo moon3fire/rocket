@@ -19,6 +19,7 @@ namespace Rocket {
 
 		static void initQuadVB();
 		static void initCircleVB();
+		static void initLineVB();
 		static void initIB();
 
 		static void beginScene(const OrthographicCamera2D& camera); // TODO: Remove
@@ -53,6 +54,12 @@ namespace Rocket {
 
 		static void drawSprite(const glm::mat4& transform, SpriteRendererComponent& src, int entityID = -1);
 		static void drawCircle(const glm::mat4& transform, CircleRendererComponent& crc, int entityID = -1);
+		
+		static void drawQuadShape(const glm::vec3& position, const glm::vec2& size, const glm::vec4& color, int entityID = -1);
+		static void drawQuadShape(const glm::mat4& transform, const glm::vec4& color, int entityID = -1);
+
+		static void drawLine(const glm::vec3& lineStartPoint, const glm::vec3& likeEndPoint, const glm::vec4& color, int entityID = -1);
+		
 		//Stats
 
 		struct Statistics {
