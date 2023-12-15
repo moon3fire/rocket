@@ -6,10 +6,10 @@
 
 namespace Rocket {
 
-	Ref<Shader> Shader::create(const std::string& filepath) {
+	Ref<Shader> Shader::create(const std::string& filepath, const std::string& additionalFilepath) {
 		switch (Renderer::getAPI()) {
 			case RendererAPI::API::None:		RCKT_CORE_ASSERT(false, "RendererAPI not found: None");
-			case RendererAPI::API::OpenGL:		return std::make_shared<OpenGLShader>(filepath);
+			case RendererAPI::API::OpenGL:		return std::make_shared<OpenGLShader>(filepath, additionalFilepath);
 		}
 
 		RCKT_CORE_ASSERT(false, "Unknown Renderer API");

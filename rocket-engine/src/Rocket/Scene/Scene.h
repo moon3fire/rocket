@@ -45,7 +45,13 @@ namespace Rocket {
 		void onUpdateRuntime(Timestep ts);
 		void onUpdateEditor(Timestep ts, EditorCamera& camera, const glm::vec2& viewportSize);
 
+		void drawLights();
+
 		Entity getPrimaryCameraEntity();
+
+		template <typename... Components>
+		auto getAllEntitiesViewWith() { return m_registry.view<Components...>(); }
+
 	private:
 		template <typename T>
 		void onComponentAdded(Entity entity, T& component);

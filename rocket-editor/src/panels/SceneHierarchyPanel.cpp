@@ -295,6 +295,13 @@ namespace Rocket {
 				}
 			}
 
+			if (!m_selectionContext.hasComponent<CircleCollider2DComponent>()) {
+				if (ImGui::MenuItem("Circle Collider 2D")) {
+					m_selectionContext.addComponent<CircleCollider2DComponent>();
+					ImGui::CloseCurrentPopup();
+				}
+			}
+
 			ImGui::EndPopup();
 		}
 
@@ -360,6 +367,15 @@ namespace Rocket {
 			ImGui::DragFloat("Restitution Threshold", &component.restitutionThreshold, 0.01f, 0.0f);
 		});
 
+		drawComponent<CircleCollider2DComponent>("Circle Collider 2D", entity, [](auto& component) {
+			ImGui::DragFloat2("Offset", glm::value_ptr(component.offset));
+			ImGui::DragFloat("Radius", &component.radius);
+			ImGui::DragFloat("Density", &component.density, 0.01f, 0.0f, 1.0f);
+			ImGui::DragFloat("Friction", &component.friction, 0.01f, 0.0f, 1.0f);
+			ImGui::DragFloat("Restitution", &component.restitution, 0.01f, 0.0f, 1.0f);
+			ImGui::DragFloat("Restitution Threshold", &component.restitutionThreshold, 0.01f, 0.0f);
+		});
+
 		drawComponent<DirectionalLightComponent>("Directional Light", entity, [](auto& component) {
 			float strenght = component.ambientStrenght;
 			ImGui::DragFloat("Ambient Strenght", &strenght, 0.01f, 0.0f, 1.0f, "%.1f");
@@ -372,24 +388,17 @@ namespace Rocket {
 		});
 
 		drawComponent<PointLightComponent>("Point Light", entity, [](auto& component) {
-			float strenght = component.ambientStrenght;
-			float constant = component.constant;
-			float linear = component.linear;
-			float quadratic = component.quadratic;
+			float intensity = component.intensity;
+			float radius = component.radius;
 
-			ImGui::DragFloat ("Ambient Strenght", &strenght, 0.01f, 0.0f, 0.9f, "%.2f");
 			ImGui::DragFloat3("Position", glm::value_ptr(*component.position), 0.1f, -10000.0f, 10000.0f, "%.1f");
-			ImGui::DragFloat3("Ambient", glm::value_ptr(component.ambient), 0.01f, 0.0f, 1.0f, "%.1f");
-			ImGui::DragFloat3("Diffuse", glm::value_ptr(component.diffuse), 0.01f, 0.0f, 1.0f, "%.1f");
-			ImGui::DragFloat3("Specular", glm::value_ptr(component.specular), 0.01f, 0.0f, 1.0f, "%.1f");
-			ImGui::DragFloat ("Constant", &constant, 0.01f, -100000.0f, 100000.0f, "%.2f");
-			ImGui::DragFloat ("Linear", &linear, 0.01f, -100000.0f, 100000.0f, "%.2f");
-			ImGui::DragFloat ("Quadratic", &quadratic, 0.01f, -100000.0f, 100000.0f, "%.2f");
+			ImGui::DragFloat3("Color", glm::value_ptr(component.color), 0.1, 0.0, 1.0, "%.2f");
+			ImGui::DragFloat3("Ambient", glm::value_ptr(component.ambient), 0.0001f, 0.0f, 0.1f, "%.5f");
+			ImGui::DragFloat("Intensity", &intensity, 0.01f, 0.0f, 10000.0f, "%.1f");
+			ImGui::DragFloat("Radius", &radius, 0.01f, 0.0f, 100.0f, "%.1f");
 
-			component.quadratic = quadratic;
-			component.linear = linear;
-			component.constant = constant;
-			component.ambientStrenght = strenght;
+			component.intensity = intensity;
+			component.radius = radius;
 		});
 
 		drawComponent<SpotLightComponent>("Spot Light", entity, [](auto& component) {

@@ -9,7 +9,7 @@ namespace Rocket {
 
 	class OpenGLShader : public Shader {
 	public:
-		OpenGLShader(const std::string& filepath);
+		OpenGLShader(const std::string& filepath, const std::string& additionalFilepath = "");
 		OpenGLShader(const std::string& name, const std::string& vertexSource, const std::string& fragmentSource);
 		virtual ~OpenGLShader();
 
@@ -53,7 +53,8 @@ namespace Rocket {
 	private:
 		std::string readFile(const std::string& filepath);
 		std::unordered_map<GLenum, std::string> preProcess(const std::string& source);
-		void compile(const std::unordered_map<GLenum, std::string>& shaderSources);
+		std::array<GLenum, 2> compile(const std::unordered_map<GLenum, std::string>& shaderSources);
+		void link(const std::array<GLenum, 2>& mainShaderIDs);
 
 		GLint getUniformLocation(const std::string& name) const;
 

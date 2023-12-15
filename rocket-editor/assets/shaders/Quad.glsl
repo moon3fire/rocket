@@ -4,9 +4,10 @@
 layout(location = 0) in vec3 a_position;
 layout(location = 1) in vec2 a_texCoord;
 layout(location = 2) in vec4 a_color;
-layout(location = 3) in float a_texIndex;
-layout(location = 4) in float a_tilingFactor;
-layout(location = 5) in int a_entityID;
+layout(location = 3) in vec3 a_normal;
+layout(location = 4) in float a_texIndex;
+layout(location = 5) in float a_tilingFactor;
+layout(location = 6) in int a_entityID;
 
 uniform	mat4 u_viewProjection;
 
@@ -16,12 +17,20 @@ out float v_texIndex;
 out float v_tilingFactor;
 out flat int v_entityID;
 
+// for lighting calculations
+out vec3 v_fragPos;
+out vec3 v_normal;
+
 void main() {
 	v_color = a_color;
 	v_texCoord = a_texCoord;
 	v_tilingFactor = a_tilingFactor;
 	v_texIndex = a_texIndex;
 	v_entityID = a_entityID;
+
+	//lighting
+	v_fragPos = a_position;
+	v_normal = a_normal;
 
 	gl_Position = u_viewProjection * vec4(a_position, 1.0);
 }
@@ -38,9 +47,15 @@ in float v_texIndex;
 in float v_tilingFactor;
 in flat int v_entityID;
 
+//lighting calculations
+in vec3 v_fragPos;
+in vec3 v_normal;
+
 uniform vec3 u_viewPosition;
 
 uniform sampler2D u_textures[32];
+
+vec3 CalculateAllLights();
 
 void main()
 {
@@ -85,7 +100,7 @@ void main()
 		discard;
 	}
 
-	color = textureColor;
-	//color = vec4(textureColor.xyz, 1.0);
+	color = vec4(textureColor.xyz * CalculateAllLights(), 1.0);
+
 	entityID = v_entityID;
 }

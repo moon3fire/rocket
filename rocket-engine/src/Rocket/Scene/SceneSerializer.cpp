@@ -220,13 +220,10 @@ namespace Rocket {
 
 			auto& plc = entity.getComponent<PointLightComponent>();
 
+			out << YAML::Key << "Color" << YAML::Value << plc.color;
 			out << YAML::Key << "Ambient" << YAML::Value << plc.ambient;
-			out << YAML::Key << "Diffuse" << YAML::Value << plc.diffuse;
-			out << YAML::Key << "Specular" << YAML::Value << plc.specular;
-			out << YAML::Key << "Constant" << YAML::Value << plc.constant;
-			out << YAML::Key << "Linear" << YAML::Value << plc.linear;
-			out << YAML::Key << "Quadratic" << YAML::Value << plc.quadratic;
-			out << YAML::Key << "AmbientStrenght" << YAML::Value << plc.ambientStrenght;
+			out << YAML::Key << "Intensity" << YAML::Value << plc.intensity;
+			out << YAML::Key << "Radius" << YAML::Value << plc.radius;
 
 			out << YAML::EndMap;
 		}
@@ -255,6 +252,22 @@ namespace Rocket {
 			out << YAML::Key << "Friction" << YAML::Value << bc2d.friction;
 			out << YAML::Key << "Restitution" << YAML::Value << bc2d.restitution;
 			out << YAML::Key << "RestitutionThreshold" << YAML::Value << bc2d.restitutionThreshold;
+
+			out << YAML::EndMap;
+		}
+
+		if (entity.hasComponent<CircleCollider2DComponent>()) {
+			out << YAML::Key << "CircleCollider2DComponent";
+			out << YAML::BeginMap;
+
+			auto& cc2d = entity.getComponent<CircleCollider2DComponent>();
+
+			out << YAML::Key << "Offset" << YAML::Value << cc2d.offset;
+			out << YAML::Key << "Radius" << YAML::Value << cc2d.radius;
+			out << YAML::Key << "Density" << YAML::Value << cc2d.density;
+			out << YAML::Key << "Friction" << YAML::Value << cc2d.friction;
+			out << YAML::Key << "Restitution" << YAML::Value << cc2d.restitution;
+			out << YAML::Key << "RestitutionThreshold" << YAML::Value << cc2d.restitutionThreshold;
 
 			out << YAML::EndMap;
 		}
@@ -392,13 +405,10 @@ namespace Rocket {
 					auto& pointLightComponent = deserializedEntity.addComponent<PointLightComponent>();
 					auto& tc = deserializedEntity.getComponent<TransformComponent>();
 					pointLightComponent.position		= &tc.position;
+					pointLightComponent.color			= plc["Color"].as<glm::vec3>();
 					pointLightComponent.ambient			= plc["Ambient"].as<glm::vec3>();
-					pointLightComponent.diffuse			= plc["Diffuse"].as<glm::vec3>();
-					pointLightComponent.specular		= plc["Specular"].as<glm::vec3>();
-					pointLightComponent.constant		= plc["Constant"].as<float>();
-					pointLightComponent.linear			= plc["Linear"].as<float>();
-					pointLightComponent.quadratic		= plc["Quadratic"].as<float>();
-					pointLightComponent.ambientStrenght = plc["AmbientStrenght"].as<float>();
+					pointLightComponent.intensity		= plc["Intensity"].as<float>();
+					pointLightComponent.radius			= plc["Radius"].as<float>();
 				}
 
 				auto rb2d = entity["RigidBody2DComponent"];
@@ -417,6 +427,17 @@ namespace Rocket {
 					boxCollider2DComponent.friction				= bc2d["Friction"].as<float>();
 					boxCollider2DComponent.restitution			= bc2d["Restitution"].as<float>();
 					boxCollider2DComponent.restitutionThreshold = bc2d["RestitutionThreshold"].as<float>();
+				}
+
+				auto cc2d = entity["CircleCollider2DComponent"];
+				if (cc2d) {
+					auto& circleCollider2DComponent = deserializedEntity.addComponent<CircleCollider2DComponent>();
+					circleCollider2DComponent.offset				= cc2d["Offset"].as<glm::vec2>();
+					circleCollider2DComponent.radius				= cc2d["Radius"].as<float>();
+					circleCollider2DComponent.density				= cc2d["Density"].as<float>();
+					circleCollider2DComponent.friction				= cc2d["Friction"].as<float>();
+					circleCollider2DComponent.restitution			= cc2d["Restitution"].as<float>();
+					circleCollider2DComponent.restitutionThreshold	= cc2d["RestitutionThreshold"].as<float>();
 				}
 			}
 		}

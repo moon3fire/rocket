@@ -95,22 +95,16 @@ namespace Rocket {
 	};
 
 	struct PointLightComponent {
-		glm::vec3* position;
+		glm::vec3* position = nullptr;
+		glm::vec3 color = { 1.0f, 1.0f, 1.0f };
+		glm::vec3 ambient = { 0.0f, 0.0f, 0.0f };
+		float intensity = 1.0f;
+		float radius = 1.0f;
 
-		glm::vec3 ambient;
-		glm::vec3 diffuse;
-		glm::vec3 specular;
-
-		float constant = 1.0f;
-		float linear = 0.1f;
-		float quadratic = 0.01f;
-
-		float ambientStrenght = 0.0f;
-
-		PointLightComponent() :position(nullptr), ambient(glm::vec3(1.0f)), diffuse(glm::vec3(1.0f)), specular(glm::vec3(1.0f)), constant(1.0f), linear(0.1f), quadratic(0.01f) {}
-		PointLightComponent(const PointLightComponent& other) :position(other.position), ambient(other.ambient), diffuse(other.diffuse), specular(other.specular), constant(other.constant), linear(other.linear), quadratic(other.quadratic) {}
-		PointLightComponent(TransformComponent& tc, const glm::vec3& ambient_, const glm::vec3& diffuse_, const glm::vec3& specular_, float constant_, float linear_, float quadratic_)
-			: position(&(tc.position)), ambient(ambient_), diffuse(diffuse_), specular(specular_), constant(constant_), linear(linear_), quadratic(quadratic_) {}
+		PointLightComponent() = default;
+		PointLightComponent(const PointLightComponent& other) = default;
+		PointLightComponent(TransformComponent& tc, const glm::vec3& ambient_, float intensity_, float radius_)
+			: position(&(tc.position)), ambient(ambient_), intensity(intensity_), radius(radius_) {}
 		
 	};
 
@@ -185,7 +179,23 @@ namespace Rocket {
 
 		BoxCollider2DComponent() = default;
 		BoxCollider2DComponent(const BoxCollider2DComponent&) = default;
-		~BoxCollider2DComponent() { }
+		~BoxCollider2DComponent() = default;
+	};
+
+	struct CircleCollider2DComponent {
+		glm::vec2 offset = { 0.0f, 0.0f };
+		float radius = 0.5f;
+
+		float density = 1.0f;
+		float friction = 0.5f;
+		float restitution = 0.0f;
+		float restitutionThreshold = 0.5f;
+
+		void* runtimeFixture = nullptr;
+
+		CircleCollider2DComponent() = default;
+		CircleCollider2DComponent(const CircleCollider2DComponent&) = default;
+		~CircleCollider2DComponent() = default;
 	};
 
 } // namespace Rocket

@@ -1,0 +1,84 @@
+Scene: Untitled
+---
+Entities:
+  - Entity: 2501446412750942394
+    TagComponent:
+      Tag: Empty
+    TransformComponent:
+      Position: [10.9054604, -2.45597744, 0]
+      Scale: [20, 0.699999988, 1]
+      Rotation: [0, 0, 0.610865116]
+    SpriteRendererComponent:
+      Color: [0.25842315, 0.536679506, 0.147120655, 1]
+      Texture: ""
+      TilingFactor: 1
+    RigidBody2DComponent:
+      BodyType: Static
+      FixedRotation: false
+    BoxCollider2DComponent:
+      Offset: [0, 0]
+      Size: [0.5, 0.5]
+      Density: 1
+      Friction: 0.5
+      Restitution: 0
+      RestitutionThreshold: 0.5
+  - Entity: 1522281657837773077
+    TagComponent:
+      Tag: circle
+    TransformComponent:
+      Position: [1.49011612e-08, 0, 0]
+      Scale: [1, 1, 1]
+      Rotation: [0, 0, 0]
+    CircleRendererComponent:
+      Color: [0.427677006, 0.501895547, 0.845559835, 1]
+      Thickness: 1
+      Fade: 0.00499999989
+    RigidBody2DComponent:
+      BodyType: Dynamic
+      FixedRotation: false
+    CircleCollider2DComponent:
+      Offset: [0, 0]
+      Radius: 0.5
+      Density: 1
+      Friction: 0.5
+      Restitution: 0.75999999
+      RestitutionThreshold: 0.349999994
+  - Entity: 404635192471162746
+    TagComponent:
+      Tag: camera
+    TransformComponent:
+      Position: [3.79999995, -3.5, 0]
+      Scale: [1, 1, 1]
+      Rotation: [0, 0, 0]
+    CameraComponent:
+      Camera:
+        ProjectionType: 1
+        PerspectiveFOV: 0.785398185
+        PerspectiveNear: 0.00999999978
+        PerspectiveFar: 1000
+        OrthographicSize: 10
+        OrthographicNear: -1
+        OrthographicFar: 1
+      Primary: true
+      FixedAspectRatio: false
+  - Entity: 17129350160456355944
+    TagComponent:
+      Tag: ground
+    TransformComponent:
+      Position: [-9.01968575, -0.591359556, 0]
+      Scale: [28.5363483, 0.74699676, 1]
+      Rotation: [0, 0, -0.436332315]
+    SpriteRendererComponent:
+      Color: [0.527328849, 0.586872578, 0.210730299, 1]
+      Texture: ""
+      TilingFactor: 1
+    RigidBody2DComponent:
+      BodyType: Static
+      FixedRotation: false
+    BoxCollider2DComponent:
+      Offset: [0, 0]
+      Size: [0.5, 0.5]
+      Density: 1
+      Friction: 0.5
+      Restitution: 0
+      RestitutionThreshold: 0.5

@@ -18,7 +18,7 @@ namespace Rocket {
 		glm::vec3 position = { 0.0f, 0.0f, 0.0f };
 		glm::vec2 texCoord = { 0.0f, 0.0f };
 		glm::vec4 color = { 0.0f, 0.0f, 0.0f, 0.0f };
-	//	glm::vec3 normal = { 0.0f, 0.0f, 0.0f };
+		glm::vec3 normal = { 0.0f, 0.0f, 0.0f };
 		float texIndex = 0.0f;
 		float tilingFactor = 0.0f;
 
@@ -127,7 +127,7 @@ namespace Rocket {
 		initCircleVB();
 		initLineVB();
 		initIB();
-		s_data.quadShader = Shader::create("assets/shaders/Quad.glsl");
+		s_data.quadShader = Shader::create("assets/shaders/Quad.glsl", "assets/shaders/include/Lighting.glsl");
 		s_data.circleShader = Shader::create("assets/shaders/Circle.glsl");
 		s_data.lineShader = Shader::create("assets/shaders/Line.glsl");
 		s_data.linesThickness = 1.3f;
@@ -156,16 +156,32 @@ namespace Rocket {
 	void Renderer2D::reset() {
 		RCKT_PROFILE_FUNCTION();
 		s_data.quadVA->unbind();
-		RCKT_CORE_INFO("Before: {0}", s_data.quadVA.use_count());
+		s_data.circleVA->unbind();
+		s_data.lineVA->unbind();
+
 		s_data.quadVA.reset();
-		s_data.quadVA = VertexArray::create();
-		RCKT_CORE_INFO("Then: {0}", s_data.quadVA.use_count());
+		s_data.circleVA.reset();
+		s_data.lineVA.reset();
+		
 		delete[] s_data.quadVertexBufferBase;
+		delete[] s_data.circleVertexBufferBase;
+		delete[] s_data.lineVertexBufferBase;
+
+		s_data.quadVA = VertexArray::create();
+		s_data.circleVA = VertexArray::create();
+		s_data.lineVA = VertexArray::create();
+
 		s_data.quadVertexBufferBase = new QuadVertex[s_data.maxQuadVertices];
 		s_data.quadIndexCount = 0;
+		s_data.circleVertexBufferBase = new CircleVertex[s_data.maxCircleVertices];
+		s_data.circleIndexCount = 0;
+		s_data.lineVertexBufferBase = new LineVertex[s_data.maxLineVertices];
+		s_data.lineVertexCount = 0;
+
 		initQuadVB();
+		initCircleVB();
+		initLineVB();
 		initIB();
-		s_data.quadVA->bind();
 	}
 
 	void Renderer2D::shutdown() {
@@ -183,6 +199,7 @@ namespace Rocket {
 				{ ShaderDataType::Float3, "a_position"     },
 				{ ShaderDataType::Float2, "a_texCoord"	   },
 				{ ShaderDataType::Float4, "a_color"        },
+				{ ShaderDataType::Float3, "a_normal"        },
 				{ ShaderDataType::Float,  "a_texIndex"     },
 				{ ShaderDataType::Float,  "a_tilingFactor" },
 				{ ShaderDataType::Int,    "a_entityID"     }, // color attachment 2
@@ -332,6 +349,7 @@ namespace Rocket {
 	}
 	
 	void Renderer2D::applyPointLights(const std::vector<PointLightComponent>& pointLights) {
+		s_data.quadShader->bind();
 		s_data.quadShader->setPointLights(pointLights);
 	}
 	
@@ -622,6 +640,10 @@ namespace Rocket {
 		constexpr glm::vec2 textureCoords[] = { { 0.0f, 0.0f }, { 1.0f, 0.0f }, { 1.0f, 1.0f }, { 0.0f, 1.0f } };
 		float textureIndex = -1.0f; // being set if has a texture
 
+		glm::vec3 edge1 = transform * (s_data.quadVertexPositions[2] - s_data.quadVertexPositions[1]);
+		glm::vec3 edge2 = transform * (s_data.quadVertexPositions[0] - s_data.quadVertexPositions[1]);
+		glm::vec3 normal = glm::cross(edge1, edge2);
+
 		if (src.texture != nullptr) {
 			for (uint32_t i = 0; i < s_data.textureSlotIndex; i++) {
 				if (*s_data.textureSlots[i].get() == *src.texture.get()) {
@@ -641,6 +663,7 @@ namespace Rocket {
 			s_data.quadVertexBufferPtr->position = transform * s_data.quadVertexPositions[i];
 			s_data.quadVertexBufferPtr->texCoord = textureCoords[i];
 			s_data.quadVertexBufferPtr->color = src.color;
+			s_data.quadVertexBufferPtr->normal = normal;
 			s_data.quadVertexBufferPtr->texIndex = textureIndex;
 			s_data.quadVertexBufferPtr->tilingFactor = src.tilingFactor;
 			s_data.quadVertexBufferPtr->entityID = entityID;

@@ -15,19 +15,41 @@ namespace Rocket {
 		return 0;
 	}
 
-	OpenGLShader::OpenGLShader(const std::string& filepath) :m_rendererID(0) {
+	OpenGLShader::OpenGLShader(const std::string& filepath, const std::string& additionalFilepath) :m_rendererID(0) {
 		RCKT_PROFILE_FUNCTION();
 
-		std::string shaderSource = readFile(filepath);
-		auto sources = preProcess(shaderSource);
-		compile(sources);
 
-		// extract name from filepath
+		// extracting name from filepath
 		auto lastSlash = filepath.find_last_of("/\\");
 		lastSlash = lastSlash == std::string::npos ? 0 : lastSlash + 1;
 		auto lastDot = filepath.rfind('.');
 		auto count = lastDot == std::string::npos ? filepath.size() - lastSlash : lastDot - lastSlash;
 		m_name = filepath.substr(lastSlash, count);
+
+		// compilation and linking
+		m_rendererID = glCreateProgram();
+		
+		RCKT_CORE_ASSERT(glIsProgram(m_rendererID), "Could not create OpenGL program!");
+
+		std::string shaderSource = readFile(filepath);
+		std::unordered_map<GLenum, std::string> sources = preProcess(shaderSource);
+		std::unordered_map<GLenum, std::string> additionalSources;
+
+		std::array<GLenum, 2> mainShaderIDs = { GL_FALSE };
+
+		if (additionalFilepath != "") {
+			RCKT_CORE_INFO("Received addition shader {0} with main shader {1}", additionalFilepath, m_name);
+			std::string additional = readFile(additionalFilepath);
+			additionalSources = preProcess(additional);
+
+			for (auto it1 = sources.begin(), it2 = additionalSources.begin(); it1 != sources.end() && it2 != additionalSources.end(); ++it1, ++it2) {
+				it1->second += it2->second;
+			}
+		}
+
+		mainShaderIDs = compile(sources);
+		
+		link(mainShaderIDs);
 	}
 
 	OpenGLShader::OpenGLShader(const std::string& name, const std::string& vertexSource, const std::string& fragmentSource)
@@ -38,6 +60,7 @@ namespace Rocket {
 		sources[GL_VERTEX_SHADER] = vertexSource;
 		sources[GL_FRAGMENT_SHADER] = fragmentSource;
 		compile(sources);
+		// TODO: complete the functionality(it has been changed due to adding additional shader attachment)
 	}
 
 	OpenGLShader::~OpenGLShader() {
@@ -89,12 +112,13 @@ namespace Rocket {
 		return shaderSources;
 	}
 
-	void OpenGLShader::compile(const std::unordered_map<GLenum, std::string>& shaderSources) {
+	std::array<GLenum, 2> OpenGLShader::compile(const std::unordered_map<GLenum, std::string>& shaderSources) {
 		RCKT_PROFILE_FUNCTION();
 
-		RCKT_CORE_ASSERT(shaderSources.size() <= 2, "We only support 2 shaders for now!");
-		GLuint program = glCreateProgram();
-		std::array<GLenum, 2> glShaderIDs;
+		RCKT_CORE_ASSERT(shaderSources.size() <= 2, "The API only support 2 shaders for now!"); // UPD: think about adding geometry shaders
+		RCKT_CORE_ASSERT(glIsProgram(m_rendererID), "Could not create a program!");
+		
+		std::array<GLenum, 2> glShaderIDs = { 0 };
 		int glShaderIDindex = 0;
 		for (auto& kv : shaderSources) {
 			GLenum type = kv.first;
@@ -123,23 +147,27 @@ namespace Rocket {
 				break;
 			}
 
-			glAttachShader(program, shader);
+			glAttachShader(m_rendererID, shader);
 			glShaderIDs[glShaderIDindex++] = shader;
 		}
 
-		glLinkProgram(program);
+		return glShaderIDs;
+	}
+
+	void OpenGLShader::link(const std::array<GLenum, 2>& mainShaderIDs) {
+		glLinkProgram(m_rendererID);
 		GLint isLinked = 0;
-		glGetProgramiv(program, GL_LINK_STATUS, (int*)&isLinked);
+		glGetProgramiv(m_rendererID, GL_LINK_STATUS, (int*)&isLinked);
 		if (isLinked == GL_FALSE) {
 			GLint maxLength = 0;
-			glGetProgramiv(program, GL_INFO_LOG_LENGTH, &maxLength);
+			glGetProgramiv(m_rendererID, GL_INFO_LOG_LENGTH, &maxLength);
 
 			std::vector<GLchar> infolog(maxLength);
-			glGetProgramInfoLog(program, maxLength, &maxLength, &infolog[0]);
+			glGetProgramInfoLog(m_rendererID, maxLength, &maxLength, &infolog[0]);
 
-			glDeleteProgram(program);
+			glDeleteProgram(m_rendererID);
 
-			for (auto id : glShaderIDs) {
+			for (auto id : mainShaderIDs) {
 				glDeleteShader(id);
 			}
 
@@ -148,12 +176,10 @@ namespace Rocket {
 			return;
 		}
 
-		for (auto id : glShaderIDs) {
-			glDetachShader(program, id);
+		for (auto id : mainShaderIDs) {
+			glDetachShader(m_rendererID, id);
 			glDeleteShader(id);
 		}
-
-		m_rendererID = program;
 	}
 
 	GLint OpenGLShader::getUniformLocation(const std::string& name) const {
@@ -234,7 +260,7 @@ namespace Rocket {
 
 	void OpenGLShader::uploadUniformDirectionLight(const std::vector<DirectionalLightComponent>& dirLightComponents) {
 		
-		int lightsCount = dirLightComponents.size();
+		size_t lightsCount = dirLightComponents.size();
 		RCKT_CORE_ASSERT(lightsCount <= SCENE_MAX_DIRECTIONAL_LIGHTS_COUNT, "Currently supported directional lights count in the scene is <= 10");
 		
 		// setting active lights count
@@ -277,7 +303,7 @@ namespace Rocket {
 
 	void OpenGLShader::uploadUniformPointLight(const std::vector<PointLightComponent>& pointLightComponents) {
 		
-		int lightsCount = pointLightComponents.size();
+		size_t lightsCount = pointLightComponents.size();
 		RCKT_CORE_ASSERT(lightsCount <= SCENE_MAX_POINT_LIGHTS_COUNT, "Currently supported point lights count in the scene is <= 100");
 		
 		// setting active lights count
@@ -287,50 +313,35 @@ namespace Rocket {
 			return;
 		}
 
-
-		float strengths[SCENE_MAX_POINT_LIGHTS_COUNT];
-		for (int i = 0; i < lightsCount; i++) {
-			strengths[i] = pointLightComponents[i].ambientStrenght;
-		}
-		uploadUniformFloatArray("u_ambientStrenghtsPointLight", strengths, lightsCount);
-
 		glm::vec3 positions[SCENE_MAX_POINT_LIGHTS_COUNT];
+		glm::vec3 colors[SCENE_MAX_POINT_LIGHTS_COUNT];
 		glm::vec3 ambients[SCENE_MAX_POINT_LIGHTS_COUNT];
-		glm::vec3 diffuses[SCENE_MAX_POINT_LIGHTS_COUNT];
-		glm::vec3 speculars[SCENE_MAX_POINT_LIGHTS_COUNT];
-		float constants[SCENE_MAX_POINT_LIGHTS_COUNT];
-		float linears[SCENE_MAX_POINT_LIGHTS_COUNT];
-		float quadratics[SCENE_MAX_POINT_LIGHTS_COUNT];
-
+		float intensities[SCENE_MAX_POINT_LIGHTS_COUNT];
+		float radiuses[SCENE_MAX_POINT_LIGHTS_COUNT];
+		
 		for (int i = 0; i < lightsCount; i++) {
-			positions[i]  = *pointLightComponents[i].position;
-			ambients[i]   = pointLightComponents[i].ambient;
-			diffuses[i]   = pointLightComponents[i].diffuse;
-			speculars[i]  = pointLightComponents[i].specular;
-			constants[i]  = pointLightComponents[i].constant;
-			linears[i]    = pointLightComponents[i].linear;
-			quadratics[i] = pointLightComponents[i].quadratic;
-
+			positions[i]	= *pointLightComponents[i].position;
+			colors[i]		= pointLightComponents[i].color;
+			ambients[i]		= pointLightComponents[i].ambient;
+			intensities[i]	= pointLightComponents[i].intensity;
+			radiuses[i]		= pointLightComponents[i].radius;
+	
 			GLint positionLocation   = getUniformLocation("pointLights[" + std::to_string(i) + "].position");
+			GLint colorLocation		 = getUniformLocation("pointLights[" + std::to_string(i) + "].color");
 			GLint ambientLocation    = getUniformLocation("pointLights[" + std::to_string(i) + "].ambient");
-			GLint diffuseLocation    = getUniformLocation("pointLights[" + std::to_string(i) + "].diffuse");
-			GLint specularLocation   = getUniformLocation("pointLights[" + std::to_string(i) + "].specular");
-			GLint constantsLocation  = getUniformLocation("pointLights[" + std::to_string(i) + "].constant");
-			GLint linearsLocation    = getUniformLocation("pointLights[" + std::to_string(i) + "].linear");
-			GLint quadraticsLocation = getUniformLocation("pointLights[" + std::to_string(i) + "].quadratic");
+			GLint intensityLocation  = getUniformLocation("pointLights[" + std::to_string(i) + "].intensity");
+			GLint radiusLocation     = getUniformLocation("pointLights[" + std::to_string(i) + "].radius");
 
 			glUniform3fv(positionLocation, 1, glm::value_ptr(positions[i]));
+			glUniform3fv(colorLocation, 1, glm::value_ptr(colors[i]));
 			glUniform3fv(ambientLocation, 1, glm::value_ptr(ambients[i]));
-			glUniform3fv(diffuseLocation, 1, glm::value_ptr(diffuses[i]));
-			glUniform3fv(specularLocation, 1, glm::value_ptr(speculars[i]));
-			glUniform1fv(constantsLocation, 1, &constants[i]);
-			glUniform1fv(linearsLocation, 1, &linears[i]);
-			glUniform1fv(quadraticsLocation, 1, &quadratics[i]);
+			glUniform1fv(intensityLocation, 1, &intensities[i]);
+			glUniform1fv(radiusLocation, 1, &radiuses[i]);
 		}
 	}
 
 	void OpenGLShader::uploadUniformSpotLight(const std::vector<SpotLightComponent>& spotLightComponents) {
-		int lightsCount = spotLightComponents.size();
+		size_t lightsCount = spotLightComponents.size();
 		RCKT_CORE_ASSERT(lightsCount <= SCENE_MAX_POINT_LIGHTS_COUNT, "Currently supported spot lights count in the scene is <= 100");
 
 		// setting active lights count

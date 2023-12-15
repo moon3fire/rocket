@@ -7,6 +7,7 @@
 #include <box2d/b2_body.h>
 #include <box2d/b2_fixture.h>
 #include <box2d/b2_polygon_shape.h>
+#include <box2d/b2_circle_shape.h>
 
 #include "Entity.h"
 #include "ScriptableEntity.h"
@@ -34,6 +35,7 @@ namespace Rocket {
 
 	Scene::~Scene() {
 		m_registry.clear();
+		delete m_physicsWorld;
 	}
 
 	template <typename Component>
@@ -81,6 +83,7 @@ namespace Rocket {
 		CopyComponent<NativeScriptComponent>(dstSceneRegistry, srcSceneRegistry, enttMap);
 		CopyComponent<RigidBody2DComponent>(dstSceneRegistry, srcSceneRegistry, enttMap);
 		CopyComponent<BoxCollider2DComponent>(dstSceneRegistry, srcSceneRegistry, enttMap);
+		CopyComponent<CircleCollider2DComponent>(dstSceneRegistry, srcSceneRegistry, enttMap);
 
 		return newScene;
 	}
@@ -89,7 +92,7 @@ namespace Rocket {
 		Entity entity = { m_registry.create(), this }; 
 
 		entity.addComponent<TransformComponent>();
-		entity.addComponent<TagComponent>(name);
+		entity.addComponent<TagComponent>();
 		auto& entityTag = entity.getComponent<TagComponent>();
 		entityTag.tag = name.empty() ? "Unnamed" : name;
 		entityTag.id = uuid;
@@ -118,14 +121,16 @@ namespace Rocket {
 	Entity Scene::createPointLight(const UUID& uuid) {
 		Entity entity = { m_registry.create(), this };
 
+		
 		entity.addComponent<TransformComponent>();
-		entity.addComponent<TagComponent>("Point Light " + std::to_string(m_pointLightCount));
-		auto& plc = entity.addComponent<PointLightComponent>();
-		plc.position = &(entity.getComponent<TransformComponent>().position);
+		entity.addComponent<TagComponent>();
+		entity.addComponent<PointLightComponent>();
 		auto& entityTag = entity.getComponent<TagComponent>();
+		entityTag.tag = "Point Light " + std::to_string(m_pointLightCount);
 		entityTag.id = uuid;
 
 		m_entityCount++;
+		m_pointLightCount++;
 
 		RCKT_CORE_WARN("Entity count {0}", m_entityCount);
 		RCKT_CORE_WARN("Point light count: {0}", m_pointLightCount);
@@ -159,21 +164,6 @@ namespace Rocket {
 	}
 
 	void Scene::clear() {
-		auto group = m_registry.group<TransformComponent>();
-		for (auto& e : group) {
-			Entity entity = { e, this };
-			if (entity.hasComponent<RigidBody2DComponent>()) {
-				auto& body = entity.getComponent<RigidBody2DComponent>().runtimeBody;
-				delete body;
-				entity.removeComponent<RigidBody2DComponent>();
-			}
-			if (entity.hasComponent<BoxCollider2DComponent>()) {
-				auto& fixture = entity.getComponent<BoxCollider2DComponent>().runtimeFixture;
-				delete fixture;
-				entity.removeComponent<BoxCollider2DComponent>();
-			}
-			m_registry.destroy(entity); 
-		}
 		m_registry.clear();
 		Renderer2D::reset();
 	}
@@ -228,6 +218,22 @@ namespace Rocket {
 				fixture.friction = bc2d.friction;
 				fixture.restitution = bc2d.restitution;
 				fixture.restitutionThreshold = bc2d.restitutionThreshold;
+				body->CreateFixture(&fixture);
+			}
+
+			if (entity.hasComponent<CircleCollider2DComponent>()) {
+				auto& cc2d = entity.getComponent<CircleCollider2DComponent>();
+
+				b2CircleShape circleShape;
+				circleShape.m_p.Set(cc2d.offset.x, cc2d.offset.y);
+				circleShape.m_radius = cc2d.radius;
+
+				b2FixtureDef fixture;
+				fixture.shape = &circleShape;
+				fixture.density = cc2d.density;
+				fixture.friction = cc2d.friction;
+				fixture.restitution = cc2d.restitution;
+				fixture.restitutionThreshold = cc2d.restitutionThreshold;
 				body->CreateFixture(&fixture);
 			}
 		}
@@ -303,10 +309,13 @@ namespace Rocket {
 
 		Camera* mainCamera = &mainCameraEntity.getComponent<CameraComponent>().camera;
 		glm::mat4 cameraTransform = mainCameraEntity.getComponent<TransformComponent>().getTransform();
-		
 
 		if (mainCamera) {
 			Renderer2D::beginScene(mainCamera->getProjection(), cameraTransform);
+
+			{
+				drawLights();
+			}
 
 			auto group = m_registry.group<TransformComponent>(entt::get<SpriteRendererComponent>);
 
@@ -317,8 +326,8 @@ namespace Rocket {
 				for (auto entity : view) {
 
 					auto [sprite, transform] = view.get<SpriteRendererComponent, TransformComponent>(entity);
-					//Renderer2D::drawSprite(transform.getTransform(), sprite, (int)entity);
-					Renderer2D::drawQuadShape(transform.getTransform(), sprite.color, (int)entity);
+					Renderer2D::drawSprite(transform.getTransform(), sprite, (int)entity);
+					//Renderer2D::drawQuadShape(transform.getTransform(), sprite.color, (int)entity);
 				}
 			}
 			// draw circles
@@ -370,14 +379,19 @@ namespace Rocket {
 			//applying lights
 			{
 				Renderer2D::applyDirectionalLights(directionalLights, camera.getPosition());
-				Renderer2D::applyPointLights(pointLights);
 				Renderer2D::applySpotLights(spotLights);
+				Renderer2D::applyPointLights(pointLights);
 			}
 		}
 		*/
 		
 		// Note: View is read only, group is rw
 		// draw squares
+		
+		{
+			drawLights();
+		}
+
 		{
 			auto view = m_registry.view<SpriteRendererComponent, TransformComponent>();
 
@@ -401,6 +415,18 @@ namespace Rocket {
 		Renderer2D::endScene();
 		if (m_isSkyboxEnabled)
 			Renderer2D::applySkybox(camera);
+	}
+
+	void Scene::drawLights() {
+		std::vector<PointLightComponent> pointLights;
+		{
+			auto pointLightView = m_registry.view<PointLightComponent>();
+			for (auto light : pointLightView) {
+				auto& plc = pointLightView.get<PointLightComponent>(light);
+				pointLights.push_back(pointLightView.get<PointLightComponent>(light));
+			}
+		}
+		Renderer2D::applyPointLights(pointLights);
 	}
 
 	Entity Scene::getPrimaryCameraEntity() {
@@ -463,4 +489,6 @@ namespace Rocket {
 	template<>
 	void Scene::onComponentAdded<BoxCollider2DComponent>(Entity entity, BoxCollider2DComponent& component) {}
 
+	template<>
+	void Scene::onComponentAdded<CircleCollider2DComponent>(Entity entity, CircleCollider2DComponent& component) {}
 } // namespace Rocket
