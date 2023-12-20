@@ -18,7 +18,6 @@ namespace Rocket {
 	OpenGLShader::OpenGLShader(const std::string& filepath, const std::string& additionalFilepath) :m_rendererID(0) {
 		RCKT_PROFILE_FUNCTION();
 
-
 		// extracting name from filepath
 		auto lastSlash = filepath.find_last_of("/\\");
 		lastSlash = lastSlash == std::string::npos ? 0 : lastSlash + 1;
@@ -52,15 +51,16 @@ namespace Rocket {
 		link(mainShaderIDs);
 	}
 
-	OpenGLShader::OpenGLShader(const std::string& name, const std::string& vertexSource, const std::string& fragmentSource)
-		:m_rendererID(0), m_name(name) {
+	OpenGLShader::OpenGLShader(int mode, const std::string& filepath) :m_name(filepath), m_rendererID(0) {
 		RCKT_PROFILE_FUNCTION();
+		m_rendererID = glCreateProgram();
 
-		std::unordered_map<GLenum, std::string> sources;
-		sources[GL_VERTEX_SHADER] = vertexSource;
-		sources[GL_FRAGMENT_SHADER] = fragmentSource;
-		compile(sources);
-		// TODO: complete the functionality(it has been changed due to adding additional shader attachment)
+		RCKT_CORE_ASSERT(glIsProgram(m_rendererID), "Could not create OpenGL program!");
+		
+		RCKT_CORE_INFO("Compiling only 1 source shader! Mode: {0}", mode);
+
+		std::string source = readFile(filepath);
+		compileAndLink(source);
 	}
 
 	OpenGLShader::~OpenGLShader() {
@@ -180,6 +180,52 @@ namespace Rocket {
 			glDetachShader(m_rendererID, id);
 			glDeleteShader(id);
 		}
+	}
+
+	void OpenGLShader::compileAndLink(const std::string& source) {
+		RCKT_PROFILE_FUNCTION();
+		
+		GLuint shader = glCreateShader(GL_FRAGMENT_SHADER);
+
+		const GLchar* sourceCstr = source.c_str();
+		glShaderSource(shader, 1, &sourceCstr, 0);
+
+		glCompileShader(shader);
+
+		GLint isCompiled = 0;
+		glGetShaderiv(shader, GL_COMPILE_STATUS, &isCompiled);
+		if (isCompiled == GL_FALSE) {
+			GLint maxLength = 0;
+			glGetShaderiv(shader, GL_INFO_LOG_LENGTH, &maxLength);
+
+			std::vector<GLchar> infolog(maxLength);
+			glGetShaderInfoLog(shader, maxLength, &maxLength, &infolog[0]);
+
+			glDeleteShader(shader);
+
+			RCKT_CORE_ERROR("{0}", infolog.data());
+			RCKT_CORE_ASSERT(false, "Shader compilation failure!");
+		}
+
+		glAttachShader(m_rendererID, shader);
+		
+		glLinkProgram(m_rendererID);
+		GLint isLinked = 0;
+		glGetProgramiv(m_rendererID, GL_LINK_STATUS, (int*)&isLinked);
+		if (isLinked == GL_FALSE) {
+			GLint maxLength = 0;
+			glGetProgramiv(m_rendererID, GL_INFO_LOG_LENGTH, &maxLength);
+
+			std::vector<GLchar> infolog(maxLength);
+			glGetProgramInfoLog(m_rendererID, maxLength, &maxLength, &infolog[0]);
+
+			glDeleteProgram(m_rendererID);
+
+			RCKT_CORE_ERROR("{0}", infolog.data());
+			RCKT_CORE_ASSERT(false, "Shader link failure!");
+			return;
+		}
+		return;
 	}
 
 	GLint OpenGLShader::getUniformLocation(const std::string& name) const {

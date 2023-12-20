@@ -21,11 +21,28 @@ namespace Rocket {
 		RCKT_PROFILE_FUNCTION();
 
 		FramebufferSpecification frameBufferSpec;
-		frameBufferSpec.attachments = { FramebufferTextureFormat::RGBA8, FramebufferTextureFormat::RED_INTEGER, FramebufferTextureFormat::Depth };
+		frameBufferSpec.attachments = { FramebufferTextureFormat::RGBA_16F, FramebufferTextureFormat::RED_INTEGER, FramebufferTextureFormat::RGBA_16F, FramebufferTextureFormat::Depth };
 		frameBufferSpec.width = 1280;
 		frameBufferSpec.height = 720;
 		frameBufferSpec.samples = 1;
-		m_framebuffer = Rocket::Framebuffer::create(frameBufferSpec);
+		m_framebuffer = Framebuffer::create(frameBufferSpec);
+		m_specification = frameBufferSpec;
+
+		FramebufferSpecification postProcessingSpec;
+		FramebufferSpecification PPFinalSpec;
+		postProcessingSpec.attachments = { FramebufferTextureFormat::RGBA_16F };
+		postProcessingSpec.width = 1280;
+		postProcessingSpec.height = 720;
+		postProcessingSpec.samples = 1;
+
+		PPFinalSpec.attachments = { FramebufferTextureFormat::RGBA8 };
+		PPFinalSpec.width = 1280;
+		PPFinalSpec.height = 720;
+		PPFinalSpec.samples = 1;
+
+		m_pingPongFBO[0] = Framebuffer::create(postProcessingSpec);
+		m_pingPongFBO[1] = Framebuffer::create(postProcessingSpec);
+		m_postProcessingFramebuffer = Framebuffer::create(PPFinalSpec);
 
 		m_cameraController.setZoomLevel(5.5f);
 		Renderer::setCameraController(m_cameraController);
@@ -64,6 +81,7 @@ namespace Rocket {
 		Renderer2D::resetStats();
 		{
 			RCKT_PROFILE_SCOPE("Clear color set:");
+			//m_postProcessingFramebuffer->bind();
 			m_framebuffer->bind();
 			RenderCommand::setClearColor({ 0.15f, 0.13f, 0.15f, 1.0f });
 			RenderCommand::clear();
@@ -101,8 +119,13 @@ namespace Rocket {
 				m_hoveredEntity = pixelData == -1 ? Entity() : Entity((entt::entity)pixelData, m_activeScene.get());
 			}
 		}
-
+		//m_postProcessingFramebuffer->unbind();
 		m_framebuffer->unbind();
+
+		if (m_isPostprocessingEnabled)
+			m_finalTexture = Renderer2D::applyBloom(m_framebuffer, m_pingPongFBO, m_postProcessingFramebuffer, m_editorCamera.getViewProjection());
+		else
+			m_finalTexture = m_framebuffer->getColorAttachmentRendererID(0);
 	}
 
 	void EditorLayer::onImGuiRender() {
@@ -184,11 +207,13 @@ namespace Rocket {
 			//ImGui::DragFloat3("Diffuse light position", glm::value_ptr(m_diffusePos), 1.0f, 0, 0, "%.2f");
 			//ImGui::ColorEdit3("Diffuse light color", glm::value_ptr(m_diffuseColor));
 
-			std::string name = "None";
-			if (m_hoveredEntity && !m_isUsingFilesystem) {
-				name = m_hoveredEntity.getComponent<TagComponent>().tag;
+			if (m_hoveredEntity && m_sceneState == SceneState::Edit) { // TODO:: think about removing file system
+				std::string name = "None";
+				if (m_hoveredEntity.hasComponent<TagComponent>()) {
+					name = m_hoveredEntity.getComponent<TagComponent>().tag;
+					ImGui::Text("Hovered entity: %s", name.c_str());
+				}
 			}
-			ImGui::Text("Hovered entity: %s", name.c_str());
 
 			// to see all available entities m_activeScene->debugAllAvailableEntities();
 
@@ -201,6 +226,14 @@ namespace Rocket {
 
 			if (ImGui::Checkbox("Enable skybox", &m_isSkyboxEnabled))
 				m_activeScene->enableSkybox(m_isSkyboxEnabled);
+
+			ImGui::Checkbox("Enable HDR", &m_isHDREnabled);
+			m_hierarchyPanel.enableHDR(m_isHDREnabled);
+
+			if (m_isHDREnabled) {
+				ImGui::Checkbox("Enable postprocessing", &m_isPostprocessingEnabled);
+				m_activeScene->enablePostProcessing(m_isPostprocessingEnabled);
+			}
 
 			if (m_isSkyboxEnabled) {
 				if (ImGui::Button("Change skybox"))
@@ -219,6 +252,9 @@ namespace Rocket {
 					}
 				}
 			}
+
+			if (ImGui::Checkbox("Show Colliders", &m_showColliders))
+				m_activeScene->enableColliders(m_showColliders);
 
 			ImGui::End();
 
@@ -252,7 +288,7 @@ namespace Rocket {
 
 			m_viewportSize = { viewportPanelSize.x, viewportPanelSize.y };
 
-			uint32_t textureID = m_framebuffer->getColorAttachmentRendererID(0);
+			uint32_t textureID = m_finalTexture;
 			ImGui::Image(reinterpret_cast<void*>(textureID), ImVec2{ m_viewportSize.x, m_viewportSize.y }, ImVec2{ 0, 1 }, ImVec2{ 1, 0 });
 
 
@@ -356,21 +392,25 @@ namespace Rocket {
 	}
 
 	void EditorLayer::onScenePlay() {
-
+		m_isUsingFilesystem = true;
 		m_sceneState = SceneState::Play;
 
 		m_activeScene = Scene::Copy(m_editorScene);
 		m_activeScene->onRuntimeStart();
 
+		m_isUsingFilesystem = false;
 		m_hierarchyPanel.setContext(m_activeScene);
 	}
 
 	void EditorLayer::onSceneStop() {
-		m_sceneState = SceneState::Edit;
+		m_isUsingFilesystem = true;
 		m_activeScene->onRuntimeStop();
 		m_activeScene = m_editorScene;
 
+		m_isUsingFilesystem = false;
+		m_hierarchyPanel.setSelectedEntity();
 		m_hierarchyPanel.setContext(m_activeScene);
+		m_sceneState = SceneState::Edit;
 	}
 
 	bool EditorLayer::onKeyPressed(KeyPressedEvent& event)
@@ -468,15 +508,31 @@ namespace Rocket {
 
 
 	void EditorLayer::resizeFramebuffer() {
-		m_specification = m_framebuffer->getSpecification();
-		if (m_viewportSize.x > 0.0f && m_viewportSize.y > 0.0f &&
-			(m_specification.width != m_viewportSize.x || m_specification.height != m_viewportSize.y)) {
-			m_framebuffer->resize((uint32_t)m_viewportSize.x, (uint32_t)m_viewportSize.y);
-			m_cameraController.onResize(m_viewportSize.x, m_viewportSize.y);
+		if (!m_isPostprocessingEnabled) {
+			m_specification = m_framebuffer->getSpecification();
+			if (m_viewportSize.x > 0.0f && m_viewportSize.y > 0.0f &&
+				(m_specification.width != m_viewportSize.x || m_specification.height != m_viewportSize.y)) {
+				m_framebuffer->resize((uint32_t)m_viewportSize.x, (uint32_t)m_viewportSize.y);
+				m_cameraController.onResize(m_viewportSize.x, m_viewportSize.y);
 
-			m_editorCamera.setViewportSize(m_viewportSize.x, m_viewportSize.y);
+				m_editorCamera.setViewportSize(m_viewportSize.x, m_viewportSize.y);
 
-			m_activeScene->onViewportResize((uint32_t)m_viewportSize.x, (uint32_t)m_viewportSize.y);
+				m_activeScene->onViewportResize((uint32_t)m_viewportSize.x, (uint32_t)m_viewportSize.y);
+			}
+		}
+		else {
+			m_specification = m_postProcessingFramebuffer->getSpecification();
+			
+			if (m_viewportSize.x > 0.0f && m_viewportSize.y > 0.0f &&
+				(m_specification.width != m_viewportSize.x || m_specification.height != m_viewportSize.y)) {
+
+				//RCKT_CORE_INFO("Im reaching to here");
+				m_postProcessingFramebuffer->resize((uint32_t)m_viewportSize.x, (uint32_t)m_viewportSize.y);
+				m_cameraController.onResize(m_viewportSize.x, m_viewportSize.y);
+
+				m_editorCamera.setViewportSize(m_viewportSize.x, m_viewportSize.y);
+				m_activeScene->onViewportResize((uint32_t)m_viewportSize.x, (uint32_t)m_viewportSize.y);
+			}
 		}
 	}
 

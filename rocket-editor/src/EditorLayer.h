@@ -52,12 +52,19 @@ namespace Rocket {
 
 		EditorCamera m_editorCamera;
 
-		Ref<Framebuffer> m_framebuffer;
-		FramebufferSpecification m_specification;
+		Ref<Framebuffer> m_framebuffer, m_postProcessingFramebuffer;
+		Ref<Framebuffer> m_pingPongFBO[2];
+		uint32_t m_finalTexture;
+
+		FramebufferSpecification m_specification; // ??
 		glm::vec2 m_viewportSize = { 0.0f, 0.0f };
 		glm::vec2 m_viewportBounds[2];
+
+		bool m_isHDREnabled = false, m_isPostprocessingEnabled = false;
+
 		bool m_viewportFocused = false, m_viewportHovered = false;
 		bool m_isSkyboxEnabled = false, m_isReflectionEnabled = false, m_isRefractionEnabled = false;
+		bool m_showColliders = false;
 
 		Entity m_hoveredEntity; // this is related to gizmos functionality so I put it here
 		int m_gizmosType = -1; // TODO: make enum from this

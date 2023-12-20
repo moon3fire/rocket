@@ -74,7 +74,6 @@ namespace Rocket {
 
 			if (m_selectionContext) {
 				drawProperties(m_selectionContext);
-
 			}
 
 			ImGui::End();
@@ -387,13 +386,19 @@ namespace Rocket {
 			component.ambientStrenght = strenght;
 		});
 
-		drawComponent<PointLightComponent>("Point Light", entity, [](auto& component) {
+		drawComponent<PointLightComponent>("Point Light", entity, [this](auto& component) {
 			float intensity = component.intensity;
 			float radius = component.radius;
 
 			ImGui::DragFloat3("Position", glm::value_ptr(*component.position), 0.1f, -10000.0f, 10000.0f, "%.1f");
-			ImGui::DragFloat3("Color", glm::value_ptr(component.color), 0.1, 0.0, 1.0, "%.2f");
-			ImGui::DragFloat3("Ambient", glm::value_ptr(component.ambient), 0.0001f, 0.0f, 0.1f, "%.5f");
+			if (m_isHDREnabled) {
+				ImGui::DragFloat3("Ambient", glm::value_ptr(component.ambient), 0.001f, 0.0f, 1.0f, "%.3f");
+				ImGui::DragFloat3("Color", glm::value_ptr(component.color), 1.0f, 0.0, 100.0f, "%.1f");
+			}
+			else {
+				ImGui::DragFloat3("Ambient", glm::value_ptr(component.ambient), 0.001f, 0.0f, 0.5f, "%.5f");
+				ImGui::DragFloat3("Color", glm::value_ptr(component.color), 0.1, 0.0, 1.0, "%.2f");
+			}
 			ImGui::DragFloat("Intensity", &intensity, 0.01f, 0.0f, 10000.0f, "%.1f");
 			ImGui::DragFloat("Radius", &radius, 0.01f, 0.0f, 100.0f, "%.1f");
 

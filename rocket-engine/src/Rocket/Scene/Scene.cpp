@@ -120,7 +120,6 @@ namespace Rocket {
 
 	Entity Scene::createPointLight(const UUID& uuid) {
 		Entity entity = { m_registry.create(), this };
-
 		
 		entity.addComponent<TransformComponent>();
 		entity.addComponent<TagComponent>();
@@ -244,6 +243,14 @@ namespace Rocket {
 		m_physicsWorld = nullptr;
 	}
 
+	void Scene::enableHDR(bool enabled) {
+		Renderer2D::enableHDR(enabled);
+	}
+
+	void Scene::enablePostProcessing(bool enabled) {
+		Renderer2D::enablePostProcessing(enabled);
+	}
+
 	void Scene::enableSkybox(bool enabled) {
 		m_isSkyboxEnabled = enabled;
 	}
@@ -258,6 +265,10 @@ namespace Rocket {
 
 	void Scene::enableRefraction(bool enabled) {
 		Renderer2D::enableRefraction(enabled);
+	}
+
+	void Scene::enableColliders(bool enabled) {
+		m_showColliders = enabled;
 	}
 
 	void Scene::onUpdateRuntime(Timestep ts) {
@@ -327,7 +338,8 @@ namespace Rocket {
 
 					auto [sprite, transform] = view.get<SpriteRendererComponent, TransformComponent>(entity);
 					Renderer2D::drawSprite(transform.getTransform(), sprite, (int)entity);
-					//Renderer2D::drawQuadShape(transform.getTransform(), sprite.color, (int)entity);
+					if (m_showColliders)
+						Renderer2D::drawQuadShape(transform.getTransform(), sprite.color, (int)entity);
 				}
 			}
 			// draw circles
@@ -399,6 +411,8 @@ namespace Rocket {
 
 				auto [sprite, transform] = view.get<SpriteRendererComponent, TransformComponent>(entity);
 				Renderer2D::drawSprite(transform.getTransform(), sprite, (int)entity);
+				if (m_showColliders)
+					Renderer2D::drawQuadShape(transform.getTransform(), sprite.color, (int)entity);
 			}
 		}
 		// draw circles

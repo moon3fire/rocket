@@ -26,7 +26,7 @@ namespace Rocket {
 
 		virtual const FramebufferSpecification& getSpecification() const override { return m_specification; }
 	private:
-		uint32_t m_rendererID = 0;
+		uint32_t m_rendererID = -1;
 		FramebufferSpecification m_specification;
 
 		std::vector<FramebufferTextureSpecification> m_colorAttachmentSpecifications;

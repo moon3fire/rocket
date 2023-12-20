@@ -8,6 +8,7 @@
 #include "EditorCamera.h"
 
 #include "Rocket/Scene/Components.h"
+#include "Framebuffer.h"
 
 namespace Rocket {
 
@@ -36,11 +37,13 @@ namespace Rocket {
 		static void setSkybox(const std::vector<std::string>& faces);
 		static void changeSkybox();
 		static void applySkybox(const EditorCamera& camera);
+		static void enableHDR(bool enabled);
+		static void enablePostProcessing(bool enabled);
 		static void enableReflection(bool enabled);
 		static void enableRefraction(bool enabled);
 
-		//static unsigned int loadCubemap(std::vector<std::string> faces); moved to utils TODO:delete
-		//static void uploadModelMatrix(const glm::mat4& modelMat);
+		//Very uncofident stuff
+		static uint32_t applyBloom(const Ref<Framebuffer>& mainFB, const Ref<Framebuffer> pingPong[2], const Ref<Framebuffer>& postProcessing, const glm::mat4& vp);
 		//
 		static void endScene();
 		static void flush();

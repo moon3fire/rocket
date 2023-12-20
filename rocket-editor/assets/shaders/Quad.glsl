@@ -40,6 +40,7 @@ void main() {
 
 layout(location = 0) out vec4 color;
 layout(location = 1) out int entityID;
+layout(location = 2) out vec4 bloomColor;
 
 in vec4 v_color;
 in vec2 v_texCoord;
@@ -54,6 +55,9 @@ in vec3 v_normal;
 uniform vec3 u_viewPosition;
 
 uniform sampler2D u_textures[32];
+
+uniform bool u_isHDREnabled;
+uniform bool u_isPostProcessingEnabled;
 
 vec3 CalculateAllLights();
 
@@ -96,11 +100,29 @@ void main()
 		case 31: textureColor *= texture(u_textures[31], v_texCoord * v_tilingFactor); break;
 	}
 
+	// discarding if transparent
 	if (textureColor.w == 0) {
 		discard;
 	}
 
-	color = vec4(textureColor.xyz * CalculateAllLights(), 1.0);
+	// color attachment 1
+	vec4 mycolor = vec4(textureColor.xyz * CalculateAllLights(), 1.0);
+	
+	if (u_isHDREnabled && !u_isPostProcessingEnabled) {
+		float exposure = 0.5f; // temp
+		vec3 toneMapped = vec3(1.0f) - exp(-mycolor.rgb * exposure);
+		mycolor.rgb = pow(toneMapped, vec3(1.0f / 2.2f));
+	}
 
+	color = mycolor;
+	
+	// color attachment 2
 	entityID = v_entityID;
+	
+	// color attachment 3
+	float brightness = dot(mycolor.rgb, vec3(0.2126, 0.7152, 0.0722));
+	if (brightness > 0.15f)
+		bloomColor = vec4(mycolor.rgb, 1.0);
+	else
+		bloomColor = vec4(0.0, 0.0, 0.0, 1.0);
 }

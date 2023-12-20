@@ -10,7 +10,7 @@ namespace Rocket {
 	class OpenGLShader : public Shader {
 	public:
 		OpenGLShader(const std::string& filepath, const std::string& additionalFilepath = "");
-		OpenGLShader(const std::string& name, const std::string& vertexSource, const std::string& fragmentSource);
+		OpenGLShader(int mode, const std::string& filepath);
 		virtual ~OpenGLShader();
 
 		virtual void bind() const override;
@@ -55,6 +55,7 @@ namespace Rocket {
 		std::unordered_map<GLenum, std::string> preProcess(const std::string& source);
 		std::array<GLenum, 2> compile(const std::unordered_map<GLenum, std::string>& shaderSources);
 		void link(const std::array<GLenum, 2>& mainShaderIDs);
+		void compileAndLink(const std::string& source);
 
 		GLint getUniformLocation(const std::string& name) const;
 

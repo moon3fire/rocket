@@ -16,13 +16,18 @@ namespace Rocket {
 		void setContext(const Ref<Scene>& scene);
 
 		void onImGuiRender();
+		
+		void enableHDR(bool enabled) { m_isHDREnabled = enabled; m_context->enableHDR(m_isHDREnabled); }
 
-		void setSelectedEntity(Entity entity);
+		void setSelectedEntity(Entity entity = {});
 		Entity getSelectedEntity() const { return m_selectionContext; }
 	private:
 		void drawEntityNode(Entity entity);
 		void drawProperties(Entity entity);
+
 	private:
+		bool m_isHDREnabled = false;
+
 		Ref<Texture2D> m_defaultTexture;
 		Ref<Scene> m_context;
 		Entity m_selectionContext;

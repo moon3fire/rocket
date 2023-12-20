@@ -34,7 +34,7 @@ namespace Rocket {
 		virtual const std::string& getName() const = 0;
 
 		static Ref<Shader> create(const std::string& filepath, const std::string& additionalFilepath = "");
-		static Ref<Shader> create(const std::string& name, const std::string& vertexSource, const std::string& fragmentSource);
+		static Ref<Shader> create(int mode, const std::string& filepath);
 	};
 
 
