@@ -25,7 +25,7 @@ namespace Rocket {
 
 	WindowsWindow::WindowsWindow(const WindowProps& props) {
 		RCKT_PROFILE_FUNCTION();
-		glfwWindowHint(GLFW_SAMPLES, 4); // TODO: think about removing this
+		glfwWindowHint(GLFW_SAMPLES, 4); // TODO: 
 
 		init(props);
 	}

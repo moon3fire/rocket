@@ -35,7 +35,7 @@ namespace Rocket {
 		postProcessingSpec.height = 720;
 		postProcessingSpec.samples = 1;
 
-		PPFinalSpec.attachments = { FramebufferTextureFormat::RGBA8 };
+		PPFinalSpec.attachments = { FramebufferTextureFormat::RGBA_16F };
 		PPFinalSpec.width = 1280;
 		PPFinalSpec.height = 720;
 		PPFinalSpec.samples = 1;
@@ -206,7 +206,7 @@ namespace Rocket {
 
 			//ImGui::DragFloat3("Diffuse light position", glm::value_ptr(m_diffusePos), 1.0f, 0, 0, "%.2f");
 			//ImGui::ColorEdit3("Diffuse light color", glm::value_ptr(m_diffuseColor));
-
+			/*
 			if (m_hoveredEntity && m_sceneState == SceneState::Edit) { // TODO:: think about removing file system
 				std::string name = "None";
 				if (m_hoveredEntity.hasComponent<TagComponent>()) {
@@ -214,6 +214,7 @@ namespace Rocket {
 					ImGui::Text("Hovered entity: %s", name.c_str());
 				}
 			}
+			*/
 
 			// to see all available entities m_activeScene->debugAllAvailableEntities();
 
@@ -223,6 +224,9 @@ namespace Rocket {
 			ImGui::Text("Quads: %d", stats.quadCount);
 			ImGui::Text("Vertices: %d", stats.getTotalVertexCount());
 			ImGui::Text("Indices: %d", stats.getTotalIndexCount());
+
+			ImGui::Text("Application average %.3f ms/frame (%.1f FPS)", 1000.0f / ImGui::GetIO().Framerate, ImGui::GetIO().Framerate);
+
 
 			if (ImGui::Checkbox("Enable skybox", &m_isSkyboxEnabled))
 				m_activeScene->enableSkybox(m_isSkyboxEnabled);
@@ -439,6 +443,19 @@ namespace Rocket {
 			case RCKT_KEY_S: {
 				if (isControlPressed && isShiftPressed)
 					saveSceneAs();
+				break;
+			}
+
+			 // hierarchy
+			case RCKT_KEY_D: {
+				if (isControlPressed) {
+					if (m_hierarchyPanel.getSelectedEntity()) {
+						Entity entity = { m_hierarchyPanel.getSelectedEntity(), m_activeScene.get() };
+						m_activeScene->duplicateEntity(entity);
+						m_hierarchyPanel.setSelectedEntity();
+					}
+				}
+			
 				break;
 			}
 

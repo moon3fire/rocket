@@ -115,6 +115,9 @@ namespace Rocket {
 
 	void Renderer2D::init() {
 		RCKT_PROFILE_FUNCTION();
+
+		glEnable(GL_MULTISAMPLE);
+
 		s_data.quadVA = VertexArray::create();
 		s_data.circleVA = VertexArray::create();
 		s_data.lineVA = VertexArray::create();

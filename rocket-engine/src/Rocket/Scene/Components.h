@@ -138,6 +138,7 @@ namespace Rocket {
 
 	// forward declaration to avoid recursive include
 	class ScriptableEntity;
+
 	struct NativeScriptComponent {
 		ScriptableEntity* m_instance = nullptr;
 

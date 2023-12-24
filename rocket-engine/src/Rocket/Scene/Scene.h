@@ -26,6 +26,7 @@ namespace Rocket {
 		Entity createDirectionalLight(const UUID& uuid = 0);
 		Entity createPointLight(const UUID& uuid = 0);
 		Entity createSpotLight(const UUID& uuid = 0);
+		void duplicateEntity(Entity& other);
 		void destroyEntity(Entity entity);
 
 		//TODO: debug purposes, remove

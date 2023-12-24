@@ -154,6 +154,137 @@ namespace Rocket {
 		return entity;
 	}
 
+	void Scene::duplicateEntity(Entity& other) {
+		Entity entity = { m_registry.create(), this };
+		
+		//copyign components 
+		{
+			//tag component
+			{
+				auto& tag = entity.addComponent<TagComponent>();
+				auto& otherTag = other.getComponent<TagComponent>();
+				tag.tag = otherTag.tag;
+				tag.id = UUID();
+			}
+
+			//transform component
+			{
+				auto& tc = entity.addComponent<TransformComponent>();
+				auto& otherTc = other.getComponent<TransformComponent>();
+				tc.position = otherTc.position;
+				tc.rotation = otherTc.rotation;
+				tc.scale = otherTc.scale;
+			}
+
+			//sprite renderer component
+			if (other.hasComponent<SpriteRendererComponent>()) {
+				auto& src = entity.addComponent<SpriteRendererComponent>();
+				auto& otherSrc = other.getComponent<SpriteRendererComponent>();
+
+				src.color = otherSrc.color;
+				src.texture = otherSrc.texture;
+				src.isReflected = otherSrc.isReflected;
+				src.tilingFactor = otherSrc.tilingFactor;
+			}
+
+			if (other.hasComponent<CircleRendererComponent>()) {
+				auto& cc = entity.addComponent<CircleRendererComponent>();
+				auto& ccOther = other.getComponent<CircleRendererComponent>();
+
+				cc.color = ccOther.color;
+				cc.fade = ccOther.fade;
+				cc.thickness = ccOther.thickness;
+			}
+
+			if (other.hasComponent<DirectionalLightComponent>()) {
+				auto& dlc = entity.addComponent<DirectionalLightComponent>();
+				auto& dlcOther = entity.getComponent<DirectionalLightComponent>();
+
+				dlc.ambient = dlcOther.ambient;
+				dlc.ambientStrenght = dlcOther.ambientStrenght;
+				dlc.diffuse = dlcOther.diffuse;
+				dlc.direction = dlcOther.direction;
+				dlc.specular = dlcOther.specular;
+			}
+
+			if (other.hasComponent<PointLightComponent>()) {
+				auto& plc = entity.addComponent<PointLightComponent>();
+				auto& plcOther = other.getComponent<PointLightComponent>();
+
+				plc.ambient = plcOther.ambient;
+				plc.color = plcOther.color;
+				plc.intensity = plcOther.intensity;
+				plc.position = plcOther.position;
+				plc.radius = plcOther.radius;
+			}
+
+			if (other.hasComponent<SpotLightComponent>()) {
+				auto& slc = entity.addComponent<SpotLightComponent>();
+				auto& slcOther = other.getComponent<SpotLightComponent>();
+
+				slc.ambient = slcOther.ambient;
+				slc.constant = slcOther.constant;
+				slc.cutOff = slcOther.cutOff;
+				slc.diffuse = slcOther.diffuse;
+				slc.direction = slcOther.direction;
+				slc.linear = slcOther.linear;
+				slc.outerCutOff = slcOther.outerCutOff;
+				slc.position = slcOther.position;
+				slc.quadratic = slcOther.quadratic;
+				slc.specular = slcOther.specular;
+			}
+
+			if (other.hasComponent<CameraComponent>()) {
+				auto& cc = entity.addComponent<CameraComponent>();
+				auto& ccOther = other.getComponent<CameraComponent>();
+
+				cc.camera = ccOther.camera;
+				cc.fixedAspectRatio = ccOther.fixedAspectRatio;
+				cc.primary = false;
+			}
+
+			if (other.hasComponent<NativeScriptComponent>()) {
+				auto& nsc = entity.addComponent<NativeScriptComponent>();
+				auto& nscOther = other.getComponent<NativeScriptComponent>();
+
+				nsc.m_instance = nscOther.m_instance; // TODO: fix this
+			}
+
+			if (other.hasComponent<RigidBody2DComponent>()) {
+				auto& rb2d = entity.addComponent<RigidBody2DComponent>();
+				auto& rb2dOther = other.getComponent<RigidBody2DComponent>();
+
+				rb2d.fixedRotation = rb2dOther.fixedRotation;
+				rb2d.type = rb2dOther.type;
+			}
+
+			if (other.hasComponent<BoxCollider2DComponent>()) {
+				auto& bc2d = entity.addComponent<BoxCollider2DComponent>();
+				auto& bc2dOther = other.getComponent<BoxCollider2DComponent>();
+
+				bc2d.density = bc2dOther.density;
+				bc2d.friction = bc2dOther.friction;
+				bc2d.offset = bc2dOther.offset;
+				bc2d.restitution = bc2dOther.restitution;
+				bc2d.restitutionThreshold = bc2dOther.restitutionThreshold;
+				bc2d.size = bc2dOther.size;
+			}
+
+			if (other.hasComponent<CircleCollider2DComponent>()) {
+				auto& cc2d = entity.addComponent<CircleCollider2DComponent>();
+				auto& cc2dOther = other.getComponent<CircleCollider2DComponent>();
+
+				cc2d.density = cc2dOther.density;
+				cc2d.friction = cc2dOther.friction;
+				cc2d.offset = cc2dOther.offset;
+				cc2d.radius = cc2dOther.radius;
+				cc2d.restitution = cc2dOther.restitution;
+				cc2d.restitutionThreshold = cc2dOther.restitutionThreshold;
+			}
+		}
+		RCKT_CORE_TRACE("Duplicated entity: {0}", other.getComponent<TagComponent>().tag);
+	}
+
 	void Scene::destroyEntity(Entity entity) {
 		if (entity.hasComponent<DirectionalLightComponent>())
 			m_directionalLightCount--;
@@ -300,8 +431,8 @@ namespace Rocket {
 
 		//physics
 		{
-			const int32_t velocityIterations = 6;
-			const int32_t positionIterations = 2;
+			const int32_t velocityIterations = 12;
+			const int32_t positionIterations = 4;
 			m_physicsWorld->Step(ts, velocityIterations, positionIterations);
 
 			auto view = m_registry.view<RigidBody2DComponent>();

@@ -17,7 +17,6 @@ namespace Rocket {
 		m_defaultTexture = Texture2D::create("resources/icons/hierarchy/default.png");
 	}
 
-
 	SceneHierarchyPanel::SceneHierarchyPanel(const Ref<Scene>& scene) {
 		m_defaultTexture = Texture2D::create("resources/icons/hierarchy/default.png");
 		setContext(scene);
@@ -64,7 +63,6 @@ namespace Rocket {
 
 				ImGui::EndPopup();
 			}
-
 
 			ImGui::End();
 		}

@@ -9,7 +9,7 @@
 
 namespace Rocket {
 
-#define BIND_EVENT_FUNC(x) std::bind(&x, this, std::placeholders::_1)
+#define BIND_EVENT_FUNC(fn) [this](auto&&... args) -> decltype(auto) { return this->fn(std::forward<decltype(args)>(args)...); }
 
 	Application* Application::s_instance = nullptr;
 
