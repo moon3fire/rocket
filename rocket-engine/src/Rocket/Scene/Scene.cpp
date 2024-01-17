@@ -374,14 +374,6 @@ namespace Rocket {
 		m_physicsWorld = nullptr;
 	}
 
-	void Scene::enableHDR(bool enabled) {
-		Renderer2D::enableHDR(enabled);
-	}
-
-	void Scene::enablePostProcessing(bool enabled) {
-		Renderer2D::enablePostProcessing(enabled);
-	}
-
 	void Scene::enableSkybox(bool enabled) {
 		m_isSkyboxEnabled = enabled;
 	}
@@ -396,6 +388,18 @@ namespace Rocket {
 
 	void Scene::enableRefraction(bool enabled) {
 		Renderer2D::enableRefraction(enabled);
+	}
+
+	void Scene::enableHDR(bool enabled)
+	{
+		m_isHDREnabled = enabled;
+		Renderer2D::enableHDR(enabled);
+	}
+
+	void Scene::setExposure(float exposure)
+	{
+		m_exposure = exposure;
+		Renderer2D::setExposure(exposure);
 	}
 
 	void Scene::enableColliders(bool enabled) {

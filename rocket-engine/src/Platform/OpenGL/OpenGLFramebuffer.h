@@ -26,14 +26,14 @@ namespace Rocket {
 
 		virtual const FramebufferSpecification& getSpecification() const override { return m_specification; }
 	private:
-		uint32_t m_rendererID = -1;
+		uint32_t m_rendererID = -1, m_depthBufferRendererID = -1;
+		uint32_t m_depthAttachment = 0;
 		FramebufferSpecification m_specification;
 
 		std::vector<FramebufferTextureSpecification> m_colorAttachmentSpecifications;
 		FramebufferTextureSpecification m_depthAttachmentSpecification = FramebufferTextureFormat::None;
 
 		std::vector<uint32_t> m_colorAttachments;
-		uint32_t m_depthAttachment = 0;
 	};
 
 } // namespace Rocket

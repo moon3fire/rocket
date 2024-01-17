@@ -5,6 +5,7 @@
 #include "panels/SceneHierarchyPanel.h"
 #include "panels/ContentBrowserPanel.h"
 #include "Rocket/Renderer/EditorCamera.h"
+#include "Rocket/Renderer/BloomRenderer.h"
 
 namespace Rocket {
 
@@ -52,19 +53,21 @@ namespace Rocket {
 
 		EditorCamera m_editorCamera;
 
-		Ref<Framebuffer> m_framebuffer, m_postProcessingFramebuffer;
-		Ref<Framebuffer> m_pingPongFBO[2];
+		BloomRenderer m_bloomRenderer;
+
+		Ref<Framebuffer> m_framebuffer;
 		uint32_t m_finalTexture;
 
-		FramebufferSpecification m_specification; // ??
+		FramebufferSpecification m_specification;
 		glm::vec2 m_viewportSize = { 0.0f, 0.0f };
 		glm::vec2 m_viewportBounds[2];
-
-		bool m_isHDREnabled = false, m_isPostprocessingEnabled = false;
 
 		bool m_viewportFocused = false, m_viewportHovered = false;
 		bool m_isSkyboxEnabled = false, m_isReflectionEnabled = false, m_isRefractionEnabled = false;
 		bool m_showColliders = false;
+
+		bool m_HDREnabled = false;
+		float m_exposure = 1.0f;
 
 		Entity m_hoveredEntity; // this is related to gizmos functionality so I put it here
 		int m_gizmosType = -1; // TODO: make enum from this

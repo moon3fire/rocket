@@ -33,14 +33,15 @@ namespace Rocket {
 		void clear();
 		void debugAllAvailableEntities();
 
-		void enableHDR(bool enabled);
-		void enablePostProcessing(bool enabled);
 		void enableSkybox(bool enabled);
 		void changeSkybox();
 	
 		void enableReflection(bool enabled);
 		void enableRefraction(bool enabled);
 		
+		void enableHDR(bool enabled);
+		void setExposure(float exposure);
+
 		void enableColliders(bool enabled);
 
 		void onViewportResize(uint32_t width, uint32_t height);
@@ -74,7 +75,10 @@ namespace Rocket {
 		int m_directionalLightCount = 0, m_pointLightCount = 0, m_spotLightCount = 0;
 		
 		bool m_isSkyboxEnabled = false;
-		
+
+		bool m_isHDREnabled = false;
+		float m_exposure = 1.0f;
+
 		bool m_showColliders = false;
 
 		friend class Entity;

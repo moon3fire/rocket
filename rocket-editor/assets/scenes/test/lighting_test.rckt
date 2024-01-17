@@ -1,0 +1,26 @@
+Scene: Untitled
+---
+Entities:
+  - Entity: 0
+    TagComponent:
+      Tag: Point Light 1
+    TransformComponent:
+      Position: [0.471007109, -0.143640161, 1.67136216]
+      Scale: [1, 1, 1]
+      Rotation: [0, 0, 0]
+    PointLightComponent:
+      Color: [1, 1, 1]
+      Ambient: [0, 0, 0]
+      Intensity: 7.19999981
+      Radius: 4.69999981
+  - Entity: 4108678276469904111
+    TagComponent:
+      Tag: Empty
+    TransformComponent:
+      Position: [0.125885963, 0.173425555, -0.201928616]
+      Scale: [6.30000019, 4.19999981, 1]
+      Rotation: [0, 0, 0]
+    SpriteRendererComponent:
+      Color: [1, 1, 1, 1]
+      Texture: assets\textures\wood.png
+      TilingFactor: 1

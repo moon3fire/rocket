@@ -315,7 +315,15 @@ namespace Rocket {
 		drawComponent<SpriteRendererComponent>("Sprite Renderer", entity, [this](auto& component) {
 			ImGui::ColorEdit4("Color", glm::value_ptr(component.color));
 			ImGui::DragFloat("Tiling Factor", &component.tilingFactor, 0.1f, 0.0f, 100.0f);
-			
+
+			ImGui::Checkbox("Bloom", &component.isBloomed);
+			if (component.isBloomed) {
+				component.bloom = 1.0f;
+			}
+			else {
+				component.bloom = 0.0f;
+			}
+
 			if (component.getTextureID() == -1)
 				ImGui::Image((ImTextureID)(m_defaultTexture->getRendererID()), ImVec2{64, 64}, ImVec2{0, 1}, ImVec2{1, 0});
 			else
@@ -328,6 +336,7 @@ namespace Rocket {
 				}
 				ImGui::EndDragDropTarget();
 			}
+
 		});
 
 		drawComponent<CircleRendererComponent>("Circle Renderer", entity, [this](auto& component) {

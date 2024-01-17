@@ -23,7 +23,11 @@ namespace Rocket {
 		float tilingFactor = 0.0f;
 
 		//Editor only
-		int entityID = 0;
+		int entityID = 1.0f;
+
+		//Postprocessing
+		float bloom = 0.0f;
+		//float exposure = 1.0f;
 	};
 
 	struct CircleVertex {
@@ -74,11 +78,9 @@ namespace Rocket {
 		Ref<Shader> lineShader;
 		float linesThickness = 1.0f;
 
-		Ref<Shader> postProcessShader;
-		Ref<Shader> postProcessFinalShader;
-
 		Ref<Shader> reflectionShader, refractionShader;
 		bool reflectionEnabled = false, refractionEnabled = false, HDREnabled = false, postProcessingEnabled = false;
+		float exposure = 1.0f;
 
 		Ref<Shader> skyboxShader;
 		Ref<Skybox> skybox;
@@ -98,7 +100,6 @@ namespace Rocket {
 		uint32_t lineVertexCount = 0;
 		LineVertex* lineVertexBufferBase = nullptr;
 		LineVertex* lineVertexBufferPtr = nullptr;
-
 
 		// TODO: move these ones to vector, 
 
@@ -132,9 +133,6 @@ namespace Rocket {
 		s_data.skyboxShader = Shader::create("assets/shaders/Skybox.glsl");
 		s_data.reflectionShader = Shader::create("assets/shaders/Reflection.glsl");
 		s_data.refractionShader = Shader::create("assets/shaders/Refraction.glsl");
-
-		s_data.postProcessShader = Shader::create("assets/shaders/blur.glsl");
-		s_data.postProcessFinalShader = Shader::create("assets/shaders/bloom.glsl");
 
 		s_data.quadVertexBufferBase = new QuadVertex[s_data.maxQuadVertices];
 		s_data.circleVertexBufferBase = new CircleVertex[s_data.maxCircleVertices];
@@ -197,13 +195,14 @@ namespace Rocket {
 		s_data.quadVertexBuffer = VertexBuffer::create(s_data.maxQuadVertices * sizeof(QuadVertex));
 		s_data.quadVertexBuffer->setLayout(
 			{
-				{ ShaderDataType::Float3, "a_position"     },
-				{ ShaderDataType::Float2, "a_texCoord"	   },
-				{ ShaderDataType::Float4, "a_color"        },
+				{ ShaderDataType::Float3, "a_position"      },
+				{ ShaderDataType::Float2, "a_texCoord"	    },
+				{ ShaderDataType::Float4, "a_color"         },
 				{ ShaderDataType::Float3, "a_normal"        },
-				{ ShaderDataType::Float,  "a_texIndex"     },
-				{ ShaderDataType::Float,  "a_tilingFactor" },
-				{ ShaderDataType::Int,    "a_entityID"     }, // color attachment 2
+				{ ShaderDataType::Float,  "a_texIndex"      },
+				{ ShaderDataType::Float,  "a_tilingFactor"  },
+				{ ShaderDataType::Int,    "a_entityID"      }, // color attachment 2
+				{ ShaderDataType::Float,  "a_isBloomed"		}  // color attachment 3
 			});
 		s_data.quadVA->addVertexBuffer(s_data.quadVertexBuffer);
 	}
@@ -319,11 +318,6 @@ namespace Rocket {
 		RenderCommand::setLineThickness(s_data.linesThickness);
 
 		s_data.quadShader->bind();
-		s_data.quadShader->setBool("u_isHDREnabled", s_data.HDREnabled);
-		s_data.quadShader->setBool("u_isPostProcessingEnabled", s_data.postProcessingEnabled);
-
-		s_data.postProcessFinalShader->bind();
-		s_data.postProcessFinalShader->setBool("u_isHDREnabled", s_data.HDREnabled);
 
 		/*
 		if (s_data.reflectionEnabled) {
@@ -400,12 +394,14 @@ namespace Rocket {
 		s_data.skyboxShader->unbind();
 	}
 
-	void Renderer2D::enableHDR(bool enabled) {
+	void Renderer2D::enableHDR(bool enabled)
+	{
 		s_data.HDREnabled = enabled;
 	}
 
-	void Renderer2D::enablePostProcessing(bool enabled) {
-		s_data.postProcessingEnabled = enabled;
+	void Renderer2D::setExposure(float exposure)
+	{
+		s_data.exposure = exposure;
 	}
 
 	void Renderer2D::enableReflection(bool enabled) {
@@ -415,7 +411,6 @@ namespace Rocket {
 	void Renderer2D::enableRefraction(bool enabled) {
 		s_data.refractionEnabled = enabled;
 	}
-
 
 	void Renderer2D::endScene() {
 		RCKT_PROFILE_FUNCTION();
@@ -437,6 +432,7 @@ namespace Rocket {
 			}
 
 			s_data.quadShader->bind();
+
 			RenderCommand::drawIndexed(s_data.quadVA, s_data.quadIndexCount);
 			s_data.stats.drawCalls++;
 		}
@@ -582,50 +578,6 @@ namespace Rocket {
 		drawQuad3DWithSubTexture({ position.x, position.y, 0.0f }, size, color, subtexture, rotation);
 	}
 
-	uint32_t Renderer2D::applyBloom(const Ref<Framebuffer>& mainFB, const Ref<Framebuffer> pingPong[2], const Ref<Framebuffer>& postProcessing, const glm::mat4& vp) {
-		s_data.quadVA->bind();
-		bool horizontal = true, first_iteration = true;
-		unsigned int amount = 10;
-		s_data.postProcessShader->bind();
-		//s_data.postProcessShader->setMat4("u_viewProjection", vp);
-		for (unsigned int i = 0; i < amount; i++)
-		{
-			pingPong[horizontal]->bind();
-			s_data.postProcessShader->setInt("horizontal", horizontal);
-			if (first_iteration) {
-				glBindTexture(GL_TEXTURE_2D, mainFB->getColorAttachmentRendererID(2));
-				first_iteration = false;
-			}
-			else {
-				glBindTexture(GL_TEXTURE_2D, pingPong[!horizontal]->getColorAttachmentRendererID(0));
-			}
-
-			RenderCommand::drawIndexed(s_data.quadVA, s_data.quadIndexCount);
-			horizontal = !horizontal;
-		}
-		glBindFramebuffer(GL_FRAMEBUFFER, 0);
-		//glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-
-		//RenderCommand::setClearColor({ 0.15f, 0.13f, 0.15f, 1.0f });
-		//return pingPong[0]->getColorAttachmentRendererID(0);
-
-		postProcessing->bind();
-		s_data.postProcessFinalShader->bind();
-		//s_data.postProcessFinalShader->setMat4("u_viewProjection", vp);
-
-		glActiveTexture(GL_TEXTURE0);
-		glBindTexture(GL_TEXTURE_2D, mainFB->getColorAttachmentRendererID(0));
-		glActiveTexture(GL_TEXTURE1);
-		glBindTexture(GL_TEXTURE_2D, pingPong[!horizontal]->getColorAttachmentRendererID(0));
-		//s_data.postProcessFinalShader->setMat4("u_viewProjection", vp);
-		s_data.postProcessFinalShader->setInt("bloom", true); // enable disable
-		s_data.postProcessFinalShader->setFloat("exposure", 300.0f); // adduce reduce
-		RenderCommand::drawIndexed(s_data.quadVA, s_data.quadIndexCount);
-		glBindFramebuffer(GL_FRAMEBUFFER, 0);
-
-		return postProcessing->getColorAttachmentRendererID(0);
-	}
-
 	void Renderer2D::drawQuad3DWithSubTexture(const glm::vec3& position, const glm::vec2& size, const glm::vec4& color, const Ref<SubTexture2D>& subtexture, float rotation) {
 		RCKT_PROFILE_FUNCTION();
 
@@ -728,6 +680,7 @@ namespace Rocket {
 			s_data.quadVertexBufferPtr->texIndex = textureIndex;
 			s_data.quadVertexBufferPtr->tilingFactor = src.tilingFactor;
 			s_data.quadVertexBufferPtr->entityID = entityID;
+			s_data.quadVertexBufferPtr->bloom = src.bloom;
 			s_data.quadVertexBufferPtr++;
 		}
 	

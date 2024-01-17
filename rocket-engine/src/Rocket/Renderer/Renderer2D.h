@@ -37,14 +37,13 @@ namespace Rocket {
 		static void setSkybox(const std::vector<std::string>& faces);
 		static void changeSkybox();
 		static void applySkybox(const EditorCamera& camera);
+
 		static void enableHDR(bool enabled);
-		static void enablePostProcessing(bool enabled);
+		static void setExposure(float exposure);
+
 		static void enableReflection(bool enabled);
 		static void enableRefraction(bool enabled);
 
-		//Very uncofident stuff
-		static uint32_t applyBloom(const Ref<Framebuffer>& mainFB, const Ref<Framebuffer> pingPong[2], const Ref<Framebuffer>& postProcessing, const glm::mat4& vp);
-		//
 		static void endScene();
 		static void flush();
 

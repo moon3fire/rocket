@@ -1,0 +1,44 @@
+Scene: Untitled
+---
+Entities:
+  - Entity: 7528979154392269509
+    TagComponent:
+      Tag: camera
+    TransformComponent:
+      Position: [0, 0, 0]
+      Scale: [1, 1, 1]
+      Rotation: [0, 0, 0]
+    CameraComponent:
+      Camera:
+        ProjectionType: 0
+        PerspectiveFOV: 0.785398185
+        PerspectiveNear: 0.00999999978
+        PerspectiveFar: 1000
+        OrthographicSize: 10
+        OrthographicNear: -1
+        OrthographicFar: 1
+      Primary: true
+      FixedAspectRatio: false
+  - Entity: 0
+    TagComponent:
+      Tag: Point Light 1
+    TransformComponent:
+      Position: [0, 0, 2.58141112]
+      Scale: [1, 1, 1]
+      Rotation: [0, 0, 0]
+    PointLightComponent:
+      Color: [1, 1, 1]
+      Ambient: [0, 0, 0]
+      Intensity: 7.80000019
+      Radius: 20.6000004
+  - Entity: 16577625262871556360
+    TagComponent:
+      Tag: player
+    TransformComponent:
+      Position: [0.739395499, 0, 0]
+      Scale: [3, 2.5, 1]
+      Rotation: [0, 0, 0]
+    SpriteRendererComponent:
+      Color: [1, 1, 1, 1]
+      Texture: assets\textures\1-removebg-preview.png
+      TilingFactor: 1

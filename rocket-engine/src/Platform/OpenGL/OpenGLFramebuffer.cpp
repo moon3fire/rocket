@@ -22,11 +22,11 @@ namespace Rocket {
 		}
 
 		static void attachColorTexture(uint32_t id, int samples, GLenum internalFormat, GLenum format, uint32_t width, uint32_t height, int index) {
-			glEnable(GL_MULTISAMPLE);
 
 			bool multisampled = samples > 1;
 
 			if (multisampled) {
+				glBindTexture(GL_TEXTURE_2D_MULTISAMPLE, id);
 				glTexImage2DMultisample(GL_TEXTURE_2D_MULTISAMPLE, samples, internalFormat, width, height, GL_FALSE); /*TODO: think about to set this true*/
 			}
 			else {
@@ -49,9 +49,11 @@ namespace Rocket {
 			bool multisampled = samples > 1;
 
 			if (multisampled) {
+				glBindTexture(GL_TEXTURE_2D_MULTISAMPLE, id);
 				glTexImage2DMultisample(GL_TEXTURE_2D_MULTISAMPLE, samples, format, width, height, GL_FALSE);
 			}
 			else {
+				glBindTexture(GL_TEXTURE_2D, id);
 				glTexStorage2D(GL_TEXTURE_2D, 1, format, width, height);
 
 				glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
@@ -61,8 +63,9 @@ namespace Rocket {
 				glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
 			}
 
-			glFramebufferTexture2D(GL_FRAMEBUFFER, attachmentType, textureTarget(multisampled), id, 0);
+			glFramebufferTexture2D(GL_FRAMEBUFFER, attachmentType, Utils::textureTarget(multisampled), id, 0);
 		}
+
 
 		static bool isDepthFormat(FramebufferTextureFormat format) {
 			switch (format) {
@@ -121,7 +124,7 @@ namespace Rocket {
 			glDeleteFramebuffers(1, &m_rendererID);
 			glDeleteTextures((GLsizei)m_colorAttachments.size(), m_colorAttachments.data());
 			glDeleteTextures(1, &m_depthAttachment);
-
+			// TODO: Add renderbuffer
 			m_colorAttachments.clear();
 			m_depthAttachment = 0;
 		}
@@ -130,6 +133,12 @@ namespace Rocket {
 		glBindFramebuffer(GL_FRAMEBUFFER, m_rendererID);
 
 		bool multisample = m_specification.samples > 1;
+		RCKT_CORE_INFO("samples count: {}", m_specification.samples);
+
+		glGenRenderbuffers(1, &m_depthBufferRendererID);
+		glBindRenderbuffer(GL_RENDERBUFFER, m_depthBufferRendererID);
+		glRenderbufferStorageMultisample(GL_RENDERBUFFER, m_specification.samples, GL_DEPTH24_STENCIL8, m_specification.width, m_specification.height);
+		glFramebufferRenderbuffer(GL_FRAMEBUFFER, GL_DEPTH_STENCIL_ATTACHMENT, GL_RENDERBUFFER, m_depthBufferRendererID);
 
 		//Attachments
 		if (m_colorAttachmentSpecifications.size()) {

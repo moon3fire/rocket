@@ -8,6 +8,7 @@ layout(location = 3) in vec3 a_normal;
 layout(location = 4) in float a_texIndex;
 layout(location = 5) in float a_tilingFactor;
 layout(location = 6) in int a_entityID;
+layout(location = 7) in float a_isBloomed;
 
 uniform	mat4 u_viewProjection;
 
@@ -16,6 +17,7 @@ out vec2 v_texCoord;
 out float v_texIndex;
 out float v_tilingFactor;
 out flat int v_entityID;
+out float v_isBloomed;
 
 // for lighting calculations
 out vec3 v_fragPos;
@@ -27,6 +29,7 @@ void main() {
 	v_tilingFactor = a_tilingFactor;
 	v_texIndex = a_texIndex;
 	v_entityID = a_entityID;
+	v_isBloomed = a_isBloomed;
 
 	//lighting
 	v_fragPos = a_position;
@@ -40,13 +43,14 @@ void main() {
 
 layout(location = 0) out vec4 color;
 layout(location = 1) out int entityID;
-layout(location = 2) out vec4 bloomColor;
+layout(location = 2) out vec4 brightColor;
 
 in vec4 v_color;
 in vec2 v_texCoord;
 in float v_texIndex;
 in float v_tilingFactor;
 in flat int v_entityID;
+in float v_isBloomed;
 
 //lighting calculations
 in vec3 v_fragPos;
@@ -55,9 +59,6 @@ in vec3 v_normal;
 uniform vec3 u_viewPosition;
 
 uniform sampler2D u_textures[32];
-
-uniform bool u_isHDREnabled;
-uniform bool u_isPostProcessingEnabled;
 
 vec3 CalculateAllLights();
 
@@ -107,22 +108,16 @@ void main()
 
 	// color attachment 1
 	vec4 mycolor = vec4(textureColor.xyz * CalculateAllLights(), 1.0);
-	
-	if (u_isHDREnabled && !u_isPostProcessingEnabled) {
-		float exposure = 0.5f; // temp
-		vec3 toneMapped = vec3(1.0f) - exp(-mycolor.rgb * exposure);
-		mycolor.rgb = pow(toneMapped, vec3(1.0f / 2.2f));
-	}
 
 	color = mycolor;
-	
+
 	// color attachment 2
 	entityID = v_entityID;
-	
+
 	// color attachment 3
-	float brightness = dot(mycolor.rgb, vec3(0.2126, 0.7152, 0.0722));
-	if (brightness > 0.15f)
-		bloomColor = vec4(mycolor.rgb, 1.0);
+	
+	if (int(v_isBloomed) == 1)
+		brightColor = color;
 	else
-		bloomColor = vec4(0.0, 0.0, 0.0, 1.0);
+		brightColor = vec4(0.0, 0.0, 0.0, 1.0);
 }

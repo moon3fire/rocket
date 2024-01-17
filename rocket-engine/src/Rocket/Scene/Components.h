@@ -50,7 +50,8 @@ namespace Rocket {
 		glm::vec4 color = { 1.0f, 1.0f, 1.0f, 1.0f };
 		Ref<Texture2D> texture = nullptr;
 		float tilingFactor = 1.0f;
-		bool isReflected = false;
+		bool isReflected = false, isBloomed = false;
+		float bloom = 0.0f;
 
 		uint32_t getTextureID() const { 
 			if (texture == nullptr)

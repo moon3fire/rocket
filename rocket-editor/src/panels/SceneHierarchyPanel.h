@@ -17,8 +17,6 @@ namespace Rocket {
 
 		void onImGuiRender();
 		
-		void enableHDR(bool enabled) { m_isHDREnabled = enabled; m_context->enableHDR(m_isHDREnabled); }
-
 		void setSelectedEntity(Entity entity = {});
 		Entity getSelectedEntity() const { return m_selectionContext; }
 	private:
