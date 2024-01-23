@@ -33,12 +33,6 @@ jobs:
     - name: Add MSBuild to PATH
       uses: microsoft/setup-msbuild@v1.0.2
 
-    - name: Premake
-      run: |
-        cd scripts
-        ./Win-GenProjects.bat
-        cd ..
-
     - name: Build
       working-directory: ${{env.GITHUB_WORKSPACE}}
       run: |
