@@ -4,8 +4,8 @@ Rocket is an early stage game engine. It's being developed slowly but confidentl
 
 ## Description
 
-Rocket's architecture allows to support multiple rendering API's at once(only OpenGL for now)
-Currently supported platforom is x64 Windows.
+Rocket's architecture allows to support multiple rendering API's at once(only OpenGL for now).
+Currently supported platform is x64 Windows.
 
 ## Features
 
@@ -24,7 +24,7 @@ Rocket currently support these features:
 # Windows: Installation steps
 git clone https://github.com/moon3fire/rocket.git --recursive
 cd scripts
-run Win-GenProjects.bat
+./Win-GenProjects.bat
 ```
 
 # Usage
