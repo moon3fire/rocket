@@ -12,12 +12,7 @@ jobs:
     steps:
     - name: Checkout Repository
       uses: actions/checkout@v2
-
-    - name: Install Premake
-      run: |
-        Invoke-WebRequest -Uri https://github.com/premake/premake-core/releases/download/v5.0.0-alpha15/premake-5.0.0-alpha15-windows.zip -OutFile premake.zip
-        Expand-Archive -Path premake.zip -DestinationPath vendors/premake/bin/
-
+      
     - name: Run Premake Script
       run: |
         cd scripts
