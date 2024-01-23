@@ -35,7 +35,7 @@ This project is licensed under the Apache License 2.0 - see the LICENSE file for
 
 # Acknowledgements
 This project is based on the architecture shown in game engine series of github.com/TheCherno
-I am very grateful to him for the tutorial, starting at some point I'm doing things here by myself, to make this project useful for newcomers both in game development and game engine development.
+I am very grateful to him for the tutorial, starting at some point I'm doing things here by myself, to make this project useful for newcomers both in game development and game engine development spheres.
 
 # Contact
 See my README
