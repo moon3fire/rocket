@@ -105,12 +105,12 @@ namespace Rocket {
 		
 		m_framebuffer->unbind();
 
-		m_bloomRenderer.renderBloomTexture(m_framebuffer->getColorAttachmentRendererID(2), 0.005f);
+		m_bloomRenderer.renderBloomTexture(m_framebuffer->getColorAttachmentRendererID(2), m_bloomRadius);
 
 		uint32_t originalTexture = m_framebuffer->getColorAttachmentRendererID(0);
 		uint32_t blurredTexture = m_bloomRenderer.getBloomTexture();
 
-		uint32_t bloomTexture = m_bloomRenderer.combineTextures(originalTexture, blurredTexture);
+		uint32_t bloomTexture = m_bloomRenderer.combineTextures(originalTexture, blurredTexture, m_exposure);
 			
 		m_finalTexture = bloomTexture;
 	}
@@ -235,14 +235,14 @@ namespace Rocket {
 					}
 				}
 			}
+			
+			if (ImGui::DragFloat("Exposure", &m_exposure, 0.1f, 0.0f, 10.0f))
+				m_activeScene->setExposure(m_exposure);
+
+			ImGui::DragFloat("Bloom emmisive strenght", &m_bloomRadius, 0.0005f, 0.0f, 1.0f);
 
 			if (ImGui::Checkbox("Enable HDR", &m_HDREnabled))
 				m_activeScene->enableHDR(m_HDREnabled);
-
-			if (m_HDREnabled) {
-				if (ImGui::DragFloat("Exposure", &m_exposure, 0.1f, 0.0f, 10.0f))
-					m_activeScene->setExposure(m_exposure);
-			}
 
 			if (ImGui::Checkbox("Show Colliders", &m_showColliders))
 				m_activeScene->enableColliders(m_showColliders);

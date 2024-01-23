@@ -195,14 +195,14 @@ namespace Rocket {
 		s_data.quadVertexBuffer = VertexBuffer::create(s_data.maxQuadVertices * sizeof(QuadVertex));
 		s_data.quadVertexBuffer->setLayout(
 			{
-				{ ShaderDataType::Float3, "a_position"      },
-				{ ShaderDataType::Float2, "a_texCoord"	    },
-				{ ShaderDataType::Float4, "a_color"         },
-				{ ShaderDataType::Float3, "a_normal"        },
-				{ ShaderDataType::Float,  "a_texIndex"      },
-				{ ShaderDataType::Float,  "a_tilingFactor"  },
-				{ ShaderDataType::Int,    "a_entityID"      }, // color attachment 2
-				{ ShaderDataType::Float,  "a_isBloomed"		}  // color attachment 3
+				{ ShaderDataType::Float3,  "a_position"			 },
+				{ ShaderDataType::Float2,  "a_texCoord"			 },
+				{ ShaderDataType::Float4,  "a_color"			 },
+				{ ShaderDataType::Float3,  "a_normal"			 },
+				{ ShaderDataType::Float,   "a_texIndex"			 },
+				{ ShaderDataType::Float,   "a_tilingFactor"		 },
+				{ ShaderDataType::Int,     "a_entityID"			 }, // color attachment 2
+				{ ShaderDataType::Float,   "a_bloomActive"		 }  // color attachment 3
 			});
 		s_data.quadVA->addVertexBuffer(s_data.quadVertexBuffer);
 	}

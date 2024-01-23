@@ -62,7 +62,7 @@ namespace Rocket {
 		void renderBloomTexture(uint32_t srcTexture, float filterRadius);
 		uint32_t getBloomTexture() const { return m_bloomFramebuffer.getMipChain()[0].texture; }
 
-		uint32_t combineTextures(uint32_t srcTexture, uint32_t bloomTexture);
+		uint32_t combineTextures(uint32_t srcTexture, uint32_t bloomTexture, float exposure = 1.0f);
 
 		void onResize(uint32_t width, uint32_t height);
 

@@ -8,7 +8,7 @@ layout(location = 3) in vec3 a_normal;
 layout(location = 4) in float a_texIndex;
 layout(location = 5) in float a_tilingFactor;
 layout(location = 6) in int a_entityID;
-layout(location = 7) in float a_isBloomed;
+layout(location = 7) in float a_bloomActive;
 
 uniform	mat4 u_viewProjection;
 
@@ -17,7 +17,7 @@ out vec2 v_texCoord;
 out float v_texIndex;
 out float v_tilingFactor;
 out flat int v_entityID;
-out float v_isBloomed;
+out float v_bloomActive;
 
 // for lighting calculations
 out vec3 v_fragPos;
@@ -29,7 +29,7 @@ void main() {
 	v_tilingFactor = a_tilingFactor;
 	v_texIndex = a_texIndex;
 	v_entityID = a_entityID;
-	v_isBloomed = a_isBloomed;
+	v_bloomActive = a_bloomActive;
 
 	//lighting
 	v_fragPos = a_position;
@@ -50,7 +50,7 @@ in vec2 v_texCoord;
 in float v_texIndex;
 in float v_tilingFactor;
 in flat int v_entityID;
-in float v_isBloomed;
+in float v_bloomActive;
 
 //lighting calculations
 in vec3 v_fragPos;
@@ -116,7 +116,7 @@ void main()
 
 	// color attachment 3
 	
-	if (int(v_isBloomed) == 1)
+	if (int(v_bloomActive) == 1)
 		brightColor = color;
 	else
 		brightColor = vec4(0.0, 0.0, 0.0, 1.0);

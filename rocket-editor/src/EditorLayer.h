@@ -68,6 +68,7 @@ namespace Rocket {
 
 		bool m_HDREnabled = false;
 		float m_exposure = 1.0f;
+		float m_bloomRadius = 0.005f;
 
 		Entity m_hoveredEntity; // this is related to gizmos functionality so I put it here
 		int m_gizmosType = -1; // TODO: make enum from this

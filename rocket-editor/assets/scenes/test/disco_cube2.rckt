@@ -1,0 +1,105 @@
+Scene: Untitled
+---
+Entities:
+  - Entity: 17439852489327392060
+    TagComponent:
+      Tag: Point Light 3
+    TransformComponent:
+      Position: [0, 0, -2.94959688]
+      Scale: [1, 1, 1]
+      Rotation: [0, 0, 0]
+    PointLightComponent:
+      Color: [1, 1, 1]
+      Ambient: [0, 0, 0]
+      Intensity: 1
+      Radius: 3.5
+  - Entity: 11809296272155706039
+    TagComponent:
+      Tag: Point Light 2
+    TransformComponent:
+      Position: [-0.752906859, -0.469472587, -0.754053473]
+      Scale: [1, 1, 1]
+      Rotation: [0, 0, 0]
+    PointLightComponent:
+      Color: [1, 1, 1]
+      Ambient: [0, 0, 0]
+      Intensity: 1
+      Radius: 3.9000001
+  - Entity: 0
+    TagComponent:
+      Tag: Point Light 1
+    TransformComponent:
+      Position: [0, 0, 2]
+      Scale: [1, 1, 1]
+      Rotation: [0, 0, 0]
+    PointLightComponent:
+      Color: [1, 1, 1]
+      Ambient: [0, 0, 0]
+      Intensity: 1
+      Radius: 2.5
+  - Entity: 9041266209509044678
+    TagComponent:
+      Tag: Empty
+    TransformComponent:
+      Position: [0.00313091325, -0.497047424, -0.498126268]
+      Scale: [1, 0.999997854, 0.999997854]
+      Rotation: [1.57079637, 0, 0]
+    SpriteRendererComponent:
+      Color: [0.99227798, 0.160909966, 0.642397344, 1]
+      Texture: ""
+      TilingFactor: 1
+  - Entity: 15436009066491229067
+    TagComponent:
+      Tag: Empty
+    TransformComponent:
+      Position: [0.5, -1.49011612e-08, -0.5]
+      Scale: [0.999999106, 1, 0.999999106]
+      Rotation: [0, 1.57079637, 0]
+    SpriteRendererComponent:
+      Color: [0.528957486, 0.506610394, 0.0837345943, 1]
+      Texture: ""
+      TilingFactor: 1
+  - Entity: 8897261792999187062
+    TagComponent:
+      Tag: Empty
+    TransformComponent:
+      Position: [-0.498699665, -3.10689211e-06, -0.505132437]
+      Scale: [0.999985039, 1, 0.999985039]
+      Rotation: [0, -1.57079637, 0]
+    SpriteRendererComponent:
+      Color: [0.36758548, 1, 0.0849421024, 1]
+      Texture: ""
+      TilingFactor: 1
+  - Entity: 10649917969026045913
+    TagComponent:
+      Tag: Empty
+    TransformComponent:
+      Position: [-4.65661287e-10, 0.5, -0.5]
+      Scale: [0.999989569, 0.999999344, 0.999989033]
+      Rotation: [1.57079637, 0, 0]
+    SpriteRendererComponent:
+      Color: [0.660735428, 0.586037815, 0.972972989, 1]
+      Texture: ""
+      TilingFactor: 1
+  - Entity: 9241396254467129972
+    TagComponent:
+      Tag: Empty
+    TransformComponent:
+      Position: [0, 0, -1]
+      Scale: [1, 1, 1]
+      Rotation: [0, 0, 0]
+    SpriteRendererComponent:
+      Color: [0.957528949, 0.133092806, 0.133092806, 1]
+      Texture: ""
+      TilingFactor: 1
+  - Entity: 4236957197952273452
+    TagComponent:
+      Tag: Empty
+    TransformComponent:
+      Position: [0, -7.4505806e-09, 1.51475346]
+      Scale: [1, 1, 1]
+      Rotation: [0, 0, 0]
+    SpriteRendererComponent:
+      Color: [0.386219442, 0.239382267, 1, 1]
+      Texture: ""
+      TilingFactor: 1

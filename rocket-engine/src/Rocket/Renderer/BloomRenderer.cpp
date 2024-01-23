@@ -138,7 +138,7 @@ namespace Rocket {
 		glViewport(0, 0, m_srcViewportSize.x, m_srcViewportSize.y);
 	}
 
-	uint32_t BloomRenderer::combineTextures(uint32_t srcTexture, uint32_t bloomTexture)
+	uint32_t BloomRenderer::combineTextures(uint32_t srcTexture, uint32_t bloomTexture, float exposure)
 	{
 		m_combineFramebuffer.bind();
 		//RenderCommand::setClearColor({ 0.0f, 0.0f, 0.0f, 0.0f });
@@ -147,6 +147,8 @@ namespace Rocket {
 		m_combineShader->bind();
 		m_combineShader->setInt("originalTexture", 0);
 		m_combineShader->setInt("blurredTexture", 1);
+
+		m_combineShader->setFloat("u_exposure", exposure);
 
 		glActiveTexture(GL_TEXTURE0);
 		glBindTexture(GL_TEXTURE_2D, srcTexture);
