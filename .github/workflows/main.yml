@@ -13,31 +13,17 @@ jobs:
     - name: Checkout Repository
       uses: actions/checkout@v2
 
-    - name: Install Premake
-      run: |
-        Invoke-WebRequest -Uri https://github.com/premake/premake-core/releases/download/v5.0.0-alpha15/premake-5.0.0-alpha15-windows.zip -OutFile premake.zip
-        Expand-Archive -Path premake.zip -DestinationPath vendors/premake/bin/
-
     - name: Run Premake Script
       run: |
         cd scripts
         .\Win-GenProjects.bat
         cd ..
 
-    - name: Build Rocket Engine
+    - name: Build Projects
       run: |
-        cd rocket-engine
-        & "${env:ProgramFiles(x86)}\Microsoft Visual Studio\2022\Community\MSBuild\17.0\Bin\amd64\MSBuild.exe" /p:Configuration=Release /p:Platform=x64 /p:PlatformToolset=v143 rocket-engine.vcxproj
-        cd ..
-
-    - name: Build Rocket Editor
-      run: |
-        cd rocket-editor
-        & "${env:ProgramFiles(x86)}\Microsoft Visual Studio\2022\Community\MSBuild\17.0\Bin\amd64\MSBuild.exe" /p:Configuration=Release /p:Platform=x64 /p:PlatformToolset=v143 rocket-editor.vcxproj
-        cd ..
-
-    - name: Build Sandbox
-      run: |
-        cd Sandbox
-        & "${env:ProgramFiles(x86)}\Microsoft Visual Studio\2022\Community\MSBuild\17.0\Bin\amd64\MSBuild.exe" /p:Configuration=Release /p:Platform=x64 /p:PlatformToolset=v143 Sandbox.vcxproj
-        cd ..
+        $projects = "rocket-engine", "rocket-editor"
+        foreach ($project in $projects) {
+          cd $project
+          & "${env:ProgramFiles(x86)}\Microsoft Visual Studio\2022\Community\MSBuild\17.0\Bin\amd64\MSBuild.exe" /p:Configuration=Release /p:Platform=x64 /p:PlatformToolset=v143 "$project.vcxproj"
+          cd ..
+        }
